@@ -187,8 +187,17 @@ function paintCardPayment(n) {
      ${payHintsHtml()}`;
 }
 
-/** ②署名待ち。署名は別ツールなので、LINEに届いた案内から戻ってきてもらう */
+/**
+ * ②署名待ち。契約書は別ツール（GMOサイン）だが、入口はこのアプリに集約する。
+ * URLが未設定のうちは「準備中」を出して、お客様が待てる状態にしておく。
+ */
 function paintSign() {
+  const el = document.getElementById('sign-action');
+  if (el) {
+    el.innerHTML = STATE.contract_url
+      ? `<a class="btn btn--primary" href="${esc(STATE.contract_url)}" target="_blank" rel="noopener">契約書を開いて署名する</a>`
+      : '<p class="alert">契約書のご用意が整い次第、この画面にボタンが表示されます。準備ができましたらLINEでもお知らせしますので、少しお待ちください。</p>';
+  }
   const btn = document.querySelector('[data-act="declare-signed"]');
   if (btn) btn.hidden = !STATE.allow_self_sign;
 }
@@ -374,6 +383,7 @@ function mockApi(action, body) {
     plan: Object.assign({ key: s.plan, pay_full: '#mock-pay', pay_1: '#mock-pay1', pay_2: '#mock-pay2' }, plan),
     payment_method: s.method || '',
     bank: { bank: '〇〇銀行', branch: '△△支店', type: '普通', number: '1234567', holder: 'カ）リンオンジュク', note: '恐れ入りますが、振込手数料はご負担ください。' },
+    contract_url: new URLSearchParams(location.search).get('nocontract') === '1' ? '' : 'https://example.com/mock-contract',
     bank_due: s.method === '銀行振込' ? '2026/08/23 23:59' : null,
     bank_days: 5,
     require_profile: withProfile,
