@@ -7,6 +7,7 @@ let POLL_TIMER = null;
 document.addEventListener('DOMContentLoaded', boot);
 
 async function boot() {
+  initFontSize();
   fillStaticLinks();
 
   const uid = getUid();
@@ -362,8 +363,8 @@ function mockApi(action, body) {
   if (action === 'report_bank')    { s.bank_report = true; save(s); }
 
   const plans = {
-    'VIP':        { label: 'VIPコース', total: 880000, note: 'みほさんのセッション5回／まみさんの算命学鑑定1回／卒業式のランチ会／講義資料の使用権', split: [440000, 440000] },
-    'スタンダード': { label: 'スタンダードコース', total: 680000, note: 'みほさんのセッション3回', split: [300000, 380000] }
+    'VIP':        { label: 'VIPコース', total: 880000, note: 'みこのセッション5回／まみさんの算命学鑑定1回／卒業式でみこと交流できるランチ会／講義資料の使用権', split: [440000, 440000] },
+    'スタンダード': { label: 'スタンダードコース', total: 680000, note: 'みこのセッション3回', split: [300000, 380000] }
   };
   const plan = plans[s.plan] || plans['VIP'];
 

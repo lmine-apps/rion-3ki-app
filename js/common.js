@@ -101,12 +101,48 @@ function renderSteps(current, allDone, withProfile) {
   const html = labels.map((label, i) => {
     const n = i + 1;
     let cls = 'step';
-    if (allDone || n < current) cls += ' is-done';
-    else if (n === current) cls += ' is-current';
+    let badge = '';
+    if (allDone || n < current) {
+      cls += ' is-done';
+    } else if (n === current) {
+      cls += ' is-current';
+      badge = '<span class="step__badge step__badge--now">今ココ</span>';
+    } else if (n === current + 1 && !allDone) {
+      badge = '<span class="step__badge step__badge--next">次コレ</span>';
+    }
+    if (!badge) badge = '<span class="step__badge"></span>';
     const mark = (allDone || n < current) ? '✓' : n;
-    return `<li class="${cls}"><span class="step__dot">${mark}</span><span class="step__label">${esc(label)}</span></li>`;
+    return `<li class="${cls}">${badge}<span class="step__dot">${mark}</span><span class="step__label">${esc(label)}</span></li>`;
   }).join('');
   document.querySelectorAll('[data-steps]').forEach(el => { el.innerHTML = html; });
+}
+
+/* ===== 文字サイズ（中／大） =====
+ * 30〜60代の方が読みやすいように。選んだ設定は次に開いたときも残る。
+ */
+const FS_KEY = 'rion3ki_fs';
+
+function initFontSize() {
+  let saved = 'normal';
+  try { saved = localStorage.getItem(FS_KEY) || 'normal'; } catch (_) {}
+  applyFontSize(saved);
+
+  document.querySelectorAll('.fontsize button[data-fs]').forEach(btn => {
+    btn.addEventListener('click', () => applyFontSize(btn.dataset.fs));
+  });
+}
+
+function applyFontSize(mode) {
+  const large = (mode === 'large');
+  if (large) document.documentElement.setAttribute('data-fs', 'large');
+  else document.documentElement.removeAttribute('data-fs');
+  try { localStorage.setItem(FS_KEY, large ? 'large' : 'normal'); } catch (_) {}
+
+  document.querySelectorAll('.fontsize button[data-fs]').forEach(btn => {
+    const on = (btn.dataset.fs === (large ? 'large' : 'normal'));
+    btn.classList.toggle('is-on', on);
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  });
 }
 
 /** 金額を「880,000円」形式に */
