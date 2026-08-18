@@ -44,6 +44,12 @@ body {
   font-size: 14px;
   -webkit-text-size-adjust: 100%;
   -webkit-font-smoothing: antialiased;
+
+  /* 内容が短い画面でもフッターを最下部まで届かせる（下に白い帯を出さない） */
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
 }
 a { color: #1c6ea6; text-underline-offset: 3px; }
 button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
@@ -90,12 +96,14 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 
 /* ---------------------------------------------------------------- レイアウト */
 .wrap {
+  width: 100%;
   max-width: 620px;
   margin: 0 auto;
-  padding: 22px 16px 64px;
+  padding: 22px 16px 48px;
   display: flex;
   flex-direction: column;
   gap: 18px;
+  flex: 1 0 auto;          /* 余った高さをここが吸収する */
 }
 
 .card {
@@ -502,6 +510,7 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 /* ---------------------------------------------------------------- フッター */
 .foot {
   position: relative;
+  flex: none;
   background:
     radial-gradient(circle at 50% 140%, rgba(132, 206, 241, .18), transparent 56%),
     linear-gradient(145deg, var(--navy-950), var(--navy-900));
