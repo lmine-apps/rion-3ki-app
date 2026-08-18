@@ -188,7 +188,7 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 7px;
+  gap: calc(7px * var(--fs-scale));   /* つなぎ線の位置計算に効くので、ここも一緒に伸ばす */
   position: relative;
   font-size: calc(10.5px * var(--fs-scale));
   letter-spacing: .04em;
@@ -198,7 +198,8 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 .step::before {
   content: "";
   position: absolute;
-  top: 13px;
+  /* バッジ(22px)＋隙間(7px)＋ドットの半径(13.5px)＝42.5px の位置がドットの中心 */
+  top: calc(42.5px * var(--fs-scale));
   left: -50%;
   width: 100%;
   height: 1px;
@@ -211,7 +212,7 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 .step__badge {
   position: relative;
   z-index: 1;
-  min-height: calc(19px * var(--fs-scale));
+  height: calc(22px * var(--fs-scale));
   display: grid;
   place-items: center;
   font-size: calc(10.5px * var(--fs-scale));
@@ -225,7 +226,7 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
   background: var(--navy-800);
   color: #fff;
   border-radius: 999px;
-  padding: calc(3px * var(--fs-scale)) calc(9px * var(--fs-scale));
+  padding: 0 calc(10px * var(--fs-scale));
   box-shadow: 0 3px 10px rgba(7, 23, 44, .22);
 }
 .step__badge--now::after {
@@ -242,14 +243,14 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
   color: var(--navy-700);
   border: 1px solid var(--sky-400);
   border-radius: 999px;
-  padding: calc(2px * var(--fs-scale)) calc(8px * var(--fs-scale));
+  padding: 0 calc(9px * var(--fs-scale));
   background: #fff;
 }
 .step__dot {
   position: relative;
   z-index: 1;
-  width: 27px;
-  height: 27px;
+  width: calc(27px * var(--fs-scale));
+  height: calc(27px * var(--fs-scale));
   border-radius: 50%;
   display: grid;
   place-items: center;
@@ -377,8 +378,8 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
   position: absolute;
   left: 0;
   top: 9px;
-  width: 21px;
-  height: 21px;
+  width: calc(21px * var(--fs-scale));
+  height: calc(21px * var(--fs-scale));
   border-radius: 50%;
   display: grid;
   place-items: center;
@@ -401,7 +402,13 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
   font-size: calc(13.5px * var(--fs-scale));
   cursor: pointer;
 }
-.check input { margin-top: 4px; width: 18px; height: 18px; accent-color: var(--navy-700); flex: none; }
+.check input {
+  margin-top: calc(4px * var(--fs-scale));
+  width: calc(18px * var(--fs-scale));
+  height: calc(18px * var(--fs-scale));
+  accent-color: var(--navy-700);
+  flex: none;
+}
 
 .form { display: flex; flex-direction: column; gap: 13px; }
 .field { display: flex; flex-direction: column; gap: 5px; }
