@@ -233,18 +233,20 @@ document.addEventListener('click', async (ev) => {
   if (act === 'reload')       return boot();
 });
 
-// 同意チェックが入るまで先へ進めない
+// 2つのチェック（規約への同意／書面の電子交付への承諾）が両方入るまで先へ進めない
 document.addEventListener('change', (ev) => {
-  if (ev.target.id === 'terms-check') {
-    const btn = document.querySelector('[data-act="agree-terms"]');
-    if (btn) btn.disabled = !ev.target.checked;
-  }
+  if (ev.target.id !== 'terms-check' && ev.target.id !== 'edoc-check') return;
+  const terms = document.getElementById('terms-check');
+  const edoc = document.getElementById('edoc-check');
+  const btn = document.querySelector('[data-act="agree-terms"]');
+  if (btn) btn.disabled = !(terms && terms.checked && edoc && edoc.checked);
 });
 
 async function agreeTerms(btn) {
   try {
     busy(btn, true);
-    render(await api('agree_terms', { uid: getUid() }));
+    // edoc＝書面を電子データで受け取ることへの承諾。GAS側もこれが無いと先へ進めない
+    render(await api('agree_terms', { uid: getUid(), edoc: true }));
   } catch (err) { showError(String(err.message || err)); }
   finally { busy(btn, false); }
 }
@@ -319,6 +321,7 @@ function errorMessage(code) {
     not_found: 'お申し込み情報が見つかりませんでした。担当者へお知らせください。',
     already_started: 'お支払い手続きが始まっているため、お支払い方法は変更できません。担当者へご相談ください。',
     bad_method: 'お支払い方法を選び直してください。',
+    edoc_required: '書面を電子データで受け取ることへの承諾が必要です。チェックを入れてからお進みください。',
     not_bank: '銀行振込を選んだ方のみのお手続きです。',
     confirm_required: '署名の確認は運営が行います。少しお待ちください。',
     unauthorized: 'この画面を開く権限がありません。LINEのボタンから開き直してください。'
@@ -341,7 +344,7 @@ function mockApi(action, body) {
     s.plan = new URLSearchParams(location.search).get('plan') || 'VIP';
     save(s);
   }
-  if (action === 'agree_terms')    { s.terms = true; save(s); }
+  if (action === 'agree_terms')    { if (!body || !body.edoc) return Promise.resolve({ ok: false, error: 'edoc_required' }); s.terms = true; save(s); }
   if (action === 'submit_profile') { s.profile = true; save(s); }
   if (action === 'declare_signed') { s.signed = true; save(s); }
   if (action === 'choose_payment') { s.method = body.method; save(s); }
