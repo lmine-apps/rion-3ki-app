@@ -15,17 +15,40 @@ function isMock() {
   return new URLSearchParams(location.search).get('mock') === '1';
 }
 
-/** GAS呼び出し（POST・text/plain でプリフライトを避ける） */
+/**
+ * GAS呼び出し（POST・text/plain でプリフライトを避ける）
+ *
+ * GASは久しぶりのアクセスだと立ち上がりに数秒かかり、その間に 404 や 5xx を返すことがある。
+ * お客様に「うまく表示できませんでした」を見せる前に、こちらで数回やり直す。
+ */
 async function api(action, body) {
   if (isMock()) return mockApi(action, body);
   const payload = Object.assign({ action, token: CONFIG.TOKEN }, body || {});
-  const res = await fetch(CONFIG.GAS_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify(payload)
-  });
-  if (!res.ok) throw new Error('通信に失敗しました（' + res.status + '）');
-  return res.json();
+
+  let lastError = null;
+  for (let attempt = 0; attempt <= CONFIG.RETRY_COUNT; attempt++) {
+    if (attempt > 0) await sleep(CONFIG.RETRY_WAIT * attempt);   // 1回目1.2秒 → 2回目2.4秒
+    try {
+      const res = await fetch(CONFIG.GAS_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) return res.json();
+      // 立ち上がり中に出やすいものだけやり直す。それ以外は即座に返す
+      if (![404, 429, 500, 502, 503, 504].includes(res.status)) {
+        throw new Error('通信に失敗しました（' + res.status + '）');
+      }
+      lastError = new Error('通信に失敗しました（' + res.status + '）');
+    } catch (err) {
+      lastError = err;                                            // 圏外・切断もここに来る
+    }
+  }
+  throw lastError || new Error('通信に失敗しました');
+}
+
+function sleep(ms) {
+  return new Promise(r => setTimeout(r, ms));
 }
 
 /** 画面切替（.screen のうち1つだけ表示） */
@@ -38,9 +61,24 @@ function showScreen(id) {
   window.scrollTo(0, 0);
 }
 
+/**
+ * 読み込み中の表示。
+ * GASの立ち上がりで10秒近くかかることがあるので、黙って待たせずに一言添える。
+ */
+let LOADING_TIMERS = [];
 function showLoading(on) {
   const el = document.getElementById('loading');
-  if (el) el.hidden = !on;
+  if (!el) return;
+  el.hidden = !on;
+
+  LOADING_TIMERS.forEach(clearTimeout);
+  LOADING_TIMERS = [];
+  const msg = el.querySelector('[data-loading-msg]');
+  if (!on || !msg) return;
+
+  msg.textContent = '読み込んでいます…';
+  LOADING_TIMERS.push(setTimeout(() => { msg.textContent = 'もう少しお待ちください…'; }, 3500));
+  LOADING_TIMERS.push(setTimeout(() => { msg.textContent = '接続しています。初回は時間がかかることがあります'; }, 8000));
 }
 
 /** エラー表示（原因が分かるものは本文に出す） */

@@ -18,6 +18,8 @@ async function boot() {
     render(res);
   } catch (err) {
     showError(String(err.message || err));
+  } finally {
+    showLoading(false);
   }
 }
 

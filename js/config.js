@@ -31,5 +31,9 @@ const CONFIG = {
   ENTRANCE: '2026年10月1日（木）入学式',
 
   // 状態の自動再取得（ミリ秒）。決済や着金の反映を待つ画面で使う
-  POLL_INTERVAL: 20000
+  POLL_INTERVAL: 20000,
+
+  // 通信のやり直し（GASの立ち上がりで404や5xxが返ることがあるため）
+  RETRY_COUNT: 2,
+  RETRY_WAIT: 1200
 };
