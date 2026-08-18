@@ -1,0 +1,6 @@
+# 公開するのは index.html / css / js だけ。
+# 以下には管理トークン・スプレッドシートID・GAS全文が含まれるので、公開リポジトリへ入れない。
+gas/
+gas-page/
+test/
+README.md

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>お申し込みの流れ｜凛穏塾 3期生</title>
+<link rel="stylesheet" href="css/style.css?v=3">
+</head>
+<body>
+
+<header class="head">
+  <div class="head__inner">
+    <p class="kicker">RINON JUKU / 3rd</p>
+    <h1 class="head__title" id="course-name">凛穏塾 3期生</h1>
+    <p class="head__sub">お申し込みの流れ</p>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <div id="loading" class="loading" hidden>
+    <div class="loading__mark"></div>
+    <p>読み込んでいます…</p>
+  </div>
+
+  <!-- ============ uidなし ============ -->
+  <section id="screen-nouid" class="screen card">
+    <h2 class="card__title">LINEから開いてください</h2>
+    <p>このページは、LINEにお送りしたボタンから開いていただく必要があります。</p>
+    <p class="note">お手数ですが、凛穏塾の公式LINEに届いているメッセージの<b>「お申し込みへ進む」</b>ボタンから開き直してください。</p>
+  </section>
+
+  <!-- ============ 未登録 ============ -->
+  <section id="screen-unregistered" class="screen card">
+    <h2 class="card__title">お申し込みの準備中です</h2>
+    <p>ただいま担当者がご案内の準備をしています。<br>準備が整いましたらLINEでお知らせしますので、少しお待ちください。</p>
+    <p class="note">お急ぎの場合は、公式LINEにメッセージをお送りください。</p>
+  </section>
+
+  <!-- ============ プラン未設定 ============ -->
+  <section id="screen-pending" class="screen card">
+    <h2 class="card__title">ご案内の準備中です</h2>
+    <p>ご面談ありがとうございました。<br>ただいま担当者がお手続きのご用意をしています。</p>
+    <p class="note">準備ができ次第、この画面が自動で切り替わります。閉じてしまっても、LINEのボタンからいつでも戻れます。</p>
+    <button type="button" class="btn btn--ghost" data-act="reload">最新の状態にする</button>
+  </section>
+
+  <!-- ============ ①利用規約 ============ -->
+  <section id="screen-terms" class="screen">
+    <ol class="steps" data-steps></ol>
+    <div class="card">
+      <h2 class="card__title">ご受講内容のご確認</h2>
+      <div class="plan" id="terms-plan"></div>
+
+      <h3 class="sub-title">同意事項</h3>
+      <ul class="links">
+        <li><a data-link="terms" target="_blank" rel="noopener">受講規約を読む</a></li>
+        <li><a data-link="tokusho" target="_blank" rel="noopener">特定商取引法に基づく表記</a></li>
+        <li><a data-link="privacy" target="_blank" rel="noopener">プライバシーポリシー</a></li>
+      </ul>
+
+      <label class="check">
+        <input type="checkbox" id="terms-check">
+        <span>上記の内容をすべて確認し、同意します</span>
+      </label>
+
+      <button type="button" class="btn btn--primary" data-act="agree-terms" disabled>同意して次へ進む</button>
+    </div>
+  </section>
+
+  <!-- ============ ②お客様情報 ============ -->
+  <section id="screen-profile" class="screen">
+    <ol class="steps" data-steps></ol>
+    <div class="card">
+      <h2 class="card__title">お客様情報のご入力</h2>
+      <p>契約書の作成に必要な情報です。<br>ご送信いただくと、契約書のURLをLINEでお送りします。</p>
+
+      <form id="profile-form" class="form" novalidate>
+        <label class="field">
+          <span class="field__label">お名前 <em>必須</em></span>
+          <input name="name" type="text" required autocomplete="name" placeholder="凛穏 花子">
+        </label>
+        <label class="field">
+          <span class="field__label">フリガナ <em>必須</em></span>
+          <input name="kana" type="text" required placeholder="リンオン ハナコ">
+        </label>
+        <label class="field">
+          <span class="field__label">生年月日 <em>必須</em></span>
+          <input name="birthday" type="date" required>
+        </label>
+        <label class="field">
+          <span class="field__label">電話番号 <em>必須</em></span>
+          <input name="tel" type="tel" required autocomplete="tel" placeholder="09012345678">
+        </label>
+        <label class="field">
+          <span class="field__label">メールアドレス <em>必須</em></span>
+          <input name="email" type="email" required autocomplete="email" placeholder="example@mail.com">
+          <span class="field__hint">契約書の署名URLがこちらにも届きます。</span>
+        </label>
+        <label class="field">
+          <span class="field__label">郵便番号 <em>必須</em></span>
+          <input name="zip" type="text" required autocomplete="postal-code" inputmode="numeric" placeholder="1234567">
+        </label>
+        <label class="field">
+          <span class="field__label">ご住所 <em>必須</em></span>
+          <input name="address" type="text" required autocomplete="street-address" placeholder="東京都〇〇区〇〇1-2-3 〇〇マンション101">
+        </label>
+        <label class="field">
+          <span class="field__label">ご連絡事項</span>
+          <textarea name="note" rows="3" placeholder="あればご記入ください"></textarea>
+        </label>
+      </form>
+
+      <p class="alert" id="profile-error" hidden></p>
+      <button type="button" class="btn btn--primary" data-act="submit-profile">この内容で送信する</button>
+    </div>
+  </section>
+
+  <!-- ============ ③契約書署名 ============ -->
+  <section id="screen-sign" class="screen">
+    <ol class="steps" data-steps></ol>
+    <div class="card">
+      <h2 class="card__title">契約書へのご署名</h2>
+      <p>ご同意ありがとうございました。<br><b>契約書のURLをLINEにお送りしました。</b></p>
+      <ol class="howto">
+        <li>LINEに届いたURLから契約書を開きます</li>
+        <li>内容をご確認のうえ、電子署名をします</li>
+        <li>署名が終わると、LINEに<b>次のご案内</b>が届きます</li>
+        <li>その案内のボタンから戻ってくると、お支払いに進めます</li>
+      </ol>
+      <p class="note">ご署名をもって正式なご契約の成立となります（お支払いの完了ではありません）。<br>
+        この画面は閉じていただいて構いません。</p>
+      <button type="button" class="btn btn--primary" data-act="declare-signed" hidden>署名が完了しました</button>
+      <button type="button" class="btn btn--ghost" data-act="reload">最新の状態にする</button>
+    </div>
+  </section>
+
+  <!-- ============ ④支払方法の選択 ============ -->
+  <section id="screen-payselect" class="screen">
+    <ol class="steps" data-steps></ol>
+    <div class="card">
+      <h2 class="card__title">お支払い方法をお選びください</h2>
+      <div class="plan" id="pay-plan"></div>
+      <div class="payopts" id="pay-options"></div>
+      <p class="alert" id="pay-nolink" hidden>カード決済のご用意が整うまで、銀行振込をご利用ください。</p>
+    </div>
+  </section>
+
+  <!-- ============ ④カード決済 ============ -->
+  <section id="screen-card" class="screen">
+    <ol class="steps" data-steps></ol>
+    <div class="card" id="card-body"></div>
+  </section>
+
+  <!-- ============ ④銀行振込 ============ -->
+  <section id="screen-bank" class="screen">
+    <ol class="steps" data-steps></ol>
+    <div class="card">
+      <h2 class="card__title">お振り込みのご案内</h2>
+      <div id="bank-body"></div>
+      <p class="note">お振り込みが済みましたら、下のボタンでお知らせください。着金を確認しましたらLINEでご連絡します。<br>
+        この案内はLINEにもお送りしています。</p>
+      <button type="button" class="btn btn--primary" data-act="report-bank">振り込みました</button>
+    </div>
+  </section>
+
+  <!-- ============ ④着金待ち ============ -->
+  <section id="screen-bankwait" class="screen">
+    <ol class="steps" data-steps></ol>
+    <div class="card">
+      <h2 class="card__title">着金の確認をお待ちください</h2>
+      <p>お振り込みのご連絡をいただきました。ありがとうございます。<br>運営が着金を確認しましたら、LINEでご連絡します。</p>
+      <p class="note">確認までお時間をいただくことがあります。この画面は閉じていただいて構いません。</p>
+      <button type="button" class="btn btn--ghost" data-act="reload">最新の状態にする</button>
+    </div>
+  </section>
+
+  <!-- ============ 完了 ============ -->
+  <section id="screen-done" class="screen">
+    <ol class="steps" data-steps></ol>
+    <div class="card card--done">
+      <h2 class="card__title">お手続きが完了しました</h2>
+      <div id="done-body"></div>
+    </div>
+  </section>
+
+  <!-- ============ エラー ============ -->
+  <section id="screen-error" class="screen card">
+    <h2 class="card__title">うまく表示できませんでした</h2>
+    <p>通信が不安定か、一時的に混み合っている可能性があります。</p>
+    <p class="alert" id="error-detail"></p>
+    <button type="button" class="btn btn--primary" data-act="reload">もう一度読み込む</button>
+    <p class="note">何度試しても表示されない場合は、公式LINEにメッセージをお送りください。</p>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <p>凛穏塾</p>
+  <p class="foot__links">
+    <a data-link="tokusho" target="_blank" rel="noopener">特定商取引法に基づく表記</a>
+    <a data-link="privacy" target="_blank" rel="noopener">プライバシーポリシー</a>
+  </p>
+</footer>
+
+<script src="js/config.js?v=3"></script>
+<script src="js/common.js?v=3"></script>
+<script src="js/app.js?v=3"></script>
+</body>
+</html>
