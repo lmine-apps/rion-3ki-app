@@ -111,6 +111,77 @@ function askConfirm(btn, message, yesLabel) {
   });
 }
 
+
+/* ===== アプリ内の読み物（規約など）を開く =====
+ * 外部ページへ飛ばすと手続きの途中で迷子になるため、この場で重ねて表示する。
+ * 本文は js/legal.js の DOCS が持つ。
+ */
+let DOC_OPENER = null;
+
+function openDoc(key, opener) {
+  const doc = (typeof DOCS !== 'undefined') ? DOCS[key] : null;
+  if (!doc) return;
+  closeDoc();
+  DOC_OPENER = opener || document.activeElement;
+
+  const back = document.createElement('div');
+  back.className = 'docwrap';
+  back.id = 'docwrap';
+  back.innerHTML =
+    `<div class="doc" role="dialog" aria-modal="true" aria-label="${esc(doc.title)}">
+       <div class="doc__head">
+         <div>
+           <p class="doc__kicker">${esc(doc.kicker || '')}</p>
+           <h2 class="doc__title">${esc(doc.title)}</h2>
+         </div>
+         <button type="button" class="doc__close" aria-label="閉じる">✕</button>
+       </div>
+       <div class="doc__body">${doc.body}</div>
+       <div class="doc__foot">
+         <button type="button" class="btn btn--ghost" data-close>閉じる</button>
+       </div>
+     </div>`;
+  document.body.appendChild(back);
+  document.body.classList.add('is-locked');
+
+  back.addEventListener('click', (ev) => {
+    if (ev.target === back || ev.target.closest('.doc__close, [data-close]')) closeDoc();
+  });
+  document.addEventListener('keydown', onDocKey);
+  const close = back.querySelector('.doc__close');
+  if (close) close.focus();
+}
+
+function closeDoc() {
+  const back = document.getElementById('docwrap');
+  if (!back) return;
+  back.remove();
+  document.body.classList.remove('is-locked');
+  document.removeEventListener('keydown', onDocKey);
+  if (DOC_OPENER && DOC_OPENER.focus) DOC_OPENER.focus();
+  DOC_OPENER = null;
+}
+
+function onDocKey(ev) {
+  if (ev.key === 'Escape') closeDoc();
+}
+
+/** 読み物を開くボタン（画面のどこに置いても効く） */
+document.addEventListener('click', (ev) => {
+  const el = ev.target.closest('[data-doc]');
+  if (!el) return;
+  ev.preventDefault();
+  openDoc(el.getAttribute('data-doc'), el);
+});
+
+/** 決済まわりの補足リンク（カード画面に出す） */
+function payHintsHtml() {
+  return `<div class="doc-hints">
+            <button type="button" class="doc-hint" data-doc="split">分割払いにしたい方はこちら</button>
+            <button type="button" class="doc-hint" data-doc="secure">決済が進まないとき（3Dセキュア）</button>
+          </div>`;
+}
+
 /** ボタンの二度押し防止 */
 function busy(btn, on, labelWhenBusy) {
   if (!btn) return;

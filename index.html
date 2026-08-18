@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>お申し込みの流れ｜凛穏塾 3期生</title>
-<link rel="stylesheet" href="css/style.css?v=4">
+<link rel="stylesheet" href="css/style.css?v=5">
 </head>
 <body>
 
@@ -53,11 +53,11 @@
       <h2 class="card__title">ご受講内容のご確認</h2>
       <div class="plan" id="terms-plan"></div>
 
-      <h3 class="sub-title">同意事項</h3>
-      <ul class="links">
-        <li><a data-link="terms" target="_blank" rel="noopener">受講規約を読む</a></li>
-        <li><a data-link="tokusho" target="_blank" rel="noopener">特定商取引法に基づく表記</a></li>
-        <li><a data-link="privacy" target="_blank" rel="noopener">プライバシーポリシー</a></li>
+      <h3 class="sub-title">ご確認いただく書類</h3>
+      <ul class="docs">
+        <li><button type="button" class="doclink" data-doc="terms">受講規約<span>ご受講にあたっての取り決め</span></button></li>
+        <li><button type="button" class="doclink" data-doc="tokusho">特定商取引法に基づく表記<span>販売者・お支払い・返品について</span></button></li>
+        <li><button type="button" class="doclink" data-doc="privacy">プライバシーポリシー<span>個人情報の取り扱い</span></button></li>
       </ul>
 
       <label class="check">
@@ -144,6 +144,10 @@
       <div class="plan" id="pay-plan"></div>
       <div class="payopts" id="pay-options"></div>
       <p class="alert" id="pay-nolink" hidden>カード決済のご用意が整うまで、銀行振込をご利用ください。</p>
+      <div class="doc-hints">
+        <button type="button" class="doc-hint" data-doc="split">分割払いにしたい方はこちら</button>
+        <button type="button" class="doc-hint" data-doc="secure">決済が進まないとき（3Dセキュア）</button>
+      </div>
     </div>
   </section>
 
@@ -199,13 +203,15 @@
 <footer class="foot">
   <p>凛穏塾</p>
   <p class="foot__links">
-    <a data-link="tokusho" target="_blank" rel="noopener">特定商取引法に基づく表記</a>
-    <a data-link="privacy" target="_blank" rel="noopener">プライバシーポリシー</a>
+    <button type="button" data-doc="terms">受講規約</button>
+    <button type="button" data-doc="tokusho">特定商取引法に基づく表記</button>
+    <button type="button" data-doc="privacy">プライバシーポリシー</button>
   </p>
 </footer>
 
-<script src="js/config.js?v=4"></script>
-<script src="js/common.js?v=4"></script>
-<script src="js/app.js?v=4"></script>
+<script src="js/config.js?v=5"></script>
+<script src="js/legal.js?v=5"></script>
+<script src="js/common.js?v=5"></script>
+<script src="js/app.js?v=5"></script>
 </body>
 </html>

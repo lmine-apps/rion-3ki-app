@@ -21,19 +21,8 @@ async function boot() {
   }
 }
 
-/** 規約系のリンクを設定から流し込む */
+/** 講座名を設定から流し込む（規約類は js/legal.js を読んでアプリ内で開く） */
 function fillStaticLinks() {
-  document.querySelectorAll('[data-link]').forEach(a => {
-    const key = a.getAttribute('data-link');
-    const url = CONFIG.LINKS[key];
-    if (url && url.indexOf('XXXXXXXX') === -1) {
-      a.href = url;
-    } else {
-      a.href = '#';
-      a.setAttribute('aria-disabled', 'true');
-      a.title = '準備中です';
-    }
-  });
   const c = document.getElementById('course-name');
   if (c) c.textContent = CONFIG.COURSE.name;
 }
@@ -194,7 +183,8 @@ function paintCardPayment(n) {
      ${url
         ? `<a class="btn btn--primary" href="${esc(url)}">カードでお支払いに進む</a>`
         : '<p class="alert">決済ページの準備が整い次第、こちらに表示されます。少しお待ちください。</p>'}
-     <p class="note">お支払い後、この画面が切り替わるまで少し時間がかかることがあります。閉じてしまっても、LINEのボタンからいつでも戻れます。</p>`;
+     <p class="note">お支払い後、この画面が切り替わるまで少し時間がかかることがあります。閉じてしまっても、LINEのボタンからいつでも戻れます。</p>
+     ${payHintsHtml()}`;
 }
 
 /** ②署名待ち。署名は別ツールなので、LINEに届いた案内から戻ってきてもらう */
