@@ -280,9 +280,13 @@ function paintSign() {
   if (el) {
     el.innerHTML = STATE.contract_url
       ? `<a class="btn btn--primary" href="${esc(STATE.contract_url)}" target="_blank" rel="noopener">契約書を開いて署名する</a>`
-      : '<p class="alert">契約書のご用意が整い次第、この画面にボタンが表示されます。準備ができましたらLINEでもお知らせしますので、少しお待ちください。</p>';
+      // 契約書のURLがまだ入っていないとき。画面は最後まで通れるようにしておき、
+      // 「準備中です」とだけ出して足を止めてしまわないようにする。
+      : `<p class="note">契約書は、<b>LINEでお送りするURL</b>からご署名いただきます。
+           お手元に届いていない場合は、公式LINEからお知らせください。</p>`;
   }
   const btn = document.querySelector('[data-act="declare-signed"]');
+  // 契約書URLがまだ無いあいだは、この申告ボタンが唯一の進み口になる
   if (btn) btn.hidden = !STATE.allow_self_sign;
 }
 

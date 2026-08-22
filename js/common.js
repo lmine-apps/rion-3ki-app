@@ -110,7 +110,8 @@ function renderSteps(current, allDone, withProfile) {
     } else if (n === current + 1 && !allDone) {
       badge = '<span class="step__badge step__badge--next">次コレ</span>';
     }
-    if (!badge) badge = '<span class="step__badge"></span>';
+    // 中身が空だとプロラインのエディタに消されるので、&nbsp; を入れてクラスで隠す
+    if (!badge) badge = '<span class="step__badge step__badge--none">&nbsp;</span>';
     const mark = (allDone || n < current) ? '✓' : n;
     return `<li class="${cls}">${badge}<span class="step__dot">${mark}</span><span class="step__label">${esc(label)}</span></li>`;
   }).join('');

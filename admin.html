@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>受付管理｜凛穏塾 3期生</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  :root{
+    --ground:#eaf4fb; --card:#fff; --card-soft:#f4fafd;
+    --ink:#172b3d; --ink-soft:#5f7387; --ink-faint:#93a6b6;
+    --line:#d5e4ef; --navy:#12345a; --navy-dk:#0b203d; --sky:#62b7e7; --sky-soft:#e5f5fd;
+    --green:#1f7a5c; --green-soft:#e6f3ee; --warn:#c0503f; --warn-soft:#fdf0ed;
+    --amber:#a8722a; --amber-soft:#fdf3e3; --gold:#a8823f;
+    --mark-bg:#12345a; --on-mark:#fff; --scrim:rgba(11,32,61,.45);
+    --shadow:0 10px 30px rgba(7,23,44,.13);
+    --serif:"Yu Mincho",YuMincho,"Hiragino Mincho ProN","Noto Serif JP",serif;
+    --sans:"Hiragino Kaku Gothic ProN","Yu Gothic UI","Yu Gothic",YuGothic,Meiryo,system-ui,sans-serif;
+    --num:Georgia,"Times New Roman",serif;
+    --mono:Consolas,"Cascadia Mono",ui-monospace,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --ground:#07172a; --card:#0e2338; --card-soft:#142a41;
+      --ink:#e6eef5; --ink-soft:#9db1c3; --ink-faint:#6b8299;
+      --line:#22405c; --navy:#9fc9e8; --navy-dk:#cfe6f6; --sky:#62b7e7; --sky-soft:#10293d;
+      --green:#6cc39f; --green-soft:#102b23; --warn:#e0917f; --warn-soft:#33201c;
+      --amber:#d9a559; --amber-soft:#2e2314; --gold:#d1a95f;
+      --mark-bg:#62b7e7; --on-mark:#06182a; --scrim:rgba(0,0,0,.6);
+      --shadow:0 10px 30px rgba(0,0,0,.5);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#07172a; --card:#0e2338; --card-soft:#142a41;
+    --ink:#e6eef5; --ink-soft:#9db1c3; --ink-faint:#6b8299;
+    --line:#22405c; --navy:#9fc9e8; --navy-dk:#cfe6f6; --sky:#62b7e7; --sky-soft:#10293d;
+    --green:#6cc39f; --green-soft:#102b23; --warn:#e0917f; --warn-soft:#33201c;
+    --amber:#d9a559; --amber-soft:#2e2314; --gold:#d1a95f;
+    --mark-bg:#62b7e7; --on-mark:#06182a; --scrim:rgba(0,0,0,.6);
+    --shadow:0 10px 30px rgba(0,0,0,.5);
+  }
+
+  body{background:var(--ground);color:var(--ink);font-family:var(--sans);line-height:1.75;font-size:15px}
+  button{font-family:inherit;-webkit-tap-highlight-color:transparent}
+  [hidden]{display:none !important}
+
+  /* ---------- header ---------- */
+  .head{background:linear-gradient(160deg,var(--navy-dk),var(--navy));color:#fff}
+  :root:not([data-theme="light"]) .head,:root[data-theme="dark"] .head{background:linear-gradient(160deg,#061626,#12385c)}
+  .head__in{max-width:1000px;margin:0 auto;padding:.9rem 1rem 1rem;display:flex;align-items:center;gap:.8rem;flex-wrap:wrap}
+  .head__t{display:flex;flex-direction:column;gap:0;margin-right:auto}
+  .head__k{font-size:.62rem;letter-spacing:.3em;color:var(--sky)}
+  .head__n{font-family:var(--serif);font-size:1.15rem;line-height:1.3}
+  .head button{
+    font-size:.8rem;font-weight:700;cursor:pointer;border:1.3px solid rgba(255,255,255,.45);
+    background:rgba(255,255,255,.1);color:#fff;border-radius:999px;padding:.35rem .95rem;
+  }
+  .head button:hover{background:rgba(255,255,255,.2)}
+  .flag{font-size:.68rem;font-weight:700;padding:.15rem .6rem;border-radius:999px;background:#fbe9e7;color:#9c3a28}
+  .flag.dry{background:#fdf3dd;color:#8a6a1e}
+
+  .wrap{max-width:1000px;margin:0 auto;padding:1.2rem 1rem 4rem;display:flex;flex-direction:column;gap:1.2rem}
+
+  /* ---------- login ---------- */
+  .login{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:1.6rem 1.4rem;
+         display:flex;flex-direction:column;gap:.8rem;max-width:420px;margin:2rem auto;box-shadow:var(--shadow)}
+  .login h2{font-family:var(--serif);font-size:1.15rem;margin:0;font-weight:600}
+  .login p{margin:0;font-size:.86rem;color:var(--ink-soft)}
+  .login input{
+    font-family:var(--mono);font-size:1rem;padding:.6rem .7rem;
+    border:1.4px solid var(--line);border-radius:9px;background:var(--card-soft);color:var(--ink);width:100%;
+  }
+  .btn{
+    font-size:.92rem;font-weight:700;cursor:pointer;border:0;border-radius:999px;padding:.6rem 1.4rem;
+    background:linear-gradient(135deg,var(--navy),var(--navy-dk));color:#fff;
+  }
+  :root:not([data-theme="light"]) .btn,:root[data-theme="dark"] .btn{background:linear-gradient(135deg,#1d5f92,#0d3a63)}
+  .btn:disabled{background:var(--line);color:var(--ink-faint);cursor:not-allowed}
+  .btn.ghost{background:transparent;color:var(--navy);border:1.4px solid var(--line)}
+  .btn.danger{background:linear-gradient(135deg,#c0503f,#96382a)}
+  .btn.ok{background:linear-gradient(135deg,#1f7a5c,#155c45)}
+  .btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+  /* ---------- summary ---------- */
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:.6rem}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:.7rem .85rem;
+       display:flex;flex-direction:column;gap:.1rem}
+  .kpi .l{font-size:.72rem;color:var(--ink-soft)}
+  .kpi .v{font-family:var(--num);font-size:1.55rem;font-weight:700;line-height:1.2;font-variant-numeric:tabular-nums}
+  .kpi.act{border-color:var(--warn);background:var(--warn-soft)}
+  .kpi.act .v{color:var(--warn)}
+  .kpi.done .v{color:var(--green)}
+  .planline{font-size:.83rem;color:var(--ink-soft);display:flex;flex-wrap:wrap;gap:.2rem .9rem}
+  .planline b{color:var(--ink);font-family:var(--num)}
+
+  /* ---------- toolbar ---------- */
+  .bar{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+  .tabs{display:flex;flex-wrap:wrap;gap:.35rem}
+  .tab{
+    font-size:.82rem;font-weight:700;cursor:pointer;border:1.3px solid var(--line);
+    background:var(--card);color:var(--ink-soft);border-radius:999px;padding:.32rem .9rem;
+  }
+  .tab[aria-pressed="true"]{background:var(--mark-bg);color:var(--on-mark);border-color:var(--mark-bg)}
+  .search{
+    font-family:inherit;font-size:.88rem;padding:.4rem .7rem;border:1.3px solid var(--line);
+    border-radius:9px;background:var(--card);color:var(--ink);min-width:150px;flex:1;max-width:260px;
+  }
+
+  /* ---------- list ---------- */
+  .list{display:flex;flex-direction:column;gap:.7rem}
+  .row{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:.85rem 1rem;
+       display:flex;flex-direction:column;gap:.5rem}
+  .row.act{border-left:4px solid var(--warn)}
+  .row.fin{opacity:.72}
+  .row__top{display:flex;flex-wrap:wrap;gap:.5rem;align-items:baseline}
+  .row__name{font-family:var(--serif);font-size:1.05rem;font-weight:600;margin-right:auto}
+  .tag{font-size:.71rem;font-weight:700;padding:.1rem .6rem;border-radius:999px;white-space:nowrap}
+  .tag.plan{background:var(--sky-soft);color:var(--navy)}
+  .tag.stage{background:var(--card-soft);color:var(--ink-soft);border:1px solid var(--line)}
+  .tag.stage.wait{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+  .tag.stage.done{background:var(--green-soft);color:var(--green);border-color:transparent}
+  .tag.stage.new{background:var(--amber-soft);color:var(--amber);border-color:transparent}
+  .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:.15rem .9rem;font-size:.83rem}
+  .facts div{display:flex;gap:.45rem}
+  .facts .k{color:var(--ink-faint);white-space:nowrap;min-width:5.6em}
+  .facts .v{color:var(--ink)}
+  .facts .v.n{font-family:var(--num);font-weight:700;font-variant-numeric:tabular-nums}
+  .row__act{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+  .row__act .btn{font-size:.84rem;padding:.42rem 1.1rem}
+  .empty{text-align:center;color:var(--ink-faint);font-size:.9rem;padding:2.5rem 1rem}
+
+  /* ---------- modal ---------- */
+  .scrim{position:fixed;inset:0;background:var(--scrim);display:flex;align-items:center;justify-content:center;
+         padding:1rem;z-index:50}
+  .modal{background:var(--card);border-radius:14px;box-shadow:var(--shadow);max-width:460px;width:100%;
+         max-height:88vh;overflow:auto;padding:1.3rem 1.3rem 1.1rem;display:flex;flex-direction:column;gap:.8rem}
+  .modal h2{font-family:var(--serif);font-size:1.15rem;margin:0;font-weight:600}
+  .modal p{margin:0;font-size:.88rem;color:var(--ink-soft)}
+  .modal .check{background:var(--card-soft);border:1px solid var(--line);border-radius:10px;padding:.8rem .9rem;
+                display:flex;flex-direction:column;gap:.25rem;font-size:.9rem}
+  .modal .check .r{display:flex;gap:.6rem}
+  .modal .check .r .k{color:var(--ink-faint);min-width:6.2em}
+  .modal .check .r .v{color:var(--ink);font-weight:600}
+  .modal .check .r .v.n{font-family:var(--num);font-size:1.15rem}
+  .modal .foot{display:flex;gap:.6rem;justify-content:flex-end;flex-wrap:wrap}
+  .warnbox{background:var(--warn-soft);color:var(--warn);border-radius:9px;padding:.6rem .8rem;font-size:.83rem;font-weight:700}
+  .picklist{max-height:250px;overflow:auto;border:1px solid var(--line);border-radius:10px;padding:.5rem .6rem}
+  .picklist label{display:flex;gap:.5rem;align-items:flex-start;padding:.35rem .1rem;border-bottom:1px solid var(--line);font-size:.88rem}
+  .picklist label:last-child{border-bottom:0}
+  .picklist .who{margin-right:auto}
+  .picklist .sub{font-size:.76rem;color:var(--ink-faint)}
+  .sumbox{background:var(--sky-soft);color:var(--navy);border-radius:9px;padding:.55rem .8rem;font-weight:700;font-size:.9rem}
+
+  .toast{position:fixed;left:50%;bottom:1.4rem;transform:translateX(-50%);z-index:60;
+         background:var(--navy-dk);color:#fff;border-radius:999px;padding:.6rem 1.3rem;font-size:.88rem;
+         box-shadow:var(--shadow);max-width:90vw}
+  :root:not([data-theme="light"]) .toast,:root[data-theme="dark"] .toast{background:#0d3a63}
+  .toast.bad{background:#96382a}
+
+  footer{max-width:1000px;margin:0 auto;padding:0 1rem 2rem;font-size:.78rem;color:var(--ink-faint)}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<header class="head">
+  <div class="head__in">
+    <div class="head__t">
+      <span class="head__k">RINON JUKU / 3rd</span>
+      <span class="head__n">受付管理</span>
+    </div>
+    <span id="flag" class="flag" hidden></span>
+    <button type="button" id="btn-reload" hidden>更新</button>
+    <button type="button" id="btn-logout" hidden>キーを消す</button>
+  </div>
+</header>
+
+<!-- ============ ログイン ============ -->
+<section id="screen-login" class="login">
+  <h2>管理キーを入れてください</h2>
+  <p>この画面はスプレッドシートの写しです。運営の方だけがお使いください。</p>
+  <input type="password" id="key" autocomplete="off" spellcheck="false" placeholder="管理キー">
+  <button type="button" class="btn" id="btn-login">開く</button>
+  <p id="login-err" style="color:var(--warn);font-weight:700" hidden></p>
+</section>
+
+<!-- ============ 一覧 ============ -->
+<main id="screen-main" class="wrap" hidden>
+
+  <div class="cards" id="kpis"></div>
+  <div class="planline" id="plans"></div>
+
+  <div class="bar">
+    <div class="tabs" id="tabs">
+      <button type="button" class="tab" data-f="act" aria-pressed="true">要対応</button>
+      <button type="button" class="tab" data-f="all" aria-pressed="false">すべて</button>
+      <button type="button" class="tab" data-f="new" aria-pressed="false">未案内</button>
+      <button type="button" class="tab" data-f="prog" aria-pressed="false">進行中</button>
+      <button type="button" class="tab" data-f="done" aria-pressed="false">完了</button>
+    </div>
+    <input type="search" class="search" id="q" placeholder="お名前でさがす">
+    <button type="button" class="btn ghost" id="btn-invite">ご案内を送る</button>
+  </div>
+
+  <div class="list" id="list"></div>
+</main>
+
+<footer>
+  <p id="foot"></p>
+</footer>
+
+<script>
+/* =========================================================================
+   凛穏塾 3期生 受付管理（運営用）
+   ・スプレッドシートの「管理」タブを読み出して並べるだけの画面です。
+   ・書き換えるのは「入金確認」だけ。ほかは見るだけにしてあります。
+   ========================================================================= */
+
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbwxo1mNRBl5Gjp86XbNXZONgkNHAGHp86uqQYux0Lu3CnP11zH8is5MFrqik0VwvcXL/exec';
+const KEY_STORE = 'rion3ki_admin_key';
+const RELOAD_MS = 60000;
+
+let adminKey = null;
+let data = null;
+let filter = 'act';
+let timer = null;
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s == null ? '' : s)
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const yen = (n) => (n === '' || n == null) ? '' : Number(n).toLocaleString('ja-JP') + '円';
+
+/* ---------- 通信 ---------- */
+async function api(action, body) {
+  const payload = Object.assign({ action, token: adminKey }, body || {});
+  const res = await fetch(GAS_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  });
+  if (!res.ok) throw new Error('通信に失敗しました（' + res.status + '）');
+  return res.json();
+}
+
+function toast(msg, bad) {
+  const el = document.createElement('div');
+  el.className = 'toast' + (bad ? ' bad' : '');
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), bad ? 5000 : 2800);
+}
+
+/* ---------- ログイン ---------- */
+$('btn-login').addEventListener('click', login);
+$('key').addEventListener('keydown', (e) => { if (e.key === 'Enter') login(); });
+
+async function login() {
+  const v = $('key').value.trim();
+  if (!v) return;
+  adminKey = v;
+  $('btn-login').disabled = true;
+  $('login-err').hidden = true;
+  try {
+    const r = await api('admin_list');
+    if (!r.ok) throw new Error(r.error === 'admin_only' ? '管理キーが違います。' : r.error);
+    localStorage.setItem(KEY_STORE, v);
+    show(r);
+  } catch (err) {
+    adminKey = null;
+    $('login-err').textContent = err.message || '開けませんでした。';
+    $('login-err').hidden = false;
+  } finally {
+    $('btn-login').disabled = false;
+  }
+}
+
+$('btn-logout').addEventListener('click', () => {
+  localStorage.removeItem(KEY_STORE);
+  location.reload();
+});
+$('btn-reload').addEventListener('click', () => load(true));
+
+/* ---------- 読み込み ---------- */
+async function load(loud) {
+  try {
+    const r = await api('admin_list');
+    if (!r.ok) throw new Error(r.error);
+    show(r);
+    if (loud) toast('最新にしました');
+  } catch (err) {
+    toast(err.message || '読み込めませんでした', true);
+  }
+}
+
+function show(r) {
+  data = r;
+  $('screen-login').hidden = true;
+  $('screen-main').hidden = false;
+  $('btn-reload').hidden = false;
+  $('btn-logout').hidden = false;
+
+  const flag = $('flag');
+  flag.hidden = false;
+  flag.textContent = r.dry_run ? 'お試し中（LINEは飛びません）' : '本番運転';
+  flag.className = 'flag' + (r.dry_run ? ' dry' : '');
+
+  $('foot').textContent = 'GAS ' + (r.version || '') + ' ／ ' + r.people.length + '名';
+  paintKpis();
+  paintList();
+
+  if (timer) clearInterval(timer);
+  timer = setInterval(() => load(false), RELOAD_MS);
+}
+
+/* ---------- 集計 ---------- */
+function paintKpis() {
+  const s = data.summary;
+  const cards = [
+    { l: '合計', v: s.total },
+    { l: '未案内', v: s.notInvited },
+    { l: '規約同意', v: s.terms },
+    { l: '署名', v: s.signed },
+    { l: '着金待ち', v: s.waiting, cls: 'act' },
+    { l: '完了', v: s.done, cls: 'done' }
+  ];
+  $('kpis').innerHTML = cards.map((c) =>
+    '<div class="kpi ' + (c.cls || '') + '"><span class="l">' + c.l + '</span>'
+    + '<span class="v">' + c.v + '</span></div>').join('');
+
+  $('plans').innerHTML = data.planOrder.map((p) =>
+    '<span>' + esc(p) + '　<b>' + data.byPlan[p] + '</b> 名</span>').join('');
+}
+
+/* ---------- 一覧 ---------- */
+$('tabs').addEventListener('click', (e) => {
+  const b = e.target.closest('.tab');
+  if (!b) return;
+  filter = b.dataset.f;
+  [].forEach.call($('tabs').children, (x) => x.setAttribute('aria-pressed', String(x === b)));
+  paintList();
+});
+$('q').addEventListener('input', paintList);
+
+function needsAction(p) {
+  return p.stage === '着金待ち';
+}
+
+function match(p) {
+  const q = $('q').value.trim();
+  if (q && p.name.indexOf(q) === -1) return false;
+  if (filter === 'all') return true;
+  if (filter === 'act') return needsAction(p);
+  if (filter === 'new') return !p.invite;
+  if (filter === 'done') return p.stage === '完了';
+  if (filter === 'prog') return !!p.invite && p.stage !== '完了';
+  return true;
+}
+
+function stageClass(p) {
+  if (p.stage === '完了') return 'done';
+  if (p.stage === '着金待ち') return 'wait';
+  if (!p.invite) return 'new';
+  return '';
+}
+
+function paintList() {
+  const rows = data.people.filter(match);
+  if (!rows.length) {
+    $('list').innerHTML = '<p class="empty">この条件に当てはまる方はいません。</p>';
+    return;
+  }
+  $('list').innerHTML = rows.map(card).join('');
+}
+
+function card(p) {
+  const facts = [];
+  const put = (k, v, num) => {
+    if (!v && v !== 0) return;
+    facts.push('<div><span class="k">' + k + '</span><span class="v' + (num ? ' n' : '') + '">'
+               + esc(v) + '</span></div>');
+  };
+  put('ご案内', p.invite || '—');
+  put('規約同意', p.terms);
+  put('ご署名', p.sign);
+  put('お支払い', p.method);
+  if (p.method === 'カード2回') {
+    put('1回目', p.pay1);
+    put('2回目の方法', p.second);
+    put('2回目', p.pay2);
+  } else {
+    put('ご決済', p.pay1);
+  }
+  put('お振込期限', p.bankDue);
+  put('振込ご連絡', p.report);
+  put('お名義', p.holder);
+  put('お振込日', p.paidOn);
+  if (p.due !== '' && p.due != null) put('ご確認金額', yen(p.due), true);
+  put('入金確認', p.bankOk);
+  put('メモ', p.memo);
+
+  const act = needsAction(p);
+  let buttons = '';
+  if (act) {
+    buttons = '<button type="button" class="btn danger" data-confirm="' + esc(p.uid) + '">'
+            + '入金を確認する</button>';
+  } else if (!p.invite) {
+    buttons = '<span style="font-size:.82rem;color:var(--ink-faint)">'
+            + 'まだご案内をお送りしていません</span>';
+  }
+
+  return '<div class="row ' + (act ? 'act' : (p.stage === '完了' ? 'fin' : '')) + '">'
+    + '<div class="row__top">'
+    +   '<span class="row__name">' + esc(p.name) + '</span>'
+    +   '<span class="tag plan">' + esc(p.plan) + '</span>'
+    +   '<span class="tag stage ' + stageClass(p) + '">' + esc(p.stage) + '</span>'
+    + '</div>'
+    + '<div class="facts">' + facts.join('') + '</div>'
+    + (buttons ? '<div class="row__act">' + buttons + '</div>' : '')
+    + '</div>';
+}
+
+/* ---------- 入金確認（誤タップ防止つき） ---------- */
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('[data-confirm]');
+  if (b) askConfirm(b.dataset.confirm);
+});
+
+function askConfirm(uid) {
+  const p = data.people.filter((x) => x.uid === uid)[0];
+  if (!p) return;
+
+  const rows = [
+    ['お名前', esc(p.name), false],
+    ['コース', esc(p.plan), false],
+    ['お名義', esc(p.holder || '（お伺いできていません）'), false],
+    ['お振込日', esc(p.paidOn || '—'), false],
+    ['ご確認金額', esc(yen(p.due)), true]
+  ].map((r) => '<div class="r"><span class="k">' + r[0] + '</span>'
+             + '<span class="v' + (r[2] ? ' n' : '') + '">' + r[1] + '</span></div>').join('');
+
+  const el = modal(
+    '<h2>ご入金を確認しますか</h2>'
+    + '<p>通帳と、下の内容が合っているかをお確かめください。</p>'
+    + '<div class="check">' + rows + '</div>'
+    + '<div class="warnbox">確認済みにすると、この方に完了のご連絡が自動で届きます。あとから取り消せません。</div>'
+    + '<div class="foot">'
+    +   '<button type="button" class="btn ghost" data-close>やめる</button>'
+    +   '<button type="button" class="btn ok" id="do-confirm" disabled>3</button>'
+    + '</div>');
+
+  // 押し間違い防止に、3秒たってからボタンを有効にする
+  const btn = el.querySelector('#do-confirm');
+  let left = 3;
+  const tick = setInterval(() => {
+    left--;
+    if (left > 0) { btn.textContent = String(left); return; }
+    clearInterval(tick);
+    btn.disabled = false;
+    btn.textContent = '確認済みにする';
+  }, 1000);
+
+  btn.addEventListener('click', async () => {
+    btn.disabled = true;
+    btn.textContent = '送信中…';
+    try {
+      const r = await api('admin_confirm', { uid: p.uid, amount: p.due });
+      if (!r.ok) {
+        if (r.error === 'amount_changed') {
+          throw new Error('金額が変わっています（いまは ' + yen(r.due) + '）。更新してからもう一度お願いします。');
+        }
+        if (r.error === 'already') throw new Error('この方は、すでに確認済みです。');
+        throw new Error(r.error || 'うまくいきませんでした');
+      }
+      close();
+      toast(r.name + ' 様を確認済みにしました');
+      load(false);
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = '確認済みにする';
+      toast(err.message, true);
+    }
+  });
+}
+
+/* ---------- ご案内を送る ---------- */
+$('btn-invite').addEventListener('click', askInvite);
+
+function askInvite() {
+  const cands = data.people.filter((p) => !p.invite && p.plan && p.plan !== '未');
+  if (!cands.length) {
+    const none = data.people.filter((p) => !p.invite).length;
+    toast(none ? 'コースが決まっていない方しかいません。先に面談シートでコースをお選びください。'
+               : 'まだご案内をお送りしていない方はいません。', true);
+    return;
+  }
+
+  const list = cands.map((p, i) =>
+    '<label><input type="checkbox" checked data-plan="' + esc(p.plan) + '" value="' + esc(p.uid) + '">'
+    + '<span class="who">' + esc(p.name) + '<br><span class="sub">' + esc(p.plan)
+    + '／' + esc(p.stage) + '</span></span></label>').join('');
+
+  const el = modal(
+    '<h2>お申し込みのご案内を送る</h2>'
+    + '<p><b>はじめから全員にチェックが入っています。</b>送らない方のチェックを外してください。</p>'
+    + '<div style="display:flex;gap:.4rem">'
+    +   '<button type="button" class="btn ghost" data-all="1" style="font-size:.8rem;padding:.3rem .9rem">全部つける</button>'
+    +   '<button type="button" class="btn ghost" data-all="0" style="font-size:.8rem;padding:.3rem .9rem">全部はずす</button>'
+    + '</div>'
+    + '<div class="sumbox" id="inv-sum"></div>'
+    + '<div class="picklist">' + list + '</div>'
+    + (data.dry_run ? '<div class="warnbox" style="background:var(--amber-soft);color:var(--amber)">'
+        + 'いまはお試し中です。送信の予定だけが記録され、LINEは飛びません。</div>' : '')
+    + '<div class="foot">'
+    +   '<button type="button" class="btn ghost" data-close>やめる</button>'
+    +   '<button type="button" class="btn" id="do-invite">この方に送る</button>'
+    + '</div>');
+
+  const boxes = () => [].slice.call(el.querySelectorAll('.picklist input[type=checkbox]'));
+  function sum() {
+    const order = [], m = {};
+    let n = 0;
+    boxes().forEach((b) => {
+      if (!b.checked) return;
+      n++;
+      const p = b.getAttribute('data-plan') || '未';
+      if (m[p] === undefined) { m[p] = 0; order.push(p); }
+      m[p]++;
+    });
+    const txt = order.map((k) => k + ' ' + m[k] + '名').join('／');
+    $('inv-sum').textContent = n ? ('送る：合計 ' + n + '名（' + txt + '）') : '送る方が選ばれていません';
+    return { n, txt };
+  }
+  el.addEventListener('change', sum);
+  el.addEventListener('click', (e) => {
+    const b = e.target.closest('[data-all]');
+    if (!b) return;
+    boxes().forEach((x) => { x.checked = b.dataset.all === '1'; });
+    sum();
+  });
+  sum();
+
+  el.querySelector('#do-invite').addEventListener('click', async () => {
+    const s = sum();
+    if (!s.n) { toast('1人も選ばれていません。', true); return; }
+    if (!window.confirm('合計 ' + s.n + '名（' + s.txt + '）に\nお申し込みのご案内を送ります。\n\nよろしいですか？')) return;
+
+    const btn = el.querySelector('#do-invite');
+    btn.disabled = true;
+    btn.textContent = '送信中…';
+    try {
+      const uids = boxes().filter((b) => b.checked).map((b) => b.value);
+      const r = await api('admin_invite', { uids });
+      if (!r.ok) throw new Error(r.error || 'うまくいきませんでした');
+      close();
+      toast(r.message);
+      load(false);
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = 'この方に送る';
+      toast(err.message, true);
+    }
+  });
+}
+
+/* ---------- モーダル ---------- */
+function modal(html) {
+  close();
+  const scrim = document.createElement('div');
+  scrim.className = 'scrim';
+  scrim.id = 'scrim';
+  scrim.innerHTML = '<div class="modal" role="dialog" aria-modal="true">' + html + '</div>';
+  scrim.addEventListener('click', (e) => {
+    if (e.target === scrim || e.target.closest('[data-close]')) close();
+  });
+  document.body.appendChild(scrim);
+  document.addEventListener('keydown', onEsc);
+  return scrim;
+}
+function close() {
+  const s = $('scrim');
+  if (s) s.remove();
+  document.removeEventListener('keydown', onEsc);
+}
+function onEsc(e) { if (e.key === 'Escape') close(); }
+
+/* ---------- 立ち上がり ---------- */
+(function () {
+  const saved = localStorage.getItem(KEY_STORE);
+  if (!saved) return;
+  adminKey = saved;
+  load(false).catch(() => {});
+})();
+</script>
+</body>
+</html>

@@ -221,7 +221,8 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
   line-height: 1;
   padding: 0 2px;
 }
-.step__badge:empty { visibility: hidden; }
+.step__badge:empty,
+.step__badge--none { visibility: hidden; }
 .step__badge--now {
   background: var(--navy-800);
   color: #fff;

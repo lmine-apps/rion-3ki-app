@@ -12,12 +12,12 @@ const CONFIG = {
   // localStorage のキー（他アプリと混ざらないように接頭辞をつける）
   UID_KEY: 'rion3ki_uid',
 
-  // 規約系ページ（プロラインのコンテンツページ。3期用のURLに差し替え）
+  // 規約系ページ（プロラインのコンテンツページ。3期用）
   // 参考）2期: 利用規約 /cp/XOAbHNC5Z2 ／ 特商法 /cp/XHxokyjYAP ／ プラポリ /cp/fYrWvBRKAV
   LINKS: {
-    terms:   'https://mka0tn6z.autosns.app/cp/XXXXXXXX',  // 受講規約
-    tokusho: 'https://mka0tn6z.autosns.app/cp/XXXXXXXX',  // 特定商取引法に基づく表記
-    privacy: 'https://mka0tn6z.autosns.app/cp/XXXXXXXX'   // プライバシーポリシー
+    terms:   'https://mka0tn6z.autosns.app/cp/AovXJzKVqu',  // 受講規約（3期）
+    tokusho: 'https://mka0tn6z.autosns.app/cp/ZARd8uoK1H',  // 特定商取引法に基づく表記（3期・リーガルチェック前）
+    privacy: 'https://mka0tn6z.autosns.app/cp/fYrWvBRKAV'   // プライバシーポリシー（2期のまま・要確認）
   },
 
   // 講座の基本情報（画面に出す文言）
