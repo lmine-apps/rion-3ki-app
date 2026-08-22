@@ -241,6 +241,7 @@ function paintCardPayment(n) {
         ? `<a class="btn btn--primary" href="${esc(url)}">カードでお支払いに進む</a>`
         : '<p class="alert">決済ページの準備が整い次第、こちらに表示されます。少しお待ちください。</p>'}
      <p class="note">お支払い後、この画面が切り替わるまで少し時間がかかることがあります。閉じてしまっても、LINEのボタンからいつでも戻れます。</p>
+     ${resetPayHtml(isSplit && n === 2 ? '2回目のお支払い方法を選び直す' : 'お支払い方法を選び直す')}
      <button type="button" class="doc-hint" data-act="declare-paid">お支払いが済んでいるのに、この画面が変わらないとき</button>
      ${payHintsHtml()}`;
 }
@@ -278,16 +279,27 @@ function paintWait(kind) {
 function paintSign() {
   const el = document.getElementById('sign-action');
   if (el) {
+    // 契約書URLがまだ無いあいだも、ボタンは本番と同じ形で置いておく。
+    // 押すと「準備中」とだけお伝えする。画面の見た目が本番と変わらないので、
+    // URLが決まったあとに慌てて作り直さなくてよい。
     el.innerHTML = STATE.contract_url
-      ? `<a class="btn btn--primary" href="${esc(STATE.contract_url)}" target="_blank" rel="noopener">契約書を開いて署名する</a>`
-      // 契約書のURLがまだ入っていないとき。画面は最後まで通れるようにしておき、
-      // 「準備中です」とだけ出して足を止めてしまわないようにする。
-      : `<p class="note">契約書は、<b>LINEでお送りするURL</b>からご署名いただきます。
-           お手元に届いていない場合は、公式LINEからお知らせください。</p>`;
+      ? `<a class="btn btn--primary" href="${esc(STATE.contract_url)}" target="_blank" rel="noopener">契約書を開く</a>`
+      : `<button type="button" class="btn btn--primary" data-act="contract-soon">契約書を開く</button>
+         <p class="note" id="contract-soon" hidden>
+           ただいま契約書のご用意をしております。<b>整いしだい、公式LINEでお知らせ</b>いたしますので、
+           少しだけお待ちください。</p>`;
   }
   const btn = document.querySelector('[data-act="declare-signed"]');
   // 契約書URLがまだ無いあいだは、この申告ボタンが唯一の進み口になる
   if (btn) btn.hidden = !STATE.allow_self_sign;
+}
+
+/**
+ * 「お支払い方法を選び直す」ボタン。
+ * お支払いがまだ動いていないあいだだけ出す。押すと確かめてから、シートを書き直す。
+ */
+function resetPayHtml(label) {
+  return `<button type="button" class="btn btn--ghost" data-act="reset-pay">${esc(label)}</button>`;
 }
 
 function paintBank(n) {
@@ -309,7 +321,8 @@ function paintBank(n) {
        <div><dt>口座番号</dt><dd>${esc(b.number)}</dd></div>
        <div><dt>口座名義</dt><dd>${esc(b.holder)}</dd></div>
      </dl>
-     <p class="note">${esc(b.note || '')}</p>`;
+     <p class="note">${esc(b.note || '')}</p>
+     ${resetPayHtml(n === 2 ? '2回目のお支払い方法を選び直す' : 'お支払い方法を選び直す')}`;
 }
 
 function paintDone() {
@@ -331,8 +344,33 @@ document.addEventListener('click', async (ev) => {
   if (act === 'declare-signed') return declareSigned(btn);
   if (act === 'report-bank')  return reportBank(btn);
   if (act === 'declare-paid') return declarePaid(btn);
+  if (act === 'reset-pay')    return resetPayment(btn);
   if (act === 'reload')       return boot();
+
+  // 契約書URLがまだ無いとき。押したら理由をその場でお伝えする
+  if (act === 'contract-soon') {
+    const msg = document.getElementById('contract-soon');
+    if (msg) msg.hidden = false;
+    btn.disabled = true;
+    return;
+  }
 });
+
+/** お支払い方法を選び直す。押し間違い対策に、一度たしかめてから送る */
+async function resetPayment(btn) {
+  const second = (STATE.stage === '2回目決済待ち' || STATE.stage === '2回目入金待ち');
+  const ok = await askConfirm(btn,
+    second
+      ? '2回目のお支払い方法を選び直しますか。カードか銀行振込を、もう一度お選びいただけます。'
+      : 'お支払い方法を選び直しますか。はじめからお選びいただけます。',
+    '選び直す');
+  if (!ok) return;
+  try {
+    busy(btn, true);
+    render(await api('reset_payment', { uid: getUid() }));
+  } catch (err) { showError(String(err.message || err)); }
+  finally { busy(btn, false); }
+}
 
 // 2つのチェック（規約への同意／書面の電子交付への承諾）が両方入るまで先へ進めない
 document.addEventListener('change', (ev) => {
@@ -453,6 +491,8 @@ function errorMessage(code) {
     busy: '混み合っています。少し待ってからもう一度お試しください。',
     not_found: 'お申し込み情報が見つかりませんでした。担当者へお知らせください。',
     already_started: 'お支払い手続きが始まっているため、お支払い方法は変更できません。担当者へご相談ください。',
+    already_done: 'お支払いが完了しているため、選び直すことはできません。',
+    already_reported: 'お支払いのご連絡をいただいているため、選び直すことはできません。変更をご希望の場合は、公式LINEからお知らせください。',
     bad_method: 'お支払い方法を選び直してください。',
     edoc_required: '書面を電子データで受け取ることへの承諾が必要です。チェックを入れてからお進みください。',
     not_bank: '銀行振込を選んだ方のみのお手続きです。',
@@ -484,6 +524,12 @@ function mockApi(action, body) {
   if (action === 'report_bank')    { s.bank_report = true; s.holder = (body && body.holder) || ''; s.paid_on = (body && body.paid_on) || ''; save(s); }
   if (action === 'declare_paid')   { s.self_paid = true; save(s); }
   if (action === 'choose_second')  { s.second = body.method; s.bank_report = false; save(s); }
+  if (action === 'reset_payment')  {
+    if (s.pay2 || s.bank_report || s.self_paid) return Promise.resolve({ ok: false, error: 'already_reported' });
+    if (s.pay1) { s.second = ''; }          // 2回に分ける方の1回目が済んでいたら、2回目だけ消す
+    else { s.method = ''; s.second = ''; }
+    save(s);
+  }
   if (action === 'mock_pay1')      { s.pay1 = true; save(s); }
 
   const plans = {
