@@ -4,7 +4,7 @@
  */
 const CONFIG = {
   // GAS Web App のURL（2026-08-18 デプロイ済み）
-  GAS_URL: 'https://script.google.com/macros/s/AKfycbwxo1mNRBl5Gjp86XbNXZONgkNHAGHp86uqQYux0Lu3CnP11zH8is5MFrqik0VwvcXL/exec',
+  GAS_URL: 'https://script.google.com/macros/s/AKfycbyEzd_zaYK18ksPn7KH6RKHvLoOFwXWdG-orb0cbfy7FRKkfVtVVhgLk21kMIEASH9V/exec',
 
   // GAS側の TOKEN と一致させる
   TOKEN: 'TOORU-rion3ki-hQ4vN8pR',
