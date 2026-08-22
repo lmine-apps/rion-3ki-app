@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
 <title>お申し込みの流れ｜凛穏塾 3期生</title>
-<link rel="stylesheet" href="css/style.css?v=10">
+<link rel="stylesheet" href="css/style.css?v=12">
 </head>
 <body>
 
@@ -168,6 +168,20 @@
     </div>
   </section>
 
+  <!-- ============ ④2回目の方法を選ぶ ============ -->
+  <section id="screen-second" class="screen">
+    <ol class="steps" data-steps></ol>
+    <div class="card">
+      <h2 class="card__title">2回目のお支払い方法をお選びください</h2>
+      <div id="second-body"></div>
+      <div class="payopts" id="second-options"></div>
+      <div class="doc-hints">
+        <button type="button" class="doc-hint" data-doc="split">分割払いにしたい方はこちら</button>
+        <button type="button" class="doc-hint" data-doc="secure">決済が進まないとき（3Dセキュア）</button>
+      </div>
+    </div>
+  </section>
+
   <!-- ============ ④カード決済 ============ -->
   <section id="screen-card" class="screen">
     <ol class="steps" data-steps></ol>
@@ -186,15 +200,10 @@
     </div>
   </section>
 
-  <!-- ============ ④着金待ち ============ -->
+  <!-- ============ ④ご入金の確認まち（振込・カード共通） ============ -->
   <section id="screen-bankwait" class="screen">
     <ol class="steps" data-steps></ol>
-    <div class="card">
-      <h2 class="card__title">着金の確認をお待ちください</h2>
-      <p>お振り込みのご連絡をいただきました。ありがとうございます。<br>運営が着金を確認しましたら、LINEでご連絡します。</p>
-      <p class="note">確認までお時間をいただくことがあります。この画面は閉じていただいて構いません。</p>
-      <button type="button" class="btn btn--ghost" data-act="reload">最新の状態にする</button>
-    </div>
+    <div class="card" id="wait-body"></div>
   </section>
 
   <!-- ============ 完了 ============ -->
@@ -226,9 +235,9 @@
   </p>
 </footer>
 
-<script src="js/config.js?v=10"></script>
-<script src="js/legal.js?v=10"></script>
-<script src="js/common.js?v=10"></script>
-<script src="js/app.js?v=10"></script>
+<script src="js/config.js?v=12"></script>
+<script src="js/legal.js?v=12"></script>
+<script src="js/common.js?v=12"></script>
+<script src="js/app.js?v=12"></script>
 </body>
 </html>

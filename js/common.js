@@ -145,7 +145,7 @@ function applyFontSize(mode) {
   });
 }
 
-/** 金額を「880,000円」形式に */
+/** 金額を「990,000円」形式に */
 function yen(n) {
   return Number(n || 0).toLocaleString('ja-JP') + '円';
 }
@@ -162,6 +162,45 @@ function esc(s) {
  * LINEアプリ内ブラウザでは confirm() が出ないことがあるため、ネイティブダイアログは使わない。
  * @returns {Promise<boolean>} はい＝true／いいえ＝false
  */
+/**
+ * お振り込みのご連絡。お名義とお振込日を伺ってから送る。
+ * 入力は任意（分からなくても先へ進めるようにしておく）。
+ */
+function askBankReport(btn) {
+  return new Promise(resolve => {
+    const old = btn.parentNode.querySelector('.confirm');
+    if (old) old.remove();
+
+    const panel = document.createElement('div');
+    panel.className = 'confirm';
+    panel.innerHTML =
+      `<p class="confirm__msg">お振り込みは完了していますか？<br>確認のため、差し支えなければ次のことを教えてください。</p>
+       <label class="field">
+         <span class="field__label">お振り込みのお名義</span>
+         <input type="text" data-holder placeholder="リンオン ハナコ" autocomplete="name">
+         <span class="field__hint">ご本人以外のお名義でお振り込みの場合は、そのお名前をご記入ください。</span>
+       </label>
+       <label class="field">
+         <span class="field__label">お振込日</span>
+         <input type="date" data-paid-on>
+       </label>
+       <div class="confirm__btns">
+         <button type="button" class="btn btn--primary" data-yes>はい、振り込みました</button>
+         <button type="button" class="btn btn--ghost" data-no>もどる</button>
+       </div>`;
+    btn.insertAdjacentElement('afterend', panel);
+    btn.hidden = true;
+
+    const done = (ans) => { panel.remove(); btn.hidden = false; resolve(ans); };
+    panel.querySelector('[data-yes]').addEventListener('click', () => done({
+      holder: String(panel.querySelector('[data-holder]').value || '').trim(),
+      paid_on: String(panel.querySelector('[data-paid-on]').value || '').trim()
+    }));
+    panel.querySelector('[data-no]').addEventListener('click', () => done(null));
+    panel.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  });
+}
+
 function askConfirm(btn, message, yesLabel) {
   return new Promise(resolve => {
     const old = btn.parentNode.querySelector('.confirm');

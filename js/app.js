@@ -83,10 +83,22 @@ function render(res) {
       showScreen('screen-card');
       break;
 
+    case '2回目の方法選択待ち':
+      bar(step.pay);
+      paintSecondOptions();
+      showScreen('screen-second');
+      break;
+
     case '2回目決済待ち':
       bar(step.pay);
       paintCardPayment(2);
       showScreen('screen-card');
+      break;
+
+    case '2回目入金待ち':
+      bar(step.pay);
+      paintBank(2);
+      showScreen('screen-bank');
       break;
 
     case '入金待ち':
@@ -97,6 +109,14 @@ function render(res) {
 
     case '着金待ち':
       bar(step.pay);
+      paintWait('bank');
+      showScreen('screen-bankwait');
+      startPolling();
+      break;
+
+    case '決済確認まち':
+      bar(step.pay);
+      paintWait('card');
       showScreen('screen-bankwait');
       startPolling();
       break;
@@ -147,8 +167,9 @@ function paintPayOptions() {
     opts.push(opt('カード一括', 'クレジットカードで一括', yen(p.total) + ' を1回でお支払い'));
   }
   if (p.pay_1 && p.pay_2) {
-    opts.push(opt('カード2回', 'クレジットカードで2回に分けて',
-      yen(p.split[0]) + ' ＋ ' + yen(p.split[1]) + '（1回目のあとに2回目のボタンが出ます）'));
+    opts.push(opt('カード2回', '2回に分けてお支払い',
+      yen(p.split[0]) + ' ＋ ' + yen(p.split[1])
+      + '。1回目はカードでお支払いいただき、2回目はカードか銀行振込かを、あらためてお選びいただけます'));
   }
   opts.push(opt('銀行振込', '銀行振込', yen(p.total) + ' を' + (STATE.bank_days || 5) + '日以内にお振り込み（選ぶと振込先が出ます）'));
 
@@ -166,6 +187,39 @@ function paintPayOptions() {
               <span class="payopt__desc">${esc(desc)}</span>
             </button>`;
   }
+}
+
+/**
+ * 1回目が済んだあと、2回目をカードにするか銀行振込にするかを選んでいただく。
+ * 総額は変わらず、当社での追加費用もありません。
+ */
+function paintSecondOptions() {
+  const p = STATE.plan || {};
+  const head = document.getElementById('second-body');
+  const box = document.getElementById('second-options');
+  if (head) {
+    head.innerHTML =
+      `<p>1回目のお支払いを確認しました。ありがとうございます。</p>
+       <div class="amount">${esc(yen(p.split ? p.split[1] : p.total))}<span class="amount__tax">（税込）</span></div>
+       <p class="note">残りのお支払いです。ご都合のよい方をお選びください。どちらを選ばれても総額は変わりません。</p>`;
+  }
+  if (!box) return;
+
+  const opts = [];
+  if (p.pay_2) {
+    opts.push(`<button type="button" class="payopt" data-second="カード">
+                 <span class="payopt__title">クレジットカード</span>
+                 <span class="payopt__desc">${esc(yen(p.split ? p.split[1] : p.total))} を決済ページでお支払い</span>
+               </button>`);
+  }
+  opts.push(`<button type="button" class="payopt" data-second="銀行振込">
+               <span class="payopt__title">銀行振込</span>
+               <span class="payopt__desc">${esc(yen(p.split ? p.split[1] : p.total))} を${STATE.bank_days || 5}日以内にお振り込み（選ぶと振込先が出ます）</span>
+             </button>`);
+  box.innerHTML = opts.join('');
+  box.querySelectorAll('button[data-second]').forEach(b => {
+    b.addEventListener('click', () => chooseSecond(b.dataset.second, b));
+  });
 }
 
 function paintCardPayment(n) {
@@ -187,7 +241,34 @@ function paintCardPayment(n) {
         ? `<a class="btn btn--primary" href="${esc(url)}">カードでお支払いに進む</a>`
         : '<p class="alert">決済ページの準備が整い次第、こちらに表示されます。少しお待ちください。</p>'}
      <p class="note">お支払い後、この画面が切り替わるまで少し時間がかかることがあります。閉じてしまっても、LINEのボタンからいつでも戻れます。</p>
+     <button type="button" class="doc-hint" data-act="declare-paid">お支払いが済んでいるのに、この画面が変わらないとき</button>
      ${payHintsHtml()}`;
+}
+
+/**
+ * ご入金の確認まち。振込とカードで言い方を変える。
+ * どちらも「運営が目視で確認して、LINEでご連絡する」ところは同じ。
+ */
+function paintWait(kind) {
+  const el = document.getElementById('wait-body');
+  if (!el) return;
+  const m = STATE.marks || {};
+  const isBank = kind === 'bank';
+  const told = isBank
+    ? 'お振り込みのご連絡をいただきました。'
+    : 'お支払いのご連絡をいただきました。';
+  const detail = (isBank && (m.bank_name || m.bank_date))
+    ? `<dl class="bank">
+         ${m.bank_name ? `<div><dt>お名義</dt><dd>${esc(m.bank_name)}</dd></div>` : ''}
+         ${m.bank_date ? `<div><dt>お振込日</dt><dd>${esc(m.bank_date)}</dd></div>` : ''}
+       </dl>`
+    : '';
+  el.innerHTML =
+    `<h2 class="card__title">ご入金の確認をお待ちください</h2>
+     <p>${told}ありがとうございます。<br>運営がご入金を確認しましたら、LINEでご連絡します。</p>
+     ${detail}
+     <p class="note">確認までお時間をいただくことがあります。この画面は閉じていただいて構いません。</p>
+     <button type="button" class="btn btn--ghost" data-act="reload">最新の状態にする</button>`;
 }
 
 /**
@@ -205,13 +286,16 @@ function paintSign() {
   if (btn) btn.hidden = !STATE.allow_self_sign;
 }
 
-function paintBank() {
+function paintBank(n) {
   const b = STATE.bank || {};
   const p = STATE.plan || {};
   const el = document.getElementById('bank-body');
   if (!el) return;
+  // 2回目の銀行振込は、残りの金額だけをお振り込みいただく
+  const amount = (n === 2 && p.split) ? p.split[1] : p.total;
   el.innerHTML =
-    `<div class="amount">${esc(yen(p.total))}<span class="amount__tax">（税込）</span></div>
+    `${n === 2 ? '<p class="note">1回目のお支払いを確認しました。ありがとうございます。残りのお振り込みをお願いいたします。</p>' : ''}
+     <div class="amount">${esc(yen(amount))}<span class="amount__tax">（税込）</span></div>
      ${STATE.bank_due
         ? `<p class="due">お振込期限　<b>${esc(STATE.bank_due)}</b></p>`
         : ''}
@@ -242,6 +326,7 @@ document.addEventListener('click', async (ev) => {
   if (act === 'submit-profile') return submitProfile(btn);
   if (act === 'declare-signed') return declareSigned(btn);
   if (act === 'report-bank')  return reportBank(btn);
+  if (act === 'declare-paid') return declarePaid(btn);
   if (act === 'reload')       return boot();
 });
 
@@ -313,17 +398,49 @@ async function choosePayment(method, btn) {
   finally { busy(btn, false); }
 }
 
-async function reportBank(btn) {
+async function chooseSecond(method, btn) {
+  const label = method === 'カード' ? 'クレジットカード' : '銀行振込';
   const ok = await askConfirm(btn,
-    'お振り込みは完了していますか？運営が着金を確認しましたら、LINEでご連絡します。',
-    'はい、振り込みました');
+    `2回目のお支払いを「${label}」にします。よろしいですか？`, 'はい、これにします');
   if (!ok) return;
   try {
     busy(btn, true);
-    render(await api('report_bank', { uid: getUid() }));
+    render(await api('choose_second', { uid: getUid(), method }));
   } catch (err) { showError(String(err.message || err)); }
   finally { busy(btn, false); }
 }
+
+async function reportBank(btn) {
+  // 通帳と照らし合わせるため、お名義とお振込日を伺う（どちらも任意）
+  const said = await askBankReport(btn);
+  if (!said) return;
+  try {
+    busy(btn, true);
+    render(await api('report_bank', {
+      uid: getUid(),
+      holder: said.holder,
+      paid_on: said.paid_on
+    }));
+  } catch (err) { showError(String(err.message || err)); }
+  finally { busy(btn, false); }
+}
+
+/**
+ * カード決済が済んでいるのに画面が変わらないときの受け皿。
+ * ここでは決済済みにはせず、運営に確認してもらう。
+ */
+async function declarePaid(btn) {
+  const ok = await askConfirm(btn,
+    'カードでのお支払いは完了していますか？運営が確認のうえ、LINEでご連絡します。',
+    'はい、支払いました');
+  if (!ok) return;
+  try {
+    busy(btn, true);
+    render(await api('declare_paid', { uid: getUid() }));
+  } catch (err) { showError(String(err.message || err)); }
+  finally { busy(btn, false); }
+}
+
 
 /** GASのエラーコードを、読んで分かる日本語にする */
 function errorMessage(code) {
@@ -360,11 +477,15 @@ function mockApi(action, body) {
   if (action === 'submit_profile') { s.profile = true; save(s); }
   if (action === 'declare_signed') { s.signed = true; save(s); }
   if (action === 'choose_payment') { s.method = body.method; save(s); }
-  if (action === 'report_bank')    { s.bank_report = true; save(s); }
+  if (action === 'report_bank')    { s.bank_report = true; s.holder = (body && body.holder) || ''; s.paid_on = (body && body.paid_on) || ''; save(s); }
+  if (action === 'declare_paid')   { s.self_paid = true; save(s); }
+  if (action === 'choose_second')  { s.second = body.method; s.bank_report = false; save(s); }
+  if (action === 'mock_pay1')      { s.pay1 = true; save(s); }
 
   const plans = {
-    'VIP':        { label: 'VIPコース', total: 880000, note: 'みこのセッション5回／まみさんの算命学鑑定1回／卒業式でみこと交流できるランチ会／講義資料の使用権', split: [440000, 440000] },
-    'スタンダード': { label: 'スタンダードコース', total: 680000, note: 'みこのセッション3回', split: [300000, 380000] }
+    'VIP':        { label: 'VIPコース', total: 990000, note: 'みこのセッション3回／まみさんの算命学鑑定1回（受講料に含む）／リトリート 12月5日・6日（参加費無料）／卒業生の日 2027年1月24日／講義資料の使用権／講義動画の視聴期限あり', split: [495000, 495000] },
+    'スタンダード': { label: 'スタンダードコース', total: 770000, note: 'みこのセッション2回／まみさんの算命学鑑定は別途鑑定料／卒業生の日 2027年1月24日／講義動画の視聴期限あり', split: [385000, 385000] },
+    '3.5期生':     { label: '3.5期生', total: 385000, note: 'まみさんの算命学鑑定は別途鑑定料／卒業生の日への参加はありません／講義動画の視聴期限あり', split: [192500, 192500] }
   };
   const plan = plans[s.plan] || plans['VIP'];
 
@@ -377,7 +498,13 @@ function mockApi(action, body) {
   else if (!s.signed) stage = '署名待ち';
   else if (!s.method) stage = '支払方法未選択';
   else if (s.method === '銀行振込') stage = s.bank_report ? '着金待ち' : '入金待ち';
-  else if (s.method === 'カード2回' && s.pay1) stage = '2回目決済待ち';
+  else if (s.method === 'カード2回' && s.pay1) {
+    if (!s.second) stage = '2回目の方法選択待ち';
+    else if (s.second === '銀行振込') stage = s.bank_report ? '着金待ち' : '2回目入金待ち';
+    else if (s.self_paid) stage = '決済確認まち';
+    else stage = '2回目決済待ち';
+  }
+  else if (s.self_paid) stage = '決済確認まち';
   else stage = '決済待ち';
 
   return Promise.resolve({
@@ -387,10 +514,12 @@ function mockApi(action, body) {
     payment_method: s.method || '',
     bank: { bank: '〇〇銀行', branch: '△△支店', type: '普通', number: '1234567', holder: 'カ）リンオンジュク', note: '恐れ入りますが、振込手数料はご負担ください。' },
     contract_url: new URLSearchParams(location.search).get('nocontract') === '1' ? '' : 'https://example.com/mock-contract',
-    bank_due: s.method === '銀行振込' ? '2026/08/23 23:59' : null,
+    bank_due: (s.method === '銀行振込' || s.second === '銀行振込') ? '2026/09/05 23:59' : null,
     bank_days: 5,
     require_profile: withProfile,
     allow_self_sign: true,
-    marks: {}
+    marks: { bank_name: s.holder || '', bank_date: s.paid_on || '',
+             self_paid: s.self_paid ? '（申告あり）' : null,
+             second: s.second || '', due_amount: '' }
   });
 }
