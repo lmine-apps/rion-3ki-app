@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>お申し込みの流れ｜凛穏塾 3期生</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+</style>
+<style>
+  :root {
+    --ground:     #eaf4fb;
+    --card:       #ffffff;
+    --card-soft:  #f4fafd;
+    --ink:        #172b3d;
+    --ink-soft:   #5f7387;
+    --ink-faint:  #93a6b6;
+    --line:       #d5e4ef;
+    --navy:       #12345a;
+    --navy-dk:    #0b203d;
+    --sky:        #62b7e7;
+    --sky-soft:   #e5f5fd;
+    --green:      #1f7a5c;
+    --green-soft: #e6f3ee;
+    --warn:       #c0503f;
+    --warn-soft:  #fdf0ed;
+    --gold:       #a8823f;
+    --mark-bg:    #12345a;
+    --on-mark:    #ffffff;
+    --bezel:      #16283a;
+    --shadow:     0 10px 30px rgba(7, 23, 44, .13);
+    --line-bg:    #7f99ad;
+    --line-bubble:#8de05c;
+    --line-ink:   #17300a;
+    --serif: "Yu Mincho", YuMincho, "Hiragino Mincho ProN", "Noto Serif JP", "MS PMincho", serif;
+    --sans: "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic", YuGothic, Meiryo, system-ui, sans-serif;
+    --num: Georgia, "Times New Roman", serif;
+    --mono: Consolas, "Cascadia Mono", ui-monospace, monospace;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground:     #07172a;
+      --card:       #0e2338;
+      --card-soft:  #142a41;
+      --ink:        #e6eef5;
+      --ink-soft:   #9db1c3;
+      --ink-faint:  #6b8299;
+      --line:       #22405c;
+      --navy:       #9fc9e8;
+      --navy-dk:    #cfe6f6;
+      --sky:        #62b7e7;
+      --sky-soft:   #10293d;
+      --green:      #6cc39f;
+      --green-soft: #102b23;
+      --warn:       #e0917f;
+      --warn-soft:  #33201c;
+      --gold:       #d1a95f;
+      --mark-bg:    #62b7e7;
+      --on-mark:    #06182a;
+      --bezel:      #000a14;
+      --shadow:     0 10px 30px rgba(0, 0, 0, .5);
+      --line-bg:    #37505f;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground:     #07172a;
+    --card:       #0e2338;
+    --card-soft:  #142a41;
+    --ink:        #e6eef5;
+    --ink-soft:   #9db1c3;
+    --ink-faint:  #6b8299;
+    --line:       #22405c;
+    --navy:       #9fc9e8;
+    --navy-dk:    #cfe6f6;
+    --sky:        #62b7e7;
+    --sky-soft:   #10293d;
+    --green:      #6cc39f;
+    --green-soft: #102b23;
+    --warn:       #e0917f;
+    --warn-soft:  #33201c;
+    --gold:       #d1a95f;
+    --mark-bg:    #62b7e7;
+    --on-mark:    #06182a;
+    --bezel:      #000a14;
+    --shadow:     0 10px 30px rgba(0, 0, 0, .5);
+    --line-bg:    #37505f;
+  }
+
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.85;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 1060px;
+    margin: 0 auto;
+    padding: 3.4rem 1.3rem 5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 3.4rem;
+  }
+
+  /* ---------- masthead ---------- */
+  .masthead { text-align: center; display: flex; flex-direction: column; align-items: center; gap: .5rem; }
+  .seal {
+    width: 58px; height: 58px; border-radius: 50%;
+    background: var(--navy); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--serif); font-size: 1.6rem; line-height: 1;
+    box-shadow: var(--shadow);
+  }
+  :root:not([data-theme="light"]) .seal, :root[data-theme="dark"] .seal { background: var(--sky); color: #06182a; }
+  .brand {
+    font-family: var(--serif); font-size: .74rem; letter-spacing: .3em;
+    color: var(--gold); padding-left: .3em;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-size: clamp(1.5rem, 4.2vw, 2.1rem);
+    font-weight: 600; line-height: 1.5; text-wrap: balance;
+    margin: .15rem 0 0;
+  }
+  .masthead .lead { color: var(--ink-soft); font-size: .93rem; max-width: 36em; margin: 0; }
+  .rule { width: 46px; height: 1px; background: var(--gold); opacity: .8; }
+
+  /* ---------- section ---------- */
+  section { display: flex; flex-direction: column; gap: 1.6rem; }
+  .sec-head {
+    display: flex; flex-direction: column; gap: .3rem;
+    border-top: 2px solid var(--navy); padding-top: 1rem;
+  }
+  :root:not([data-theme="light"]) .sec-head, :root[data-theme="dark"] .sec-head { border-top-color: var(--sky); }
+  .sec-tag { font-size: .71rem; letter-spacing: .18em; font-weight: 700; color: var(--gold); }
+  .sec-head h2 { font-family: var(--serif); font-size: 1.45rem; font-weight: 600; margin: 0; line-height: 1.45; }
+  .sec-head .meta { font-size: .9rem; color: var(--ink-soft); margin: 0; }
+  .sec-head .meta b { color: var(--ink); font-weight: 600; }
+
+  /* ---------- step ---------- */
+  .step { display: grid; grid-template-columns: 2.2rem 1fr 300px; gap: 0 1.5rem; align-items: start; }
+  .step + .step { border-top: 1px dashed var(--line); padding-top: 1.6rem; }
+  .num {
+    grid-row: 1 / span 2;
+    width: 2.2rem; height: 2.2rem; border-radius: 50%;
+    background: var(--mark-bg); color: var(--on-mark);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--num); font-size: .95rem; font-weight: 700; flex-shrink: 0;
+  }
+  .num.auto { background: var(--green-soft); color: var(--green); border: 1.5px solid var(--green); }
+  .step-body { display: flex; flex-direction: column; gap: .5rem; min-width: 0; }
+  .step-body h3 { font-size: 1.01rem; font-weight: 700; margin: 0; line-height: 1.55; }
+  .step-body p { margin: 0; font-size: .92rem; color: var(--ink-soft); }
+  .step-body p b { color: var(--ink); }
+  .who {
+    display: inline-flex; align-self: flex-start; gap: .3rem;
+    font-size: .71rem; font-weight: 700; letter-spacing: .04em;
+    padding: .16rem .62rem; border-radius: 999px;
+  }
+  .who.guest { background: var(--sky-soft); color: var(--navy); }
+  .who.staff { background: var(--warn-soft); color: var(--warn); }
+  .who.auto  { background: var(--green-soft); color: var(--green); }
+  .visual { min-width: 0; display: flex; flex-direction: column; gap: .7rem; align-items: center; }
+  @media (max-width: 860px) {
+    .step { grid-template-columns: 2.2rem 1fr; }
+    .num { grid-row: auto; }
+    .visual { grid-column: 2; margin-top: .9rem; align-items: flex-start; }
+  }
+
+  /* ---------- phone ---------- */
+  .phone {
+    width: 100%; max-width: 300px;
+    border: 7px solid var(--bezel); border-radius: 26px;
+    background: var(--card-soft); overflow: hidden; box-shadow: var(--shadow);
+  }
+  .scr { padding: 0 0 14px; display: flex; flex-direction: column; gap: 9px; }
+  .scr-head {
+    background: linear-gradient(160deg, var(--navy-dk), var(--navy));
+    padding: 11px 12px 12px; text-align: center;
+    display: flex; flex-direction: column; gap: 1px;
+  }
+  :root:not([data-theme="light"]) .scr-head, :root[data-theme="dark"] .scr-head {
+    background: linear-gradient(160deg, #071d33, #12385c);
+  }
+  .scr-head .k { font-size: 6px; letter-spacing: .3em; color: var(--sky); padding-left: .3em; }
+  .scr-head .t { font-family: var(--serif); font-size: 14px; color: #fff; line-height: 1.3; }
+  .scr-head .s { font-size: 7.5px; color: rgba(255,255,255,.72); }
+  .scr-in { padding: 0 11px; display: flex; flex-direction: column; gap: 9px; }
+
+  .bar { display: flex; align-items: center; gap: 3px; }
+  .bar .st { display: flex; flex-direction: column; align-items: center; gap: 2px; width: 46px; }
+  .bar .dot {
+    width: 16px; height: 16px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--num); font-size: 8.5px; font-weight: 700;
+    background: var(--card); color: var(--ink-faint); border: 1.2px solid var(--line);
+  }
+  .bar .dot.on { background: var(--mark-bg); color: var(--on-mark); border-color: var(--mark-bg); }
+  .bar .dot.ok { background: var(--green); color: #fff; border-color: var(--green); }
+  .bar .lb { font-size: 6.5px; color: var(--ink-faint); white-space: nowrap; }
+  .bar .lb.on { color: var(--navy); font-weight: 700; }
+  .bar .ln { flex: 1; height: 1.4px; background: var(--line); margin-bottom: 9px; }
+  .bar .ln.ok { background: var(--green); }
+
+  .mcard {
+    background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+    padding: 11px 11px; display: flex; flex-direction: column; gap: 7px;
+  }
+  .mcard h4 {
+    font-family: var(--serif); font-size: 12px; font-weight: 600;
+    color: var(--navy); margin: 0; text-align: center; line-height: 1.5;
+  }
+  .plan {
+    background: var(--sky-soft); border-radius: 8px; padding: 8px 9px;
+    display: flex; flex-direction: column; gap: 3px;
+  }
+  .plan .pn { font-family: var(--serif); font-size: 11px; color: var(--navy); }
+  .plan .amt { font-family: var(--num); font-size: 17px; font-weight: 700; color: var(--navy); line-height: 1.2; }
+  .plan .amt small { font-family: var(--sans); font-size: 8px; font-weight: 400; color: var(--ink-soft); }
+  .mrow { display: flex; gap: 7px; font-size: 9px; border-bottom: 1px solid var(--line); padding-bottom: 4px; }
+  .mrow:last-child { border-bottom: 0; padding-bottom: 0; }
+  .mrow .k { color: var(--ink-soft); width: 52px; flex-shrink: 0; }
+  .mrow .v { color: var(--ink); }
+  .mrow .v.n { font-family: var(--num); font-weight: 700; }
+  .doclist { display: flex; flex-direction: column; gap: 5px; }
+  .doclist .d {
+    border: 1px solid var(--line); border-radius: 7px; padding: 6px 8px;
+    font-size: 9.5px; display: flex; flex-direction: column;
+  }
+  .doclist .d span { font-size: 7.5px; color: var(--ink-faint); }
+  .chk { display: flex; gap: 6px; align-items: flex-start; font-size: 9px; line-height: 1.6; }
+  .chk .bx {
+    width: 12px; height: 12px; border: 1.4px solid var(--ink-faint); border-radius: 3px;
+    flex-shrink: 0; margin-top: 2px;
+  }
+  .chk .bx.on { background: var(--green); border-color: var(--green); color: #fff; font-size: 8px; text-align: center; line-height: 10px; }
+  .btn {
+    border-radius: 999px; text-align: center; font-size: 10.5px; font-weight: 700;
+    padding: 9px 8px; color: #fff;
+    background: linear-gradient(135deg, var(--navy), var(--navy-dk));
+  }
+  :root:not([data-theme="light"]) .btn, :root[data-theme="dark"] .btn {
+    background: linear-gradient(135deg, #1d5f92, #0d3a63); color: #fff;
+  }
+  .btn.off { background: var(--line); color: var(--ink-faint); }
+  .btn.ghost { background: transparent; color: var(--navy); border: 1.4px solid var(--navy); }
+  .opt {
+    border: 1.4px solid var(--line); border-radius: 9px; padding: 8px 9px;
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .opt.sel { border-color: var(--sky); background: var(--sky-soft); }
+  .opt .ot { font-size: 10px; font-weight: 700; color: var(--ink); }
+  .opt .oa { font-family: var(--num); font-size: 12.5px; font-weight: 700; color: var(--navy); }
+  .opt .od { font-size: 7.5px; color: var(--ink-soft); line-height: 1.6; }
+  .bank { background: var(--card-soft); border-radius: 8px; padding: 8px 9px; display: flex; flex-direction: column; gap: 3px; }
+  .bank .r { display: flex; gap: 6px; font-size: 9px; }
+  .bank .r .k { color: var(--ink-soft); width: 46px; flex-shrink: 0; }
+  .bank .r .v { color: var(--ink); }
+  .bank .r .v.n { font-family: var(--num); font-weight: 700; }
+  .field { display: flex; flex-direction: column; gap: 3px; }
+  .field .lb { font-size: 8px; color: var(--ink-soft); }
+  .field .box { height: 20px; border: 1px solid var(--line); border-radius: 6px; background: var(--card-soft); }
+  .icon { text-align: center; font-size: 21px; line-height: 1; }
+  .msg { font-size: 9.5px; text-align: center; color: var(--ink-soft); line-height: 1.75; }
+  .msg b { color: var(--ink); }
+  .sbadge {
+    align-self: center; font-size: 8.5px; font-weight: 700;
+    padding: 3px 11px; border-radius: 999px;
+    background: var(--green-soft); color: var(--green);
+  }
+  .sbadge.wait { background: var(--sky-soft); color: var(--navy); }
+  .sbadge.warn { background: var(--warn-soft); color: var(--warn); }
+  .mnote {
+    font-size: 8px; line-height: 1.7; color: var(--ink-soft);
+    background: var(--card-soft); border-left: 2.5px solid var(--gold);
+    border-radius: 5px; padding: 6px 8px;
+  }
+  .cap { font-size: .76rem; color: var(--ink-faint); text-align: center; margin: 0; max-width: 300px; }
+
+  /* ---------- LINE ---------- */
+  .talk {
+    background: var(--line-bg); border-radius: 14px; padding: 12px 11px;
+    display: flex; flex-direction: column; gap: 7px; width: 100%; max-width: 300px;
+  }
+  .talk .who-lb { font-size: 8.5px; color: rgba(255,255,255,.92); font-weight: 700; letter-spacing: .05em; }
+  .bubble {
+    background: var(--line-bubble); color: var(--line-ink);
+    border-radius: 13px; padding: 9px 11px;
+    font-size: 10px; line-height: 1.85; white-space: pre-line; align-self: flex-start;
+  }
+  .bubble.btn-b {
+    background: #fff; color: var(--navy-dk); font-weight: 700;
+    text-align: center; align-self: stretch; padding: 9px; border-radius: 11px;
+  }
+
+  /* ---------- tables ---------- */
+  .tbl-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--card); }
+  table { border-collapse: collapse; width: 100%; font-size: .87rem; min-width: 520px; }
+  th, td { padding: .6rem .8rem; text-align: left; border-bottom: 1px solid var(--line); }
+  th { background: var(--card-soft); font-size: .77rem; color: var(--ink-soft); font-weight: 700; white-space: nowrap; }
+  tr:last-child td { border-bottom: 0; }
+  td.n { font-family: var(--num); font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .pill { display: inline-block; font-size: .71rem; font-weight: 700; padding: .1rem .55rem; border-radius: 999px; white-space: nowrap; }
+  .pill.ok   { background: var(--green-soft); color: var(--green); }
+  .pill.wait { background: var(--sky-soft); color: var(--navy); }
+  .pill.act  { background: var(--warn-soft); color: var(--warn); }
+  code.inline {
+    font-family: var(--mono); font-size: .82em;
+    background: var(--card-soft); border: 1px solid var(--line);
+    border-radius: 4px; padding: .05em .35em;
+  }
+
+  /* ---------- callout ---------- */
+  .call {
+    background: var(--card); border: 1px solid var(--line); border-left: 3px solid var(--gold);
+    border-radius: 10px; padding: 1rem 1.2rem; display: flex; flex-direction: column; gap: .35rem;
+  }
+  .call h3 { font-family: var(--serif); font-size: 1rem; margin: 0; font-weight: 600; }
+  .call p { margin: 0; font-size: .89rem; color: var(--ink-soft); }
+  .call p b { color: var(--ink); }
+  .call.calm { border-left-color: var(--green); }
+  .call.warn { border-left-color: var(--warn); }
+
+  .branch {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+  }
+  .branch .b {
+    background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+    padding: .95rem 1.1rem; display: flex; flex-direction: column; gap: .3rem;
+  }
+  .branch .b .bt { font-family: var(--serif); font-size: 1rem; color: var(--navy); }
+  .branch .b .bd { font-size: .86rem; color: var(--ink-soft); margin: 0; }
+  .branch .b .bn { font-family: var(--num); font-size: 1.15rem; font-weight: 700; }
+
+  footer { border-top: 1px solid var(--line); padding-top: 1.3rem; font-size: .83rem; color: var(--ink-soft); }
+  footer p { margin: .2rem 0; }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="seal">凛</div>
+    <div class="brand">RINON JUKU / 3rd</div>
+    <h1>お申し込みの流れ</h1>
+    <div class="rule"></div>
+    <p class="lead">合格のご連絡から、お手続きの完了まで。<br>受講生の方がどんな画面を見て、どんなLINEを受け取るのかを、画面付きでご説明します。</p>
+  </header>
+
+  <!-- ============================================================ -->
+  <section>
+    <div class="sec-head">
+      <div class="sec-tag">FLOW 01</div>
+      <h2>合格のご案内が届くまで</h2>
+      <p class="meta">面談を終えてから、<b>運営がボタンを押してはじめて</b>ご案内が届きます。うっかり送られることはありません。</p>
+    </div>
+
+    <div class="step">
+      <div class="num">1</div>
+      <div class="step-body">
+        <span class="who guest">受講希望の方</span>
+        <h3>募集のご案内から、2つのフォームにご回答</h3>
+        <p>LINEに届く募集のご案内から、<b>受講希望フォーム</b>と<b>意気込みフォーム</b>にご回答いただきます。お名前・ご連絡先・志望の背景などをお伺いします。</p>
+        <p>この2つは<b>プロラインのフォーム</b>です。回答はそのままスプレッドシートに溜まっていきます。</p>
+      </div>
+      <div class="visual">
+        <div class="talk">
+          <div class="who-lb">LINE ／ 募集期間中</div>
+          <div class="bubble">凛穏塾3期生の募集を
+開始いたしました。
+
+まずは下記のフォームより、
+ご受講のご希望を
+お聞かせくださいませ。
+
+▼ 受講希望フォーム</div>
+          <div class="bubble btn-b">フォームに回答する</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num">2</div>
+      <div class="step-body">
+        <span class="who staff">運営</span>
+        <h3>面談を行い、結果をシートに記録します</h3>
+        <p>面談シートに、<b>面談日時</b>・<b>結果</b>（受講希望／検討中／辞退）・<b>ご希望のプラン</b>（VIP／スタンダード）を記録します。</p>
+        <p>「受講希望」に印を付けた方だけが、次の管理シートへ進みます。</p>
+      </div>
+      <div class="visual">
+        <div class="tbl-wrap" style="max-width:300px">
+          <table style="min-width:0;font-size:.75rem">
+            <tr><th>お名前</th><th>面談</th><th>結果</th><th>プラン</th></tr>
+            <tr><td>とーる</td><td>08/20 14:00</td><td><span class="pill ok">受講希望</span></td><td>VIP</td></tr>
+            <tr><td>—</td><td>08/20 14:30</td><td><span class="pill wait">検討中</span></td><td></td></tr>
+          </table>
+        </div>
+        <p class="cap">面談シート（運営だけが見ます）</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num">3</div>
+      <div class="step-body">
+        <span class="who staff">運営</span>
+        <h3>管理シートへ移し、メニューからご案内を送ります</h3>
+        <p><b>「移す」と「送る」は別の操作</b>にしてあります。移しただけではLINEは飛びません。移したあと、送る方を選んでメニューから送信します。</p>
+        <p>送信すると、管理シートの<b>「お申し込みのご案内」</b>の欄に日時が入ります。ここが空なら、まだ送っていないということです。</p>
+      </div>
+      <div class="visual">
+        <div class="tbl-wrap" style="max-width:300px">
+          <table style="min-width:0;font-size:.75rem">
+            <tr><th>☑</th><th>お名前</th><th>ご案内</th></tr>
+            <tr><td>☑</td><td>とーる</td><td><span class="pill act">これから</span></td></tr>
+            <tr><td></td><td>—</td><td>08/22 15:40</td></tr>
+          </table>
+        </div>
+        <p class="cap">☑ を付けて、メニュー「お申し込みのご案内を送る」</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num auto">✓</div>
+      <div class="step-body">
+        <span class="who auto">自動</span>
+        <h3>合格のご連絡と、お手続きのURLが届きます</h3>
+        <p>LINEに合格のご連絡が届き、そのままお手続きの画面へ進めるボタンが付きます。</p>
+        <p>このURLは<b>お一人ずつ違います</b>。開いた方がどなたなのかを画面が分かっているので、お名前やIDを入力していただく必要はありません。</p>
+      </div>
+      <div class="visual">
+        <div class="talk">
+          <div class="who-lb">LINE ／ 運営が送信した直後</div>
+          <div class="bubble">このたびは、
+凛穏塾3期生への
+お申し込みをいただき
+ありがとうございました。
+
+厳正なる選考の結果、
+ご受講いただけることと
+なりましたのでご連絡いたします。
+
+下記より、お手続きへ
+お進みくださいませ。
+
+▼ お手続きはこちらから</div>
+          <div class="bubble btn-b">お手続きに進む</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <div class="sec-head">
+      <div class="sec-tag">FLOW 02</div>
+      <h2>① ご受講内容のご確認</h2>
+      <p class="meta">お手続きは<b>3つのステップ</b>です。途中で閉じても、次に開いたときは<b>続きから</b>はじまります。</p>
+    </div>
+
+    <div class="step">
+      <div class="num">4</div>
+      <div class="step-body">
+        <span class="who guest">受講生の方</span>
+        <h3>ご自身のプランと金額が、最初に表示されます</h3>
+        <p>ボタンをタップすると、お手続きの画面が開きます。<b>ご自身のプランと受講料</b>、そして<b>ご確認いただく3つの書類</b>が並びます。</p>
+        <p>書類はどれも<b>画面の中で開きます</b>。別のサイトへ飛ばされて迷子になる、ということがありません。</p>
+        <p>文字が小さいと感じる方のために、画面の上に<b>「文字サイズ 中／大」</b>の切り替えを置いています。</p>
+      </div>
+      <div class="visual">
+        <div class="phone"><div class="scr">
+          <div class="scr-head">
+            <div class="k">RINON JUKU / 3rd</div>
+            <div class="t">凛穏塾 3期生</div>
+            <div class="s">お申し込みの流れ</div>
+          </div>
+          <div class="scr-in">
+            <div class="bar">
+              <div class="st"><div class="dot on">1</div><div class="lb on">利用規約</div></div>
+              <div class="ln"></div>
+              <div class="st"><div class="dot">2</div><div class="lb">契約書署名</div></div>
+              <div class="ln"></div>
+              <div class="st"><div class="dot">3</div><div class="lb">お支払い</div></div>
+            </div>
+            <div class="mcard">
+              <h4>ご受講内容のご確認</h4>
+              <div class="plan">
+                <div class="pn">VIPコース</div>
+                <div class="amt">990,000<small> 円（税込）</small></div>
+              </div>
+              <div class="doclist">
+                <div class="d">受講規約<span>ご受講にあたっての取り決め</span></div>
+                <div class="d">特定商取引法に基づく表記<span>販売者・お支払い・返品について</span></div>
+                <div class="d">プライバシーポリシー<span>個人情報の取り扱い</span></div>
+              </div>
+              <div class="chk"><span class="bx"></span><span>上記の内容をすべて確認し、<b>同意します</b></span></div>
+              <div class="chk"><span class="bx"></span><span>ご契約に関する書面を、<b>電子データで受け取ること</b>に承諾します</span></div>
+              <div class="btn off">同意して次へ進む</div>
+            </div>
+          </div>
+        </div></div>
+        <p class="cap">2つとも印を付けるまで、ボタンは押せません</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num">5</div>
+      <div class="step-body">
+        <span class="who guest">受講生の方</span>
+        <h3>2つの印を付けると、ボタンが押せるようになります</h3>
+        <p>「同意します」と「電子データで受け取ることに承諾します」の<b>両方</b>に印を付けてはじめて、次へ進むボタンが有効になります。</p>
+        <p>紙の書面をご希望の方のために、<b>公式LINEでお申し付けいただける</b>ことも画面に書いてあります。</p>
+      </div>
+      <div class="visual">
+        <div class="phone"><div class="scr">
+          <div class="scr-head">
+            <div class="k">RINON JUKU / 3rd</div>
+            <div class="t">凛穏塾 3期生</div>
+            <div class="s">お申し込みの流れ</div>
+          </div>
+          <div class="scr-in">
+            <div class="mcard">
+              <div class="chk"><span class="bx on">✓</span><span>上記の内容をすべて確認し、<b>同意します</b></span></div>
+              <div class="chk"><span class="bx on">✓</span><span>ご契約に関する書面を、<b>電子データで受け取ること</b>に承諾します</span></div>
+              <div class="mnote">契約書などの書面は、LINEでお送りするURLから、画面での表示・保存ができる形でお渡しします。紙の書面をご希望の場合は、公式LINEにてお申し付けください。</div>
+              <div class="btn">同意して次へ進む</div>
+            </div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num auto">✓</div>
+      <div class="step-body">
+        <span class="who auto">自動</span>
+        <h3>同意した時刻が記録され、次のご案内が届きます</h3>
+        <p>同意された瞬間に、管理シートへ<b>日時が記録</b>されます。「言った・言わない」が残らないようにするためです。</p>
+        <p>同時に、次のステップ（ご署名）のご案内がLINEに届きます。画面を閉じてしまった方も、LINEから戻ってこられます。</p>
+      </div>
+      <div class="visual">
+        <div class="talk">
+          <div class="who-lb">LINE ／ ご同意の直後</div>
+          <div class="bubble">ご確認いただき
+ありがとうございます。
+
+続いて、契約書への
+ご署名をお願いいたします。
+
+▼ ご署名はこちらから</div>
+          <div class="bubble btn-b">ご署名に進む</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <div class="sec-head">
+      <div class="sec-tag">FLOW 03</div>
+      <h2>② 契約書へのご署名</h2>
+      <p class="meta">ご署名は<b>GMOサイン</b>で行います。凛穏塾の画面から出て、署名が終わると戻ってきます。</p>
+    </div>
+
+    <div class="step">
+      <div class="num">6</div>
+      <div class="step-body">
+        <span class="who guest">受講生の方</span>
+        <h3>署名のページへ進みます</h3>
+        <p>ボタンから署名のページが開きます。<b>スマートフォンの指でご署名いただけます</b>。印鑑もプリンターも要りません。</p>
+        <p>署名が終わると、控えのPDFがご自身のもとに残ります。</p>
+      </div>
+      <div class="visual">
+        <div class="phone"><div class="scr">
+          <div class="scr-head">
+            <div class="k">RINON JUKU / 3rd</div>
+            <div class="t">凛穏塾 3期生</div>
+            <div class="s">お申し込みの流れ</div>
+          </div>
+          <div class="scr-in">
+            <div class="bar">
+              <div class="st"><div class="dot ok">✓</div><div class="lb">利用規約</div></div>
+              <div class="ln ok"></div>
+              <div class="st"><div class="dot on">2</div><div class="lb on">契約書署名</div></div>
+              <div class="ln"></div>
+              <div class="st"><div class="dot">3</div><div class="lb">お支払い</div></div>
+            </div>
+            <div class="mcard">
+              <h4>契約書へのご署名</h4>
+              <div class="msg">下のボタンから署名のページが開きます。<b>スマートフォンの指でご署名いただけます。</b></div>
+              <div class="mrow"><span class="k">書類</span><span class="v">凛穏塾 受講契約書</span></div>
+              <div class="mrow"><span class="k">お名前</span><span class="v">とーる 様</span></div>
+              <div class="mrow"><span class="k">コース</span><span class="v">VIPコース</span></div>
+              <div class="btn">契約書に署名する</div>
+              <div class="mnote">署名が終わりましたら、この画面にお戻りください。自動でお支払いのご案内へ進みます。</div>
+            </div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num auto">✓</div>
+      <div class="step-body">
+        <span class="who auto">自動</span>
+        <h3>署名が終わると、お支払いの画面に進みます</h3>
+        <p>署名を終えて戻ってこられると、<b>署名完了の日時が記録</b>され、そのままお支払いの選択画面が開きます。</p>
+        <p>もし戻る前に閉じてしまっても、LINEのボタンからもう一度開けば同じ場所に戻ります。</p>
+      </div>
+      <div class="visual">
+        <div class="talk">
+          <div class="who-lb">LINE ／ ご署名の直後</div>
+          <div class="bubble">ご署名いただき
+ありがとうございました。
+
+続いて、お支払い方法の
+ご選択にお進みください。
+
+▼ お支払いはこちらから</div>
+          <div class="bubble btn-b">お支払いに進む</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <div class="sec-head">
+      <div class="sec-tag">FLOW 04</div>
+      <h2>③ お支払い方法をお選びいただく</h2>
+      <p class="meta">お支払いは<b>3つ</b>からお選びいただけます。ここから先は、選ばれた方法によって画面が分かれます。</p>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <tr><th>コース</th><th>一括</th><th>2回に分ける</th><th>含まれるもの</th></tr>
+        <tr>
+          <td>VIP</td><td class="n">990,000円</td><td class="n">2回に分割</td>
+          <td>みこのセッション3回／算命学鑑定1回／リトリート／卒業生の日</td>
+        </tr>
+        <tr>
+          <td>スタンダード</td><td class="n">770,000円</td><td class="n">2回に分割</td>
+          <td>みこのセッション2回／リトリート／卒業生の日</td>
+        </tr>
+        <tr>
+          <td>3.5期生</td><td class="n">385,000円</td><td class="n">2回に分割</td>
+          <td>卒業生の日への参加はございません</td>
+        </tr>
+      </table>
+    </div>
+    <p class="cap" style="max-width:none;text-align:left">※ 2回に分ける場合の1回ごとの金額は、確定しだいこの表に入れます。全コース、講義動画の視聴には期限がございます。</p>
+
+    <div class="step">
+      <div class="num">7</div>
+      <div class="step-body">
+        <span class="who guest">受講生の方</span>
+        <h3>3つの中からお選びいただきます</h3>
+        <p><b>カードで一括</b>／<b>2回に分けてお支払い</b>／<b>銀行振込</b>の3つです。それぞれに金額と、その先どうなるかが書いてあります。</p>
+        <p>「2回に分けてお支払い」を選ばれた場合、<b>1回目はカード</b>で、2回目はあらためて<b>カードか振込かをお選びいただけます</b>。</p>
+        <p>カード会社側での分割払いをご希望の方には、その手順のご案内も用意しています。</p>
+      </div>
+      <div class="visual">
+        <div class="phone"><div class="scr">
+          <div class="scr-head">
+            <div class="k">RINON JUKU / 3rd</div>
+            <div class="t">凛穏塾 3期生</div>
+            <div class="s">お申し込みの流れ</div>
+          </div>
+          <div class="scr-in">
+            <div class="bar">
+              <div class="st"><div class="dot ok">✓</div><div class="lb">利用規約</div></div>
+              <div class="ln ok"></div>
+              <div class="st"><div class="dot ok">✓</div><div class="lb">契約書署名</div></div>
+              <div class="ln ok"></div>
+              <div class="st"><div class="dot on">3</div><div class="lb on">お支払い</div></div>
+            </div>
+            <div class="mcard">
+              <h4>お支払い方法をお選びください</h4>
+              <div class="opt">
+                <span class="ot">クレジットカードで一括</span>
+                <span class="oa">990,000円</span>
+                <span class="od">お手続き後すぐに完了します</span>
+              </div>
+              <div class="opt sel">
+                <span class="ot">2回に分けてお支払い</span>
+                <span class="oa">2回に分割</span>
+                <span class="od">1回目はカード。2回目はカードか振込をお選びいただけます</span>
+              </div>
+              <div class="opt">
+                <span class="ot">銀行振込</span>
+                <span class="oa">990,000円</span>
+                <span class="od">口座をお伝えします。ご入金の確認をもって完了です</span>
+              </div>
+              <div class="btn">この方法で進む</div>
+            </div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+
+    <div class="branch">
+      <div class="b">
+        <span class="bt">A｜カードで一括</span>
+        <p class="bd">決済ページでお支払い → その場で<b>完了</b>。運営の作業はありません。</p>
+      </div>
+      <div class="b">
+        <span class="bt">B｜2回に分ける</span>
+        <p class="bd">1回目カード → <b>2回目の方法を選ぶ画面</b>が出ます → カードか振込へ。</p>
+      </div>
+      <div class="b">
+        <span class="bt">C｜銀行振込</span>
+        <p class="bd">口座をご案内 → お振込 →「振り込みました」→ <b>運営が着金を確認</b>して完了。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <div class="sec-head">
+      <div class="sec-tag">FLOW 05</div>
+      <h2>2回に分けてお支払いいただく場合</h2>
+      <p class="meta">1回目のお支払いが終わったあとに、<b>2回目をどうされるか</b>をお選びいただきます。</p>
+    </div>
+
+    <div class="step">
+      <div class="num">8</div>
+      <div class="step-body">
+        <span class="who guest">受講生の方</span>
+        <h3>1回目のお支払いが終わると、2回目の選択画面が出ます</h3>
+        <p>1回目のカード決済が確認できた時点で、この画面に切り替わります。<b>カードでもう一度</b>か、<b>銀行振込</b>かをお選びいただけます。</p>
+        <p>「カード＋カード」でも「カード＋振込」でも、どちらでも大丈夫です。</p>
+      </div>
+      <div class="visual">
+        <div class="phone"><div class="scr">
+          <div class="scr-head">
+            <div class="k">RINON JUKU / 3rd</div>
+            <div class="t">凛穏塾 3期生</div>
+            <div class="s">お申し込みの流れ</div>
+          </div>
+          <div class="scr-in">
+            <div class="sbadge">1回目のお支払い 完了</div>
+            <div class="mcard">
+              <h4>2回目のお支払い方法を<br>お選びください</h4>
+              <div class="mrow"><span class="k">1回目</span><span class="v n">お支払い済み</span></div>
+              <div class="mrow"><span class="k">2回目</span><span class="v n">残りのお支払い</span></div>
+              <div class="opt">
+                <span class="ot">クレジットカード</span>
+                <span class="od">決済ページですぐにお手続きいただけます</span>
+              </div>
+              <div class="opt">
+                <span class="ot">銀行振込</span>
+                <span class="od">口座をお伝えします。ご入金の確認をもって完了です</span>
+              </div>
+              <div class="btn">この方法で進む</div>
+            </div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+
+    <div class="call">
+      <h3>スプレッドシートでも「1回目はカード、2回目は振込」と分かります</h3>
+      <p>管理シートには、<b>支払方法</b>・<b>決済1回目</b>・<b>決済2回目</b>・<b>2回目の方法</b>が別々の欄で並んでいます。さらに<b>「ご確認いただく金額」</b>の欄に、いま確認すべき金額が自動で入るので、通帳と照らすときに迷いません。</p>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <div class="sec-head">
+      <div class="sec-tag">FLOW 06</div>
+      <h2>銀行振込をお選びいただいた場合</h2>
+      <p class="meta">ここだけは<b>運営の確認</b>が入ります。お客さまをお待たせしないよう、画面で状況が分かるようにしています。</p>
+    </div>
+
+    <div class="step">
+      <div class="num">9</div>
+      <div class="step-body">
+        <span class="who guest">受講生の方</span>
+        <h3>口座とお振込期限が表示されます</h3>
+        <p>お振込先と、<b>お振込の期限</b>（ご案内から5日）が出ます。金額もそのまま表示されるので、メモを取っていただく必要はありません。</p>
+        <p>お振込がお済みになったら、<b>「振り込みました」</b>のボタンを押していただきます。</p>
+      </div>
+      <div class="visual">
+        <div class="phone"><div class="scr">
+          <div class="scr-head">
+            <div class="k">RINON JUKU / 3rd</div>
+            <div class="t">凛穏塾 3期生</div>
+            <div class="s">お申し込みの流れ</div>
+          </div>
+          <div class="scr-in">
+            <div class="mcard">
+              <h4>お振り込みのご案内</h4>
+              <div class="plan">
+                <div class="pn">お振込金額</div>
+                <div class="amt">990,000<small> 円（税込）</small></div>
+              </div>
+              <div class="bank">
+                <div class="r"><span class="k">銀行</span><span class="v">○○銀行 ○○支店</span></div>
+                <div class="r"><span class="k">種別</span><span class="v">普通</span></div>
+                <div class="r"><span class="k">口座番号</span><span class="v n">470●●●●</span></div>
+                <div class="r"><span class="k">名義</span><span class="v">カ）○○○○</span></div>
+              </div>
+              <div class="mrow"><span class="k">お振込期限</span><span class="v n">8月27日（水）</span></div>
+              <div class="mnote">お振込手数料はご負担をお願いしております。お名義が異なる場合は、次の画面でお知らせください。</div>
+              <div class="btn">振り込みました</div>
+            </div>
+          </div>
+        </div></div>
+        <p class="cap">口座番号はこの資料では伏せています</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num">10</div>
+      <div class="step-body">
+        <span class="who guest">受講生の方</span>
+        <h3>お名義とお振込日をお伺いします</h3>
+        <p>ご家族のお名前でお振込いただくこともあるため、<b>お振込のお名義</b>と<b>お振込日</b>をお聞きします。運営が通帳と照らすときに、これがあると確認がとても早くなります。</p>
+      </div>
+      <div class="visual">
+        <div class="phone"><div class="scr">
+          <div class="scr-head">
+            <div class="k">RINON JUKU / 3rd</div>
+            <div class="t">凛穏塾 3期生</div>
+            <div class="s">お申し込みの流れ</div>
+          </div>
+          <div class="scr-in">
+            <div class="mcard">
+              <h4>お振込の内容をお知らせください</h4>
+              <div class="field"><span class="lb">お振込のお名義</span><span class="box"></span></div>
+              <div class="field"><span class="lb">お振込日</span><span class="box"></span></div>
+              <div class="btn">この内容で連絡する</div>
+            </div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num">11</div>
+      <div class="step-body">
+        <span class="who guest">受講生の方</span>
+        <h3>「確認をお待ちください」の画面になります</h3>
+        <p>ここで一度、お客さまの操作は終わりです。<b>いま何を待っている状態なのか</b>が画面に書いてあるので、「これで合っているのかな」と不安になりません。</p>
+        <p>この画面は<b>ときどき自動で状況を見に行きます</b>。運営が確認を終えると、開いたままでも完了の画面に変わります。</p>
+      </div>
+      <div class="visual">
+        <div class="phone"><div class="scr">
+          <div class="scr-head">
+            <div class="k">RINON JUKU / 3rd</div>
+            <div class="t">凛穏塾 3期生</div>
+            <div class="s">お申し込みの流れ</div>
+          </div>
+          <div class="scr-in">
+            <div class="sbadge wait">ご入金の確認中</div>
+            <div class="mcard">
+              <div class="icon">🕊</div>
+              <h4>ご入金の確認をお待ちください</h4>
+              <div class="msg">お振込のご連絡をいただきました。<br>運営にて確認が取れましたら、<b>LINEにてご連絡</b>いたします。</div>
+              <div class="mrow"><span class="k">お名義</span><span class="v">トオル</span></div>
+              <div class="mrow"><span class="k">お振込日</span><span class="v n">8月22日</span></div>
+              <div class="mnote">お支払いが済んでいるのにご連絡が届かないときは、こちらからお知らせください。</div>
+            </div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num">12</div>
+      <div class="step-body">
+        <span class="who staff">運営</span>
+        <h3>お支払いシートで、着金を確認して印を付けます</h3>
+        <p>お支払い専用のシートに、<b>お名義・お振込日・ご確認いただく金額</b>が並びます。通帳と見比べて、合っていれば<b>「確認済み」</b>に変えるだけです。</p>
+        <p>この操作をした瞬間に、次の完了のご連絡が自動で飛びます。<b>運営が文面を書く必要はありません。</b></p>
+      </div>
+      <div class="visual">
+        <div class="tbl-wrap" style="max-width:300px">
+          <table style="min-width:0;font-size:.73rem">
+            <tr><th>お名前</th><th>お名義</th><th>金額</th><th>確認</th></tr>
+            <tr><td>とーる</td><td>トオル</td><td class="n">990,000</td><td><span class="pill act">未確認</span></td></tr>
+            <tr><td>—</td><td>—</td><td class="n">385,000</td><td><span class="pill ok">確認済み</span></td></tr>
+          </table>
+        </div>
+        <p class="cap">お支払いシート（管理シートからも同じことができます）</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="num auto">✓</div>
+      <div class="step-body">
+        <span class="who auto">自動</span>
+        <h3>完了のご連絡が届き、画面も完了に変わります</h3>
+        <p>LINEに着金確認のご連絡が届きます。同時に、お客さまの画面も<b>「お手続きが完了しました」</b>に変わり、入学式のご案内が表示されます。</p>
+      </div>
+      <div class="visual">
+        <div class="talk">
+          <div class="who-lb">LINE ／ 運営が確認した直後</div>
+          <div class="bubble">ご入金を確認いたしました。
+ありがとうございます。
+
+これをもちまして、
+すべてのお手続きが
+完了となります。
+
+入学式にて
+お目にかかれますことを
+楽しみにしております。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <div class="sec-head">
+      <div class="sec-tag">GOAL</div>
+      <h2>お手続きの完了</h2>
+      <p class="meta">どの方法でお支払いいただいても、たどり着く画面は同じです。</p>
+    </div>
+
+    <div class="step">
+      <div class="num auto">✓</div>
+      <div class="step-body">
+        <span class="who guest">受講生の方</span>
+        <h3>入学式のご案内が表示されます</h3>
+        <p>ここまで来ると、この画面は<b>いつ開いても完了のまま</b>です。何度開いても二重にお支払いが発生することはありません。</p>
+        <p>入学式の日程など、当日までに必要なご案内はこの画面から見返していただけます。</p>
+      </div>
+      <div class="visual">
+        <div class="phone"><div class="scr">
+          <div class="scr-head">
+            <div class="k">RINON JUKU / 3rd</div>
+            <div class="t">凛穏塾 3期生</div>
+            <div class="s">お申し込みの流れ</div>
+          </div>
+          <div class="scr-in">
+            <div class="bar">
+              <div class="st"><div class="dot ok">✓</div><div class="lb">利用規約</div></div>
+              <div class="ln ok"></div>
+              <div class="st"><div class="dot ok">✓</div><div class="lb">契約書署名</div></div>
+              <div class="ln ok"></div>
+              <div class="st"><div class="dot ok">✓</div><div class="lb">お支払い</div></div>
+            </div>
+            <div class="sbadge">お手続き完了</div>
+            <div class="mcard">
+              <div class="icon">🌿</div>
+              <h4>お手続きが完了しました</h4>
+              <div class="msg">とーる 様<br>ご準備いただき、ありがとうございました。</div>
+              <div class="mrow"><span class="k">コース</span><span class="v">VIPコース</span></div>
+              <div class="mrow"><span class="k">受講料</span><span class="v n">990,000円</span></div>
+              <div class="mrow"><span class="k">入学式</span><span class="v">10月1日（木）</span></div>
+              <div class="mnote">当日までのご案内は、公式LINEよりお届けいたします。</div>
+            </div>
+          </div>
+        </div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <section>
+    <div class="sec-head">
+      <div class="sec-tag">OPERATION</div>
+      <h2>運営から見えている画面</h2>
+      <p class="meta">運営の作業は<b>スプレッドシート</b>で完結します。専用の管理画面を開く必要はありません。</p>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <tr><th>シート</th><th>役目</th><th>運営が触るところ</th></tr>
+        <tr>
+          <td>プロラインのフォーム 2枚</td>
+          <td>ご回答がそのまま溜まる場所</td>
+          <td><span class="pill wait">見るだけ</span></td>
+        </tr>
+        <tr>
+          <td>📖 意気込み</td>
+          <td>ご回答を日本語の見出しで読みやすくしたもの</td>
+          <td><span class="pill wait">見るだけ</span></td>
+        </tr>
+        <tr>
+          <td>📋 面談</td>
+          <td>面談の日時・結果・プランを決める場所</td>
+          <td><span class="pill act">面談日時／結果／プラン</span></td>
+        </tr>
+        <tr>
+          <td>管理</td>
+          <td>お一人ずつの進み具合が、左から右へ並ぶ場所</td>
+          <td><span class="pill act">プラン・入金確認・メモ</span></td>
+        </tr>
+        <tr>
+          <td>💰 お支払い</td>
+          <td>お支払いの状況だけを抜き出した場所</td>
+          <td><span class="pill act">入金確認</span></td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="call calm">
+      <h3>運営が押すボタンは、実質2つだけです</h3>
+      <p><b>①「お申し込みのご案内を送る」</b>（面談で受講希望になった方へ）と、<b>②「入金確認」を確認済みにする</b>（銀行振込の方へ）。この2つ以外は、お客さまの操作にあわせて自動で進みます。</p>
+    </div>
+
+    <div class="call">
+      <h3>数字は自動で数えます</h3>
+      <p>管理シートの上部に、<b>ご案内済み／規約同意済み／署名済み／お支払い済み／着金待ち</b>の人数が出ます。いま何人がどこで止まっているのかが、ひと目で分かります。</p>
+    </div>
+
+    <div class="call warn">
+      <h3>まちがえやすいところ</h3>
+      <p><b>「管理シートに移す」だけではLINEは飛びません。</b>移したあと、メニューから送信して、はじめてお客さまに届きます。管理シートの<b>「お申し込みのご案内」</b>の欄に日時が入っているかどうかでご確認ください。</p>
+    </div>
+  </section>
+
+  <footer>
+    <p>凛穏塾 3期生 お申し込みアプリ ／ 運営・関係者向けの説明資料です。</p>
+    <p>この資料の口座番号・金額の内訳は、実際の値と異なる場合があります。最新の内容はスプレッドシートをご確認ください。</p>
+  </footer>
+
+</div>
+</body>
+</html>
