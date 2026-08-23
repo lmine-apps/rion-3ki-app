@@ -41,6 +41,10 @@ function render(res) {
   if (!res || res.ok === false) { showError(res && res.error ? errorMessage(res.error) : '状態を取得できませんでした'); return; }
   STATE = res;
 
+  // テスト中だけ帯を出す。本番の金額ではないと、ひと目で分かるように
+  const tb = document.getElementById('testbar');
+  if (tb) tb.hidden = !res.test_mode;
+
   if (!res.registered) { showScreen('screen-unregistered'); return; }
 
   const wp = !!res.require_profile;                 // お客様情報ステップを挟む設定か

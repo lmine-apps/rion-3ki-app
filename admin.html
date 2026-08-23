@@ -61,6 +61,7 @@
   .head button:hover{background:rgba(255,255,255,.2)}
   .flag{font-size:.68rem;font-weight:700;padding:.15rem .6rem;border-radius:999px;background:#fbe9e7;color:#9c3a28}
   .flag.dry{background:#fdf3dd;color:#8a6a1e}
+  .flag.test{background:#b25c17;color:#fff}
 
   .wrap{max-width:1000px;margin:0 auto;padding:1.2rem 1rem 4rem;display:flex;flex-direction:column;gap:1.2rem}
 
@@ -304,8 +305,14 @@ function show(r) {
 
   const flag = $('flag');
   flag.hidden = false;
-  flag.textContent = r.dry_run ? 'お試し中（LINEは飛びません）' : '本番運転';
-  flag.className = 'flag' + (r.dry_run ? ' dry' : '');
+  if (r.test_mode) {
+    // 決済が100円・150円になっている。いちばん目立たせる
+    flag.textContent = '🧪 テストモード（決済 100円／150円）';
+    flag.className = 'flag test';
+  } else {
+    flag.textContent = r.dry_run ? 'お試し中（LINEは飛びません）' : '本番運転';
+    flag.className = 'flag' + (r.dry_run ? ' dry' : '');
+  }
 
   $('foot').textContent = 'GAS ' + (r.version || '') + ' ／ ' + r.people.length + '名';
   paintKpis();
