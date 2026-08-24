@@ -4,3 +4,5 @@ gas/
 gas-page/
 test/
 README.md
+assets/_preview.png
+__pycache__/

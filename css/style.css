@@ -619,6 +619,14 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
   padding: 24px 16px 30px;
   font-size: calc(11.5px * var(--fs-scale));
 }
+/* 凛穏ロゴ。紺地に沈まないよう淡色版を使い、主張しない濃さで置く */
+.foot__logo {
+  display: block;
+  width: 54px;
+  height: auto;
+  margin: 0 auto 10px;
+  opacity: .58;
+}
 .foot p { margin: 0 0 9px; }
 .foot p:first-child { font-family: var(--serif); letter-spacing: .18em; color: rgba(255, 255, 255, .82); }
 .foot__links { display: flex; justify-content: center; gap: 18px; flex-wrap: wrap; }

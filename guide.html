@@ -6,6 +6,9 @@
 <meta name="robots" content="noindex,nofollow">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <title>お申し込みの流れ｜凛穏塾 3期生</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
   *, *::before, *::after { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
@@ -341,6 +344,15 @@
 
   footer { border-top: 1px solid var(--line); padding-top: 1.3rem; font-size: .83rem; color: var(--ink-soft); }
   footer p { margin: .2rem 0; }
+  /* 凛穏ロゴ。明るい画面と暗い画面で絵柄を差し替える（紺の字が沈まないように） */
+  .foot-logo {
+    display: block; width: 52px; height: 45px; margin: 0 auto .7rem; opacity: .5;
+    background: center/contain no-repeat url("https://apps.l-mine.com/rion-3ki-app/assets/logo-mark-160.png");
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .foot-logo { background-image: url("https://apps.l-mine.com/rion-3ki-app/assets/logo-mark-light-160.png"); }
+  }
+  :root[data-theme="dark"] .foot-logo { background-image: url("https://apps.l-mine.com/rion-3ki-app/assets/logo-mark-light-160.png"); }
 
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
@@ -350,7 +362,7 @@
 
   <header class="masthead">
     <div class="seal">凛</div>
-    <div class="brand">RINON JUKU / 3rd</div>
+    <div class="brand">RION JUKU / 3rd</div>
     <h1>お申し込みの流れ</h1>
     <div class="rule"></div>
     <p class="lead">合格のご連絡から、お手続きの完了まで。<br>受講生の方がどんな画面を見て、どんなLINEを受け取るのかを、画面付きでご説明します。</p>
@@ -499,7 +511,7 @@
       <div class="visual">
         <div class="phone"><div class="scr">
           <div class="scr-head">
-            <div class="k">RINON JUKU / 3rd</div>
+            <div class="k">RION JUKU / 3rd</div>
             <div class="t">凛穏塾 3期生</div>
             <div class="s">お申し込みの流れ</div>
           </div>
@@ -543,7 +555,7 @@
       <div class="visual">
         <div class="phone"><div class="scr">
           <div class="scr-head">
-            <div class="k">RINON JUKU / 3rd</div>
+            <div class="k">RION JUKU / 3rd</div>
             <div class="t">凛穏塾 3期生</div>
             <div class="s">お申し込みの流れ</div>
           </div>
@@ -602,7 +614,7 @@
       <div class="visual">
         <div class="phone"><div class="scr">
           <div class="scr-head">
-            <div class="k">RINON JUKU / 3rd</div>
+            <div class="k">RION JUKU / 3rd</div>
             <div class="t">凛穏塾 3期生</div>
             <div class="s">お申し込みの流れ</div>
           </div>
@@ -691,7 +703,7 @@
       <div class="visual">
         <div class="phone"><div class="scr">
           <div class="scr-head">
-            <div class="k">RINON JUKU / 3rd</div>
+            <div class="k">RION JUKU / 3rd</div>
             <div class="t">凛穏塾 3期生</div>
             <div class="s">お申し込みの流れ</div>
           </div>
@@ -762,7 +774,7 @@
       <div class="visual">
         <div class="phone"><div class="scr">
           <div class="scr-head">
-            <div class="k">RINON JUKU / 3rd</div>
+            <div class="k">RION JUKU / 3rd</div>
             <div class="t">凛穏塾 3期生</div>
             <div class="s">お申し込みの流れ</div>
           </div>
@@ -812,7 +824,7 @@
       <div class="visual">
         <div class="phone"><div class="scr">
           <div class="scr-head">
-            <div class="k">RINON JUKU / 3rd</div>
+            <div class="k">RION JUKU / 3rd</div>
             <div class="t">凛穏塾 3期生</div>
             <div class="s">お申し込みの流れ</div>
           </div>
@@ -849,7 +861,7 @@
       <div class="visual">
         <div class="phone"><div class="scr">
           <div class="scr-head">
-            <div class="k">RINON JUKU / 3rd</div>
+            <div class="k">RION JUKU / 3rd</div>
             <div class="t">凛穏塾 3期生</div>
             <div class="s">お申し込みの流れ</div>
           </div>
@@ -876,7 +888,7 @@
       <div class="visual">
         <div class="phone"><div class="scr">
           <div class="scr-head">
-            <div class="k">RINON JUKU / 3rd</div>
+            <div class="k">RION JUKU / 3rd</div>
             <div class="t">凛穏塾 3期生</div>
             <div class="s">お申し込みの流れ</div>
           </div>
@@ -959,7 +971,7 @@
       <div class="visual">
         <div class="phone"><div class="scr">
           <div class="scr-head">
-            <div class="k">RINON JUKU / 3rd</div>
+            <div class="k">RION JUKU / 3rd</div>
             <div class="t">凛穏塾 3期生</div>
             <div class="s">お申し込みの流れ</div>
           </div>
@@ -1054,6 +1066,7 @@
   </section>
 
   <footer>
+    <span class="foot-logo" aria-hidden="true"></span>
     <p>凛穏塾 3期生 お申し込みアプリ ／ 運営・関係者向けの説明資料です。</p>
     <p>この資料の口座番号・金額の内訳は、実際の値と異なる場合があります。最新の内容はスプレッドシートをご確認ください。</p>
   </footer>

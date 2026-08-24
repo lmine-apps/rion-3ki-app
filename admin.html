@@ -6,6 +6,9 @@
 <meta name="robots" content="noindex,nofollow">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <title>受付管理｜凛穏塾 3期生</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
   *,*::before,*::after{box-sizing:border-box}
   html,body{margin:0;padding:0}
@@ -162,6 +165,13 @@
   .toast.bad{background:#96382a}
 
   footer{max-width:1000px;margin:0 auto;padding:0 1rem 2rem;font-size:.78rem;color:var(--ink-faint)}
+  /* 凛穏ロゴ。明るい画面と暗い画面で絵柄を差し替える（紺の字が沈まないように） */
+  .foot-logo{display:block;width:44px;height:38px;margin:0 0 8px;opacity:.5;
+    background:center/contain no-repeat url("assets/logo-mark-160.png")}
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]) .foot-logo{background-image:url("assets/logo-mark-light-160.png")}
+  }
+  :root[data-theme="dark"] .foot-logo{background-image:url("assets/logo-mark-light-160.png")}
   @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -170,7 +180,7 @@
 <header class="head">
   <div class="head__in">
     <div class="head__t">
-      <span class="head__k">RINON JUKU / 3rd</span>
+      <span class="head__k">RION JUKU / 3rd</span>
       <span class="head__n">受付管理</span>
     </div>
     <span id="flag" class="flag" hidden></span>
@@ -210,6 +220,7 @@
 </main>
 
 <footer>
+  <span class="foot-logo" aria-hidden="true"></span>
   <p id="foot"></p>
 </footer>
 
