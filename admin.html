@@ -65,6 +65,31 @@
   .flag{font-size:.68rem;font-weight:700;padding:.15rem .6rem;border-radius:999px;background:#fbe9e7;color:#9c3a28}
   .flag.dry{background:#fdf3dd;color:#8a6a1e}
   .flag.test{background:#b25c17;color:#fff}
+  .flag.gate{background:#1f6f8b;color:#fff}
+
+  /* ---------- スイッチ（テスト決済／受付の開け閉め） ---------- */
+  .switches{display:flex;flex-direction:column;gap:.6rem;
+    background:var(--card);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem}
+  .sw{display:flex;align-items:flex-start;gap:1rem;justify-content:space-between}
+  .sw+.sw{border-top:1px dashed var(--line);padding-top:.7rem}
+  .sw__t{display:flex;flex-direction:column;gap:.15rem;min-width:0}
+  .sw__t>b{font-size:.9rem}
+  .sw__d{font-size:.76rem;color:var(--ink-soft);line-height:1.7}
+  .sw__d b{color:var(--ink)}
+  .swbtn{flex:none;min-width:5.4rem;padding:.42rem .9rem;border-radius:999px;cursor:pointer;
+    border:1.5px solid var(--line);background:var(--card-soft);color:var(--ink-soft);
+    font-size:.82rem;font-weight:700;transition:background .15s,color .15s,border-color .15s}
+  .swbtn:hover{border-color:var(--ink-faint)}
+  /* オンのあいだは赤。ひと目で「ふだんと違う」と分かるように */
+  .swbtn[aria-pressed="true"]{background:#c0392b;border-color:#c0392b;color:#fff}
+  .swbtn:disabled{opacity:.5;cursor:progress}
+  .sw__warn{margin:.2rem 0 0;padding:.6rem .8rem;border-radius:8px;
+    background:#fdecea;border:1px solid #f0b8b0;color:#a33224;
+    font-size:.8rem;font-weight:700;line-height:1.75}
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]) .sw__warn{background:#3a1b17;border-color:#7a3529;color:#f0a99c}
+  }
+  :root[data-theme="dark"] .sw__warn{background:#3a1b17;border-color:#7a3529;color:#f0a99c}
 
   .wrap{max-width:1000px;margin:0 auto;padding:1.2rem 1rem 4rem;display:flex;flex-direction:column;gap:1.2rem}
 
@@ -201,6 +226,29 @@
 <!-- ============ 一覧 ============ -->
 <main id="screen-main" class="wrap" hidden>
 
+  <!-- ============ スイッチ ============ -->
+  <section class="switches" id="switches" hidden>
+    <div class="sw" id="sw-test">
+      <div class="sw__t">
+        <b>🧪 テスト決済モード</b>
+        <span class="sw__d">オンのあいだは、カード決済が <b>1回目100円／2回目150円</b> のページに切り替わります。
+          コースの金額では請求されません。</span>
+      </div>
+      <button type="button" class="swbtn" data-flag="test_mode" aria-pressed="false">オフ</button>
+    </div>
+
+    <div class="sw" id="sw-gate">
+      <div class="sw__t">
+        <b>🚪 受付をテスト用に開く</b>
+        <span class="sw__d">オンのあいだは、受付開始（<span data-open-at>—</span>）を待たずに手続きできます。
+          オフが本番です。</span>
+      </div>
+      <button type="button" class="swbtn" data-flag="open_gate_off" aria-pressed="false">オフ</button>
+    </div>
+
+    <p class="sw__warn" id="sw-warn" hidden></p>
+  </section>
+
   <div class="cards" id="kpis"></div>
   <div class="planline" id="plans"></div>
 
@@ -246,6 +294,104 @@ const esc = (s) => String(s == null ? '' : s)
 const yen = (n) => (n === '' || n == null) ? '' : Number(n).toLocaleString('ja-JP') + '円';
 
 /* ---------- 通信 ---------- */
+/* =========================================================================
+   スイッチ（🧪 テスト決済モード ／ 🚪 受付をテスト用に開く）
+
+   ★どちらも「オン＝ふだんと違う状態」です。オンのあいだはボタンが赤くなり、
+     下に赤い注意書きが出ます。本番のお客様をご案内する前に、両方オフに。
+   ★受付のほうは、GAS側では OPEN_GATE（true＝開始日を守る）で持っています。
+     画面では分かりやすさを優先して「テスト用に開く」の向きで出すので、
+     送るときに反転させています。
+   ========================================================================= */
+let FLAGS = {};
+
+function paintFlags(f) {
+  FLAGS = f || {};
+
+  const gateOff = (FLAGS.open_gate === false);      // 受付をテスト用に開けている
+  const testOn = !!FLAGS.test_mode;
+
+  const sw = $('switches');
+  if (sw) sw.hidden = false;
+
+  setSwitch('test_mode', testOn);
+  setSwitch('open_gate_off', gateOff);
+
+  document.querySelectorAll('[data-open-at]').forEach(el => {
+    el.textContent = FLAGS.open_at_text || '—';
+  });
+
+  // 帯（右上）
+  const flag = $('flag');
+  flag.hidden = false;
+  if (testOn) {
+    flag.textContent = '🧪 テスト決済モード（100円／150円）';
+    flag.className = 'flag test';
+  } else if (gateOff) {
+    flag.textContent = '🚪 受付をテスト用に開いています';
+    flag.className = 'flag gate';
+  } else if (FLAGS.before_open) {
+    flag.textContent = '受付前（' + (FLAGS.open_at_text || '') + 'から）';
+    flag.className = 'flag dry';
+  } else {
+    flag.textContent = FLAGS.dry_run ? 'お試し中（LINEは飛びません）' : '本番運転';
+    flag.className = 'flag' + (FLAGS.dry_run ? ' dry' : '');
+  }
+
+  // 赤い注意書き
+  const warn = $('sw-warn');
+  const msgs = [];
+  if (testOn) msgs.push('🧪 決済がテスト用（1回目100円／2回目150円）になっています。');
+  if (gateOff) msgs.push('🚪 受付開始（' + (FLAGS.open_at_text || '') + '）の前ですが、開いています。');
+  if (msgs.length) {
+    warn.hidden = false;
+    warn.textContent = msgs.join(' ') + ' お客様をご案内する前に、必ずオフに戻してください。';
+  } else {
+    warn.hidden = true;
+  }
+}
+
+function setSwitch(key, on) {
+  const b = document.querySelector('.swbtn[data-flag="' + key + '"]');
+  if (!b) return;
+  b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  b.textContent = on ? 'オン' : 'オフ';
+  b.disabled = false;
+}
+
+document.addEventListener('click', async (e) => {
+  const b = e.target.closest('.swbtn');
+  if (!b) return;
+
+  const key = b.dataset.flag;
+  const nowOn = b.getAttribute('aria-pressed') === 'true';
+  const next = !nowOn;
+
+  const label = key === 'test_mode' ? '🧪 テスト決済モード' : '🚪 受付をテスト用に開く';
+  const detail = key === 'test_mode'
+    ? (next ? 'カード決済が 1回目100円／2回目150円 のページに変わります。\n'
+              + 'いま手続き中のお客様も、この金額の画面になります。'
+            : '本物の金額（VIP 990,000円 など）に戻します。')
+    : (next ? '受付開始（' + (FLAGS.open_at_text || '') + '）を待たずに手続きできるようになります。'
+            : '受付開始（' + (FLAGS.open_at_text || '') + '）まで、受付を閉じます。');
+
+  if (!confirm(label + ' を「' + (next ? 'オン' : 'オフ') + '」にします。\n\n' + detail + '\n\nよろしいですか？')) return;
+
+  b.disabled = true;
+  try {
+    // 画面は「テスト用に開く」、GASは「開始日を守る」。向きが逆なので反転させる
+    const sendKey = (key === 'open_gate_off') ? 'open_gate' : key;
+    const sendVal = (key === 'open_gate_off') ? !next : next;
+    const r = await api('admin_set_flag', { key: sendKey, value: sendVal ? 'true' : 'false' });
+    if (!r || r.ok === false) throw new Error((r && r.error) || '切り替えられませんでした');
+    paintFlags(r);
+    toast(label + ' を ' + (next ? 'オン' : 'オフ') + ' にしました');
+  } catch (err) {
+    b.disabled = false;
+    toast(String(err.message || err), true);
+  }
+});
+
 async function api(action, body) {
   const payload = Object.assign({ action, token: adminKey }, body || {});
   const res = await fetch(GAS_URL, {
@@ -314,16 +460,7 @@ function show(r) {
   $('btn-reload').hidden = false;
   $('btn-logout').hidden = false;
 
-  const flag = $('flag');
-  flag.hidden = false;
-  if (r.test_mode) {
-    // 決済が100円・150円になっている。いちばん目立たせる
-    flag.textContent = '🧪 テストモード（決済 100円／150円）';
-    flag.className = 'flag test';
-  } else {
-    flag.textContent = r.dry_run ? 'お試し中（LINEは飛びません）' : '本番運転';
-    flag.className = 'flag' + (r.dry_run ? ' dry' : '');
-  }
+  paintFlags(r.flags || { test_mode: r.test_mode, dry_run: r.dry_run });
 
   $('foot').textContent = 'GAS ' + (r.version || '') + ' ／ ' + r.people.length + '名';
   paintKpis();

@@ -45,6 +45,22 @@ function render(res) {
   const tb = document.getElementById('testbar');
   if (tb) tb.hidden = !res.test_mode;
 
+  // 開始前なのに開けているときの帯（運営の戻し忘れ防止）
+  const ob = document.getElementById('openbar');
+  if (ob) ob.hidden = !res.opened_for_test;
+  if (res.open_at_text) {
+    document.querySelectorAll('[data-open-at]').forEach(el => { el.textContent = res.open_at_text; });
+  }
+
+  // 受付前。コースが入っていても、開始のときこくまでは進ませない
+  if (res.stage === '受付前') {
+    startOpenCountdown(res.open_at);
+    showScreen('screen-beforeopen');
+    startPolling();
+    return;
+  }
+  stopOpenCountdown();
+
   if (!res.registered) { showScreen('screen-unregistered'); return; }
 
   const wp = !!res.require_profile;                 // お客様情報ステップを挟む設定か
@@ -148,6 +164,43 @@ function startPolling() {
 }
 function stopPolling() {
   if (POLL_TIMER) { clearInterval(POLL_TIMER); POLL_TIMER = null; }
+}
+
+// ---------------------------------------------------------------- 受付開始までの秒読み
+// 開始のときこくはサーバー（GAS）が持っています。端末の時計がずれていても、
+// 表示が少しずれるだけで、通す・通さないの判断はサーバー側で決まります。
+let OPEN_TIMER = null;
+
+function startOpenCountdown(openAtMs) {
+  stopOpenCountdown();
+  if (!openAtMs) return;
+
+  const put = (k, v) => {
+    const el = document.querySelector(`[data-oc="${k}"]`);
+    const s = (v < 10 ? '0' : '') + v;
+    if (el && el.textContent !== s) el.textContent = s;
+  };
+
+  const tick = () => {
+    const ms = openAtMs - Date.now();
+    if (ms <= 0) {                       // 時間になったら、すぐ次の画面へ
+      stopOpenCountdown();
+      boot();
+      return;
+    }
+    const d = Math.floor(ms / 86400000);
+    put('d', d);
+    put('h', Math.floor(ms / 3600000) - d * 24);
+    put('m', Math.floor(ms / 60000) % 60);
+    put('s', Math.floor(ms / 1000) % 60);
+  };
+
+  tick();
+  OPEN_TIMER = setInterval(tick, 1000);
+}
+
+function stopOpenCountdown() {
+  if (OPEN_TIMER) { clearInterval(OPEN_TIMER); OPEN_TIMER = null; }
 }
 
 // ---------------------------------------------------------------- 各画面の描画

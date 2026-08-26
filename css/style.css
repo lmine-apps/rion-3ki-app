@@ -619,6 +619,62 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
   padding: 24px 16px 30px;
   font-size: calc(11.5px * var(--fs-scale));
 }
+/* ------------------------------------------------- 受付開始までの秒読み */
+.opencd {
+  margin: 18px 0 4px;
+  padding: 17px 14px 15px;
+  border-radius: 14px;
+  background: linear-gradient(160deg, var(--navy-900), var(--navy-700));
+  box-shadow: 0 8px 26px rgba(7, 23, 44, .17);
+  text-align: center;
+}
+.opencd__k {
+  display: block;
+  font-size: calc(11px * var(--fs-scale));
+  font-weight: 700;
+  letter-spacing: .2em;
+  color: var(--sky-300);
+  margin-bottom: 10px;
+}
+.opencd__row { display: flex; align-items: flex-start; justify-content: center; gap: 4px; }
+.opencd__u {
+  display: flex; flex-direction: column; align-items: center; gap: 3px; min-width: 52px;
+}
+.opencd__u b {
+  display: block;
+  min-width: 46px;
+  padding: 7px 6px 6px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, .96);
+  color: var(--navy-900);
+  font-family: var(--num);
+  font-size: calc(25px * var(--fs-scale));
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+.opencd__u i {
+  font-style: normal;
+  font-size: calc(10px * var(--fs-scale));
+  letter-spacing: .1em;
+  color: rgba(255, 255, 255, .78);
+}
+.opencd__s {
+  padding-top: 8px;
+  color: rgba(255, 255, 255, .5);
+  font-family: var(--num);
+  font-size: calc(19px * var(--fs-scale));
+  line-height: 1;
+}
+@media (max-width: 380px) {
+  .opencd__u { min-width: 44px; }
+  .opencd__u b { min-width: 38px; font-size: calc(21px * var(--fs-scale)); padding: 6px 4px 5px; }
+  .opencd__s { font-size: calc(16px * var(--fs-scale)); padding-top: 7px; }
+}
+
+/* 受付をテスト用に開けているときの帯。🧪の帯と見分けがつく色にする */
+.testbar--gate { background: #1f6f8b; }
+
 /* 凛穏ロゴ。紺地に沈まないよう淡色版を使い、主張しない濃さで置く */
 .foot__logo {
   display: block;

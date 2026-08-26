@@ -10,13 +10,18 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="凛穏塾 3期">
 <meta name="theme-color" content="#07172c">
-<link rel="stylesheet" href="css/style.css?v=16">
+<link rel="stylesheet" href="css/style.css?v=17">
 </head>
 <body>
 
 <!-- テスト中だけ出る帯。運営がメニューで切り替えます -->
 <div id="testbar" class="testbar" hidden>
   <b>🧪 テストモード</b>　いまの決済は <b>1回目100円 ／ 2回目150円</b> です。本番の金額ではありません。
+</div>
+
+<!-- 開始前なのにテストのために開けているとき。運営が戻し忘れないように -->
+<div id="openbar" class="testbar testbar--gate" hidden>
+  <b>🚪 受付テスト中</b>　受付開始（<span data-open-at>—</span>）の前ですが、確認のために開いています。
 </div>
 
 <header class="head">
@@ -45,6 +50,29 @@
     <h2 class="card__title">LINEから開いてください</h2>
     <p>このページは、LINEにお送りしたボタンから開いていただく必要があります。</p>
     <p class="note">お手数ですが、凛穏塾の公式LINEに届いているメッセージの<b>「お申し込みへ進む」</b>ボタンから開き直してください。</p>
+  </section>
+
+  <!-- ============ 受付前 ============ -->
+  <section id="screen-beforeopen" class="screen card">
+    <h2 class="card__title">受付開始までお待ちください</h2>
+    <p>お申し込みの受付は <b data-open-at>—</b> からです。</p>
+
+    <div class="opencd" aria-hidden="true">
+      <span class="opencd__k">受付開始まで</span>
+      <div class="opencd__row">
+        <span class="opencd__u"><b data-oc="d">--</b><i>日</i></span>
+        <span class="opencd__s">:</span>
+        <span class="opencd__u"><b data-oc="h">--</b><i>時間</i></span>
+        <span class="opencd__s">:</span>
+        <span class="opencd__u"><b data-oc="m">--</b><i>分</i></span>
+        <span class="opencd__s">:</span>
+        <span class="opencd__u"><b data-oc="s">--</b><i>秒</i></span>
+      </div>
+    </div>
+
+    <p class="note">開始しましたら、公式LINEでお知らせします。<br>
+      この画面は閉じていただいて大丈夫です。時間になると自動で切り替わります。</p>
+    <button type="button" class="btn btn--ghost" data-act="reload">最新の状態にする</button>
   </section>
 
   <!-- ============ 未登録 ============ -->
@@ -246,9 +274,9 @@
   </p>
 </footer>
 
-<script src="js/config.js?v=16"></script>
-<script src="js/legal.js?v=16"></script>
-<script src="js/common.js?v=16"></script>
-<script src="js/app.js?v=16"></script>
+<script src="js/config.js?v=17"></script>
+<script src="js/legal.js?v=17"></script>
+<script src="js/common.js?v=17"></script>
+<script src="js/app.js?v=17"></script>
 </body>
 </html>
