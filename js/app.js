@@ -38,6 +38,12 @@ function fillStaticLinks() {
 function render(res) {
   stopPolling();
 
+  // 受付前は、どの口から返ってきても「受付開始までお待ちください」に寄せる（念のための保険）
+  if (res && res.ok === false && res.error === 'before_open') {
+    res = { ok: true, registered: false, stage: '受付前',
+            open_at: res.open_at, open_at_text: res.open_at_text };
+  }
+
   if (!res || res.ok === false) { showError(res && res.error ? errorMessage(res.error) : '状態を取得できませんでした'); return; }
   STATE = res;
 
@@ -554,7 +560,8 @@ function errorMessage(code) {
     edoc_required: '書面を電子データで受け取ることへの承諾が必要です。チェックを入れてからお進みください。',
     not_bank: '銀行振込を選んだ方のみのお手続きです。',
     confirm_required: '署名の確認は運営が行います。少しお待ちください。',
-    unauthorized: 'この画面を開く権限がありません。LINEのボタンから開き直してください。'
+    unauthorized: 'この画面を開く権限がありません。LINEのボタンから開き直してください。',
+    before_open: 'お申し込みの受付は、まだ始まっていません。開始しましたらLINEでお知らせします。'
   };
   return map[code] || ('エラーが発生しました（' + code + '）');
 }
