@@ -210,17 +210,24 @@ function stopOpenCountdown() {
 }
 
 // ---------------------------------------------------------------- 各画面の描画
-function paintPlan(elId) {
+/**
+ * コース欄。withNote を false にすると、サービス内容の一文を出さない。
+ * ★お支払いの画面では出しません（2026-08-27 とーる）。
+ *   そこはもう規約に同意いただいたあとなので、コース名と金額だけで十分。
+ */
+function paintPlan(elId, withNote) {
   const el = document.getElementById(elId);
   if (!el || !STATE.plan) return;
+  const note = (withNote === false || !STATE.plan.note)
+    ? '' : `<p class="plan__note">${esc(STATE.plan.note)}</p>`;
   el.innerHTML =
     `<div class="plan__name">${esc(STATE.plan.label)}</div>
      <div class="plan__price">${esc(yen(STATE.plan.total))}<span class="plan__tax">（税込）</span></div>
-     <p class="plan__note">${esc(STATE.plan.note)}</p>`;
+     ${note}`;
 }
 
 function paintPayOptions() {
-  paintPlan('pay-plan');
+  paintPlan('pay-plan', false);   // ここは同意後。コース名と金額だけ出す
   const p = STATE.plan || {};
   const box = document.getElementById('pay-options');
   if (!box) return;
@@ -598,7 +605,7 @@ function mockApi(action, body) {
 
   const plans = {
     'VIP':        { label: 'VIPコース', total: 990000, note: 'みこの個別セッション2回／中尾真巳の算命学鑑定2回（受講料に含む）／リトリート 12月5〜6日（参加費無料）／卒業式 2027年1月24日／講義動画の視聴期限1年', split: [500000, 490000] },
-    'スタンダード': { label: 'スタンダードコース', total: 770000, note: 'みこのセッション2回／中尾真巳の算命学鑑定は別途鑑定料／卒業式 2027年1月24日／講義動画の視聴期限1年', split: [400000, 370000] },
+    'スタンダード': { label: 'スタンダードコース', total: 770000, note: 'みこのセッション2回／卒業式 2027年1月24日／講義動画の視聴期限1年', split: [400000, 370000] },
     '3.5期生':     { label: '3.5期生', total: 385000, note: '中尾真巳の算命学鑑定は別途鑑定料／卒業式への参加はありません／講義動画の視聴期限1年', split: [200000, 185000] }
   };
   const plan = plans[s.plan] || plans['VIP'];
