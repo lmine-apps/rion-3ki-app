@@ -530,31 +530,32 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 /* 支払方法の選択 */
 /* 下の3つが「押せるもの」だと分かるようにする一文。
    カードに見えて押せると気づかれないことがあったため（2026-08-27 とーる） */
+/* ★flex にしないこと。<b>タップ</b> が独立した箱になって、
+   「タッ／プ」のように途中で折り返してしまう（2026-08-27 実機で確認）。
+   ふつうの文章として流し、矢印だけを行頭に置く。 */
 .pickhint {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
   margin: 16px 0 10px;
-  padding: 10px 12px;
+  padding: 10px 14px;
   border: 1px dashed rgba(28, 75, 120, .30);
   border-radius: 10px;
   background: var(--sky-100);
   color: var(--navy-800);
   font-size: calc(12.5px * var(--fs-scale));
-  line-height: 1.7;
+  line-height: 1.9;
   text-align: center;
 }
 .pickhint::before {
   content: "";
-  flex: none;
-  width: 13px;
-  height: 13px;
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin: 0 9px 3px 0;
+  vertical-align: middle;
   border-right: 2px solid var(--navy-700);
   border-bottom: 2px solid var(--navy-700);
-  transform: rotate(45deg) translate(-2px, -2px);
+  transform: rotate(45deg);
 }
-.pickhint b { font-weight: 700; }
+.pickhint b { font-weight: 700; white-space: nowrap; }
 
 .payopts { display: flex; flex-direction: column; gap: 10px; }
 .payopt {
