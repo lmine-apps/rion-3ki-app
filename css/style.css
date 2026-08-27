@@ -354,6 +354,60 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
   line-height: 1.75;
 }
 
+/* 受講内容の箇条書き。項目が多いので、詰まって見えないよう行間をとる。
+   ★プロラインが ul/li に自前の余白と記号を当ててくるので、打ち消しておく */
+.plan__list,
+.plan__list ul {
+  list-style: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  text-align: left;
+}
+.plan__list { margin: 12px 0 0 !important; }
+.plan__list > li {
+  position: relative;
+  margin: 0 0 9px !important;
+  padding: 0 0 0 15px !important;
+  color: var(--text);
+  font-size: calc(12.5px * var(--fs-scale));
+  line-height: 1.75;
+  text-indent: 0 !important;
+}
+.plan__list > li:last-child { margin-bottom: 0 !important; }
+.plan__list > li::marker { content: "" !important; }
+.plan__list > li::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: .72em;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--sky-500);
+}
+.plan__list ul {
+  margin: 5px 0 0 !important;
+}
+.plan__list ul > li {
+  position: relative;
+  margin: 0 0 3px !important;
+  padding: 0 0 0 13px !important;
+  color: var(--text-mid);
+  font-size: calc(11.5px * var(--fs-scale));
+  line-height: 1.7;
+  text-indent: 0 !important;
+}
+.plan__list ul > li::marker { content: "" !important; }
+.plan__list ul > li::before {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: .78em;
+  width: 6px;
+  height: 1px;
+  background: rgba(18, 52, 90, .38);
+}
+
 .amount {
   font-family: var(--num);
   font-size: calc(33px * var(--fs-scale));

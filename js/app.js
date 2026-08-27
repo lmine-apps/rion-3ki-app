@@ -218,12 +218,30 @@ function stopOpenCountdown() {
 function paintPlan(elId, withNote) {
   const el = document.getElementById(elId);
   if (!el || !STATE.plan) return;
-  const note = (withNote === false || !STATE.plan.note)
-    ? '' : `<p class="plan__note">${esc(STATE.plan.note)}</p>`;
+  const p = STATE.plan;
+
+  let body = '';
+  if (withNote !== false) {
+    if (p.items && p.items.length) body = planItemsHtml(p.items);
+    else if (p.note) body = `<p class="plan__note">${esc(p.note)}</p>`;
+  }
+
   el.innerHTML =
-    `<div class="plan__name">${esc(STATE.plan.label)}</div>
-     <div class="plan__price">${esc(yen(STATE.plan.total))}<span class="plan__tax">（税込）</span></div>
-     ${note}`;
+    `<div class="plan__name">${esc(p.label)}</div>
+     <div class="plan__price">${esc(yen(p.total))}<span class="plan__tax">（税込）</span></div>
+     ${body}`;
+}
+
+/** 受講内容の箇条書き。sub があれば、その下に小さくぶら下げる */
+function planItemsHtml(items) {
+  return '<ul class="plan__list">'
+    + items.map((x) =>
+        '<li>' + esc(x.t)
+        + (x.sub && x.sub.length
+            ? '<ul>' + x.sub.map((s) => '<li>' + esc(s) + '</li>').join('') + '</ul>'
+            : '')
+        + '</li>').join('')
+    + '</ul>';
 }
 
 function paintPayOptions() {
