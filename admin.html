@@ -9,6 +9,10 @@
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest-admin.json">
+<meta name="theme-color" content="#12345a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="3期 受付管理">
 <style>
   *,*::before,*::after{box-sizing:border-box}
   html,body{margin:0;padding:0}
@@ -62,6 +66,18 @@
     background:rgba(255,255,255,.1);color:#fff;border-radius:999px;padding:.35rem .95rem;
   }
   .head button:hover{background:rgba(255,255,255,.2)}
+  #btn-push{position:relative;padding:.35rem .7rem;font-size:.95rem;line-height:1}
+  #btn-push.on::after{content:'';position:absolute;top:.25rem;right:.35rem;width:.45rem;height:.45rem;
+    border-radius:50%;background:#6ee7a8;box-shadow:0 0 0 2px var(--navy-dk)}
+  .pushlist{display:flex;flex-direction:column;gap:.15rem;margin:.6rem 0 0}
+  .pushrow{display:flex;align-items:flex-start;gap:.6rem;padding:.55rem .2rem;
+    border-bottom:1px solid var(--line);cursor:pointer}
+  .pushrow:last-child{border-bottom:0}
+  .pushrow input{margin:.15rem 0 0;width:1.1rem;height:1.1rem;flex:none;accent-color:var(--navy)}
+  .pushrow b{display:block;font-size:.9rem;font-weight:700;color:var(--ink)}
+  .pushrow em{display:block;font-style:normal;font-size:.76rem;color:var(--ink-soft);margin-top:.1rem}
+  .lnk{background:none;border:0;padding:0;font:inherit;color:var(--navy);
+    font-weight:700;text-decoration:underline;cursor:pointer}
   .flag{font-size:.68rem;font-weight:700;padding:.15rem .6rem;border-radius:999px;background:#fbe9e7;color:#9c3a28}
   .flag.dry{background:#fdf3dd;color:#8a6a1e}
   .flag.test{background:#b25c17;color:#fff}
@@ -221,6 +237,7 @@
       <span class="head__n">受付管理</span>
     </div>
     <span id="flag" class="flag" hidden></span>
+    <button type="button" id="btn-push" hidden title="スマホ通知の設定">🔔</button>
     <button type="button" id="btn-reload" hidden>更新</button>
     <button type="button" id="btn-logout" hidden>キーを消す</button>
   </div>
@@ -471,6 +488,8 @@ function show(r) {
   $('screen-main').hidden = false;
   $('btn-reload').hidden = false;
   $('btn-logout').hidden = false;
+  paintPushBadge();
+  pushRefresh();
 
   paintFlags(r.flags || { test_mode: r.test_mode, dry_run: r.dry_run });
 
@@ -825,6 +844,232 @@ function askInvite() {
       btn.textContent = 'この方に送る';
       toast(err.message, true);
     }
+  });
+}
+
+/* =========================================================================
+   🔔 スマホ通知（Firebase Cloud Messaging）
+   ・ホーム画面に追加したこの画面へ、受付のお知らせを届けます。
+   ・どのお知らせを受け取るかは、運営お一人おひとり（＝端末ごと）に決められます。
+   ・iPhoneは「ホーム画面に追加」してからでないと通知を受け取れません（Appleの仕様）。
+   ========================================================================= */
+const PUSH_CFG = {
+  apiKey: 'AIzaSyBpBpGmxfWhyHq3rzwH2Oa_6IWDIZbOAj8',
+  authDomain: 'elabo-plus.firebaseapp.com',
+  projectId: 'elabo-plus',
+  messagingSenderId: '452649305918',
+  appId: '1:452649305918:web:4bef5bae57aee4d86c4e6f'
+};
+const VAPID_KEY = 'BAtxAvwJITAJ_q2DHtIajcTI_UEgJQhOlPI3uQ8IlXoV_kfyG3SQyRSVkT83Iyln9RsReuwgcR3By6g7roWif1Y';
+const PUSH_ON   = 'rion3ki_push_on';    // この端末で通知をオンにしたか
+const PUSH_NAME = 'rion3ki_push_name';  // 端末の呼び名（どなたの端末か分かるように）
+
+let pushToken = null;
+
+function pushSupported() {
+  return ('Notification' in window) && ('serviceWorker' in navigator) && !!window.isSecureContext;
+}
+function isIos() { return /iPad|iPhone|iPod/.test(navigator.userAgent); }
+function isStandalone() {
+  return window.navigator.standalone === true
+    || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+}
+
+let fbLoading = null;
+function loadFirebase() {
+  if (window.firebase && window.firebase.messaging) return Promise.resolve();
+  if (fbLoading) return fbLoading;
+  const one = (src) => new Promise((ok, ng) => {
+    const el = document.createElement('script');
+    el.src = src;
+    el.onload = ok;
+    el.onerror = () => ng(new Error('通知の部品を読み込めませんでした'));
+    document.head.appendChild(el);
+  });
+  fbLoading = one('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js')
+    .then(() => one('https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js'))
+    .then(() => { if (!firebase.apps.length) firebase.initializeApp(PUSH_CFG); });
+  return fbLoading;
+}
+
+/** この端末のトークンを取る（通知の許可もここで取ります） */
+async function pushGetToken() {
+  if (!pushSupported()) throw new Error('この端末では通知を使えません。');
+  await loadFirebase();
+  const perm = await Notification.requestPermission();
+  if (perm !== 'granted') {
+    throw new Error('通知が許可されませんでした。端末の設定からも変えられます。');
+  }
+  const q = new URLSearchParams(PUSH_CFG).toString();
+  const reg = await navigator.serviceWorker.register('firebase-messaging-sw.js?' + q);
+  const token = await firebase.messaging()
+    .getToken({ vapidKey: VAPID_KEY, serviceWorkerRegistration: reg });
+  if (!token) throw new Error('通知の登録ができませんでした。少し時間をおいてお試しください。');
+  pushToken = token;
+  return token;
+}
+
+/** ヘッダーの🔔に、いまオンかどうかの緑の点をつける */
+function paintPushBadge() {
+  const b = $('btn-push');
+  if (!b) return;
+  b.hidden = false;
+  const on = localStorage.getItem(PUSH_ON) === '1'
+    && ('Notification' in window) && Notification.permission === 'granted';
+  b.classList.toggle('on', on);
+  b.textContent = on ? '🔔' : '🔕';
+}
+
+/** 一度オンにした端末は、画面を開くたびに黙ってトークンを入れ直しておく */
+async function pushRefresh() {
+  if (localStorage.getItem(PUSH_ON) !== '1') return;
+  if (!pushSupported() || Notification.permission !== 'granted') return;
+  try {
+    const token = await pushGetToken();
+    await api('admin_push_register', { fcm: token, name: localStorage.getItem(PUSH_NAME) || '' });
+  } catch (err) { /* 黙っておく。画面は止めない */ }
+}
+
+$('btn-push').addEventListener('click', showPush);
+
+async function showPush() {
+  const el = modal(
+    '<h2>🔔 スマホ通知</h2>'
+    + '<p>この端末に、受付のお知らせを届けます。設定はお一人おひとり（端末ごと）です。</p>'
+    + '<div id="pu-body" style="font-size:.88rem;color:var(--ink-soft)">読み込んでいます…</div>'
+    + '<div class="foot">'
+    +   '<button type="button" class="btn ghost" data-close>閉じる</button>'
+    +   '<button type="button" class="btn ok" id="pu-main" hidden></button>'
+    + '</div>');
+
+  const body = el.querySelector('#pu-body');
+  const main = el.querySelector('#pu-main');
+
+  if (!pushSupported()) {
+    body.innerHTML = '<div class="warnbox">この端末では通知を使えません。'
+      + 'スマホのブラウザ（iPhoneはSafari）で開いてお試しください。</div>';
+    return;
+  }
+  if (isIos() && !isStandalone()) {
+    body.innerHTML = '<div class="warnbox">iPhone・iPadでは、'
+      + '<b>ホーム画面に追加したこの画面</b>からでないと通知を受け取れません。</div>'
+      + '<p style="margin:.7rem 0 0">Safariの共有ボタン（□に↑）→「ホーム画面に追加」→ '
+      + '追加されたアイコンから開いて、もう一度この🔔を押してください。</p>';
+    return;
+  }
+
+  const on = localStorage.getItem(PUSH_ON) === '1' && Notification.permission === 'granted';
+
+  // ── まだオンにしていない端末。まずは許可を取るところから
+  if (!on) {
+    body.innerHTML = '<p style="margin:0 0 .6rem">「通知を受け取る」を押すと、'
+      + '端末から許可を聞かれます。許可すると、お知らせの種類を選べるようになります。</p>'
+      + '<p style="margin:0">はじめは <b>振込のご連絡</b> と <b>カード決済のご連絡</b> の'
+      + '2つがオンになります。</p>';
+    main.hidden = false;
+    main.textContent = '通知を受け取る';
+    main.onclick = async () => {
+      main.disabled = true;
+      main.textContent = '登録しています…';
+      try {
+        const token = await pushGetToken();
+        const name = (localStorage.getItem(PUSH_NAME) || '').trim()
+          || (prompt('どなたの端末ですか？（例：ゆきこ／iPhone）', '') || '').trim()
+          || 'お名前なし';
+        localStorage.setItem(PUSH_NAME, name);
+        const r = await api('admin_push_register', { fcm: token, name });
+        if (!r || !r.ok) throw new Error((r && r.error) || '登録できませんでした');
+        localStorage.setItem(PUSH_ON, '1');
+        paintPushBadge();
+        toast('通知をオンにしました');
+        close();
+        showPush();
+      } catch (err) {
+        main.disabled = false;
+        main.textContent = '通知を受け取る';
+        body.innerHTML = '<div class="warnbox">' + esc(String(err.message || err)) + '</div>';
+      }
+    };
+    return;
+  }
+
+  // ── すでにオンの端末。種類の一覧を出す
+  try {
+    if (!pushToken) await pushGetToken();
+    let r = await api('admin_push_get', { fcm: pushToken });
+    if (!r || !r.ok) throw new Error((r && r.error) || '設定を読めませんでした');
+    if (!r.registered) {
+      r = await api('admin_push_register', {
+        fcm: pushToken, name: localStorage.getItem(PUSH_NAME) || 'お名前なし'
+      });
+      if (!r || !r.ok) throw new Error((r && r.error) || '登録できませんでした');
+    }
+    paintPushRows(body, main, r);
+  } catch (err) {
+    body.innerHTML = '<div class="warnbox">' + esc(String(err.message || err)) + '</div>';
+  }
+}
+
+function paintPushRows(body, main, r) {
+  const kinds = r.kinds || [];
+  const prefs = r.prefs || {};
+
+  body.innerHTML =
+    '<div class="sumbox">この端末：' + esc(localStorage.getItem(PUSH_NAME) || 'お名前なし') + '</div>'
+    + (r.ready ? '' : '<div class="warnbox" style="margin-top:.6rem">'
+        + 'まだ送信のかぎ（FCM_PRIVATE_KEY）が入っていないため、実際には届きません。'
+        + '設定だけ先に保存できます。</div>')
+    + '<div class="pushlist">'
+    + kinds.map((k) =>
+        '<label class="pushrow">'
+        + '<input type="checkbox" data-kind="' + esc(k.key) + '"'
+        + (prefs[k.key] ? ' checked' : '') + '>'
+        + '<span><b>' + esc(k.label) + '</b>'
+        + (k.hint ? '<em>' + esc(k.hint) + '</em>' : '') + '</span></label>').join('')
+    + '</div>'
+    + '<p style="margin:.8rem 0 0;font-size:.8rem">'
+    + '<button type="button" class="lnk" id="pu-test">試しに1つ送ってみる</button>'
+    + '　<button type="button" class="lnk" id="pu-off">この端末の通知をやめる</button></p>';
+
+  main.hidden = false;
+  main.textContent = '保存する';
+  main.onclick = async () => {
+    const want = {};
+    body.querySelectorAll('[data-kind]').forEach((c) => { want[c.dataset.kind] = c.checked; });
+    main.disabled = true;
+    main.textContent = '保存しています…';
+    try {
+      const res = await api('admin_push_prefs', { fcm: pushToken, prefs: JSON.stringify(want) });
+      if (!res || !res.ok) throw new Error((res && res.error) || '保存できませんでした');
+      toast('通知の設定を保存しました');
+      close();
+    } catch (err) {
+      main.disabled = false;
+      main.textContent = '保存する';
+      toast(String(err.message || err), true);
+    }
+  };
+
+  body.querySelector('#pu-test').addEventListener('click', async () => {
+    try {
+      const res = await api('admin_push_test', { fcm: pushToken });
+      if (!res || !res.ok) {
+        throw new Error((res && res.error) === 'no_credentials'
+          ? 'まだ送信のかぎが入っていないため送れません'
+          : '送れませんでした');
+      }
+      toast('送りました。数秒お待ちください');
+    } catch (err) { toast(String(err.message || err), true); }
+  });
+
+  body.querySelector('#pu-off').addEventListener('click', async () => {
+    try {
+      await api('admin_push_off', { fcm: pushToken, name: localStorage.getItem(PUSH_NAME) || '' });
+    } catch (err) { /* 消せなくても、この端末はオフにする */ }
+    localStorage.removeItem(PUSH_ON);
+    paintPushBadge();
+    toast('この端末の通知をやめました');
+    close();
   });
 }
 
