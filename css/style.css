@@ -640,6 +640,8 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 .payopt:focus-visible { outline: 2px solid var(--sky-500); outline-offset: 3px; }
 .payopt__title { font-weight: 700; color: var(--navy-800); font-size: calc(14.5px * var(--fs-scale)); letter-spacing: .03em; }
 .payopt__desc { font-size: calc(12px * var(--fs-scale)); color: var(--text-mid); }
+/* 2回目を選び直せることは見落とされやすいので、そこだけ下線を引く */
+.payopt__mark { text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; }
 
 /* ---------------------------------------------------------------- 振込先 */
 .bank {

@@ -256,8 +256,9 @@ function paintPayOptions() {
   }
   if (p.pay_1 && p.pay_2) {
     opts.push(opt('カード2回', '2回に分けてお支払い',
-      yen(p.split[0]) + ' ＋ ' + yen(p.split[1])
-      + '。1回目はカードでお支払いいただき、2回目はカードか銀行振込かを、あらためてお選びいただけます'));
+      yen(p.split[0]) + ' ＋ ' + yen(p.split[1]) + '。',
+      // ★2回目の選び直しは見落とされやすいので、ここだけ下線を引く
+      '1回目はカードでお支払いいただき、2回目はカードか銀行振込かを、あらためてお選びいただけます'));
   }
   opts.push(opt('銀行振込', '銀行振込', yen(p.total) + ' を' + (STATE.bank_days || 5) + '日以内にお振り込み（選ぶと振込先が出ます）'));
 
@@ -269,10 +270,11 @@ function paintPayOptions() {
   const warn = document.getElementById('pay-nolink');
   if (warn) warn.hidden = !!(p.pay_full || (p.pay_1 && p.pay_2));
 
-  function opt(method, title, desc) {
+  function opt(method, title, desc, mark) {
+    const tail = mark ? `<span class="payopt__mark">${esc(mark)}</span>` : '';
     return `<button type="button" class="payopt" data-method="${esc(method)}">
               <span class="payopt__title">${esc(title)}</span>
-              <span class="payopt__desc">${esc(desc)}</span>
+              <span class="payopt__desc">${esc(desc)}${tail}</span>
             </button>`;
   }
 }
