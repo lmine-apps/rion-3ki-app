@@ -83,6 +83,18 @@
   /* オンのあいだは赤。ひと目で「ふだんと違う」と分かるように */
   .swbtn[aria-pressed="true"]{background:#c0392b;border-color:#c0392b;color:#fff}
   .swbtn:disabled{opacity:.5;cursor:progress}
+  /* ---------- コース選び ---------- */
+  .plancho{display:flex;flex-direction:column;gap:.5rem}
+  .planopt{display:flex;align-items:center;justify-content:space-between;gap:1rem;
+    width:100%;padding:.75rem .9rem;border:1.5px solid var(--line);border-radius:10px;
+    background:var(--card-soft);color:var(--ink);cursor:pointer;text-align:left;
+    font:inherit;transition:border-color .15s,background .15s}
+  .planopt:hover{border-color:var(--sky)}
+  .planopt[aria-pressed="true"]{border-color:var(--navy);background:var(--sky-soft)}
+  .planopt__t{font-weight:700;font-size:.92rem}
+  .planopt__n{font-family:var(--num);font-size:1rem;font-variant-numeric:tabular-nums;
+    color:var(--navy);white-space:nowrap}
+
   .sw__warn{margin:.2rem 0 0;padding:.6rem .8rem;border-radius:8px;
     background:#fdecea;border:1px solid #f0b8b0;color:#a33224;
     font-size:.8rem;font-weight:700;line-height:1.75}
@@ -499,8 +511,13 @@ $('tabs').addEventListener('click', (e) => {
 });
 $('q').addEventListener('input', paintList);
 
+/* 運営の出番が来ている方。
+   ・着金待ち … 入金を確認する
+   ・プラン未設定 … コースを決める（決めるまで、その方は先へ進めません） */
 function needsAction(p) {
-  return p.stage === '着金待ち';
+  if (p.stage === '着金待ち') return true;
+  if (!p.plan || p.plan === '未') return true;
+  return false;
 }
 
 function match(p) {
@@ -566,6 +583,13 @@ function card(p) {
             + 'まだご案内をお送りしていません</span>';
   }
 
+  // コースがまだ決まっていない方は、ここから決められる（決まっている方には出さない）
+  if (!p.plan || p.plan === '未') {
+    buttons = '<button type="button" class="btn" data-setplan="' + esc(p.uid) + '">'
+            + 'コースを決める</button>'
+            + (buttons ? ' ' + buttons : '');
+  }
+
   return '<div class="row ' + (act ? 'act' : (p.stage === '完了' ? 'fin' : '')) + '">'
     + '<div class="row__top">'
     +   '<span class="row__name">' + esc(p.name) + '</span>'
@@ -581,7 +605,91 @@ function card(p) {
 document.addEventListener('click', (e) => {
   const b = e.target.closest('[data-confirm]');
   if (b) askConfirm(b.dataset.confirm);
+  const s = e.target.closest('[data-setplan]');
+  if (s) askSetPlan(s.dataset.setplan);
 });
+
+/* ---------- コースを決める（選ぶ → 確かめる → 決める） ----------
+   ★決められるのは「まだ決まっていない方」だけ。決まっている方には
+     ボタンが出ませんし、GAS側でも弾いています。
+     決めた瞬間に、その方のアプリが規約同意の画面に変わります。LINEは飛びません。 */
+function askSetPlan(uid) {
+  const p = data.people.filter((x) => x.uid === uid)[0];
+  if (!p) return;
+
+  const plans = (FLAGS.plans && FLAGS.plans.length) ? FLAGS.plans : [];
+  if (!plans.length) { toast('コースの一覧を読めませんでした。更新してからお試しください', true); return; }
+
+  const el = modal(
+    '<h2>コースを決める</h2>'
+    + '<div class="r"><span class="k">お名前</span><span class="v">' + esc(p.name) + '</span></div>'
+    + '<p style="margin:.9rem 0 .5rem;font-size:.86rem">どのコースでご案内しますか？</p>'
+    + '<div class="plancho">'
+    +   plans.map((x) =>
+          '<button type="button" class="planopt" data-pick="' + esc(x.key) + '">'
+          + '<span class="planopt__t">' + esc(x.label) + '</span>'
+          + '<span class="planopt__n">' + esc(yen(x.total)) + '</span></button>').join('')
+    + '</div>'
+    + '<div class="warnbox" id="sp-warn" hidden></div>'
+    + '<div class="foot">'
+    +   '<button type="button" class="btn ghost" data-close>やめる</button>'
+    +   '<button type="button" class="btn ok" id="do-setplan" disabled>コースを選んでください</button>'
+    + '</div>');
+
+  const btn = el.querySelector('#do-setplan');
+  const warn = el.querySelector('#sp-warn');
+  let picked = null;
+  let tick = null;
+
+  el.querySelectorAll('[data-pick]').forEach((b) => {
+    b.addEventListener('click', () => {
+      el.querySelectorAll('[data-pick]').forEach((x) => x.setAttribute('aria-pressed', 'false'));
+      b.setAttribute('aria-pressed', 'true');
+      picked = plans.filter((x) => x.key === b.dataset.pick)[0];
+
+      warn.hidden = false;
+      warn.innerHTML = '<b>' + esc(p.name) + '</b> 様を <b>' + esc(picked.label) + '（'
+        + esc(yen(picked.total)) + '）</b> でご案内します。<br>'
+        + '決めると、この方のアプリが規約同意の画面に変わります。'
+        + 'あとから変えるときは、管理シートのD列で直してください。';
+
+      // 押し間違い防止に、3秒たってからボタンを有効にする
+      if (tick) clearInterval(tick);
+      btn.disabled = true;
+      let left = 3;
+      btn.textContent = String(left);
+      tick = setInterval(() => {
+        left--;
+        if (left > 0) { btn.textContent = String(left); return; }
+        clearInterval(tick); tick = null;
+        btn.disabled = false;
+        btn.textContent = 'このコースで決める';
+      }, 1000);
+    });
+  });
+
+  btn.addEventListener('click', async () => {
+    if (!picked) return;
+    btn.disabled = true;
+    btn.textContent = '送信中…';
+    try {
+      const r = await api('admin_set_plan', { uid: p.uid, plan: picked.key });
+      if (!r || r.ok === false) {
+        if (r && r.error === 'already_set') {
+          throw new Error('この方は、すでに「' + r.now + '」で決まっています。更新してご確認ください。');
+        }
+        throw new Error((r && r.error) || 'うまくいきませんでした');
+      }
+      close();
+      toast(r.name + ' 様を ' + picked.label + ' にしました');
+      load(false);
+    } catch (err) {
+      btn.disabled = false;
+      btn.textContent = 'このコースで決める';
+      toast(String(err.message || err), true);
+    }
+  });
+}
 
 function askConfirm(uid) {
   const p = data.people.filter((x) => x.uid === uid)[0];
