@@ -665,6 +665,13 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
   font-weight: 700;
   letter-spacing: .04em;
 }
+/* 金融機関の2行目（旧行名）。本体より控えめに出す */
+.bank__old {
+  display: block;
+  margin-top: 2px;
+  font-size: calc(11px * var(--fs-scale));
+  color: var(--text-mid);
+}
 .bank dd {
   margin: 0;
   padding: 10px 13px;

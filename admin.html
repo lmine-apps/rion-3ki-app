@@ -78,6 +78,13 @@
   .pushrow em{display:block;font-style:normal;font-size:.76rem;color:var(--ink-soft);margin-top:.1rem}
   .lnk{background:none;border:0;padding:0;font:inherit;color:var(--navy);
     font-weight:700;text-decoration:underline;cursor:pointer}
+  .pushdiag{border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .pushdiag__r{display:flex;justify-content:space-between;gap:1rem;align-items:center;
+    padding:.5rem .7rem;font-size:.82rem;border-bottom:1px solid var(--line)}
+  .pushdiag__r:last-child{border-bottom:0}
+  .pushdiag__r b{font-size:.78rem;white-space:nowrap}
+  .pushdiag__r b.ok{color:var(--green)}
+  .pushdiag__r b.ng{color:var(--warn)}
   .flag{font-size:.68rem;font-weight:700;padding:.15rem .6rem;border-radius:999px;background:#fbe9e7;color:#9c3a28}
   .flag.dry{background:#fdf3dd;color:#8a6a1e}
   .flag.test{background:#b25c17;color:#fff}
@@ -869,7 +876,24 @@ let pushToken = null;
 function pushSupported() {
   return ('Notification' in window) && ('serviceWorker' in navigator) && !!window.isSecureContext;
 }
-function isIos() { return /iPad|iPhone|iPod/.test(navigator.userAgent); }
+function isIos() {
+  // iPadOSはMacを名乗るので、指で触れるかどうかも見る
+  return /iPad|iPhone|iPod/.test(navigator.userAgent)
+    || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+}
+
+/** 通知が使えないとき、何が足りないのかを並べる */
+function diagRows() {
+  const rows = [
+    ['通知の機能（Notification）', ('Notification' in window)],
+    ['裏で待つ仕組み（Service Worker）', ('serviceWorker' in navigator)],
+    ['安全な接続（https）', !!window.isSecureContext],
+    ['ホーム画面から起動', isStandalone()]
+  ];
+  return rows.map((r) =>
+    '<div class="pushdiag__r"><span>' + esc(r[0]) + '</span><b class="' + (r[1] ? 'ok' : 'ng') + '">'
+    + (r[1] ? '使えます' : '見つかりません') + '</b></div>').join('');
+}
 function isStandalone() {
   return window.navigator.standalone === true
     || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
@@ -945,16 +969,26 @@ async function showPush() {
   const body = el.querySelector('#pu-body');
   const main = el.querySelector('#pu-main');
 
-  if (!pushSupported()) {
-    body.innerHTML = '<div class="warnbox">この端末では通知を使えません。'
-      + 'スマホのブラウザ（iPhoneはSafari）で開いてお試しください。</div>';
-    return;
-  }
+  // ★iPhoneの判定を先に。Safariのタブでは Notification 自体が無いので、
+  //   先に pushSupported() を見ると「使えません」が出て理由が伝わらない。
   if (isIos() && !isStandalone()) {
     body.innerHTML = '<div class="warnbox">iPhone・iPadでは、'
-      + '<b>ホーム画面に追加したこの画面</b>からでないと通知を受け取れません。</div>'
-      + '<p style="margin:.7rem 0 0">Safariの共有ボタン（□に↑）→「ホーム画面に追加」→ '
-      + '追加されたアイコンから開いて、もう一度この🔔を押してください。</p>';
+      + '<b>ホーム画面に追加したこの画面</b>からでないと通知を受け取れません（Appleの決まりです）。</div>'
+      + '<p style="margin:.7rem 0 .3rem"><b>やりかた</b></p>'
+      + '<ol style="margin:0;padding-left:1.3em;font-size:.86rem;line-height:1.9">'
+      + '<li>Safariの下（または上）の <b>共有ボタン（□に↑）</b> を押す</li>'
+      + '<li><b>「ホーム画面に追加」</b> を選ぶ</li>'
+      + '<li>ホーム画面にできた<b>アイコンから開き直す</b></li>'
+      + '<li>もう一度この 🔔 を押す</li></ol>';
+    return;
+  }
+  if (!pushSupported()) {
+    body.innerHTML = '<div class="warnbox">この端末では通知を使えません。</div>'
+      + '<p style="margin:.7rem 0 .3rem">足りないものはこちらです。</p>'
+      + '<div class="pushdiag">' + diagRows() + '</div>'
+      + '<p style="margin:.7rem 0 0;font-size:.82rem">'
+      + 'パソコンならChrome、AndroidならChrome、iPhoneならホーム画面に追加したこの画面から'
+      + 'お試しください。（社内ネットワークや、ブラウザの拡張機能でとめられていることもあります）</p>';
     return;
   }
 

@@ -178,7 +178,7 @@ function askBankReport(btn) {
       `<p class="confirm__msg">お振り込みは完了していますか？<br>確認のため、差し支えなければ次のことを教えてください。</p>
        <label class="field">
          <span class="field__label">お振り込みのお名義</span>
-         <input type="text" data-holder placeholder="リンオン ハナコ" autocomplete="name">
+         <input type="text" data-holder placeholder="リオン ハナコ" autocomplete="name">
          <span class="field__hint">ご本人以外のお名義でお振り込みの場合は、そのお名前をご記入ください。</span>
        </label>
        <label class="field">

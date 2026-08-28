@@ -406,7 +406,9 @@ function paintBank(n) {
         ? `<p class="due">お振込期限　<b>${esc(STATE.bank_due)}</b></p>`
         : ''}
      <dl class="bank">
-       <div><dt>金融機関</dt><dd>${esc(b.bank)} ${esc(b.branch)}</dd></div>
+       <div><dt>金融機関</dt><dd>${esc(b.bank)}${
+         b.bank_old ? `<span class="bank__old">${esc(b.bank_old)}</span>` : ''}</dd></div>
+       <div><dt>支店名</dt><dd>${esc(b.branch)}</dd></div>
        <div><dt>口座種別</dt><dd>${esc(b.type)}</dd></div>
        <div><dt>口座番号</dt><dd>${esc(b.number)}</dd></div>
        <div><dt>口座名義</dt><dd>${esc(b.holder)}</dd></div>
@@ -653,7 +655,7 @@ function mockApi(action, body) {
     name: 'テスト 太郎',
     plan: Object.assign({ key: s.plan, pay_full: '#mock-pay', pay_1: '#mock-pay1', pay_2: '#mock-pay2' }, plan),
     payment_method: s.method || '',
-    bank: { bank: '〇〇銀行', branch: '△△支店', type: '普通', number: '1234567', holder: 'カ）リンオンジュク', note: '恐れ入りますが、振込手数料はご負担ください。' },
+    bank: { bank: '〇〇銀行', bank_old: '旧：××銀行', branch: '△△支店', type: '普通', number: '1234567', holder: 'カ）リオン', note: '恐れ入りますが、振込手数料はご負担ください。' },
     contract_url: new URLSearchParams(location.search).get('nocontract') === '1' ? '' : 'https://example.com/mock-contract',
     bank_due: (s.method === '銀行振込' || s.second === '銀行振込') ? '2026/09/05 23:59' : null,
     bank_days: 5,
