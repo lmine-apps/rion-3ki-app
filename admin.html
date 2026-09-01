@@ -176,6 +176,12 @@
               font-size:.74rem;font-weight:700;z-index:1}
   table.fm td.when{font-family:var(--num);font-variant-numeric:tabular-nums;color:var(--ink-soft)}
   table.fm td.nm{white-space:normal}
+  table.fm td.ig{max-width:15em;overflow:hidden;text-overflow:ellipsis}
+  /* Instagram はURLのときだけ押せる。指で押しやすいよう縦に余白をとる */
+  a.fmlink{display:inline-block;padding:.2rem 0;color:var(--navy);font-weight:700;
+           text-decoration:underline;text-underline-offset:2px}
+  a.fmlink:hover{color:var(--sky)}
+  .fmplain{color:var(--ink-soft)}
   table.fm tr:last-child td{border-bottom:0}
   .fmin{display:inline-block;padding:0 .45rem;border-radius:999px;
         background:var(--green-soft);color:var(--green);font-size:.7rem;font-weight:700}
@@ -600,15 +606,24 @@ async function showForms() {
     return;
   }
 
+  // Instagram は、URLのときだけ押せるようにする（アカウント名の直書きもあるため）
+  const insta = (v) => {
+    const s = String(v || '').trim();
+    if (!s) return '—';
+    if (!/^https?:\/\//i.test(s)) return '<span class="fmplain">' + esc(s) + '</span>';
+    return '<a class="fmlink" href="' + esc(s) + '" target="_blank" rel="noopener noreferrer">'
+         + esc(s.replace(/^https?:\/\/(www\.)?/i, '').replace(/\/+$/, '')) + '</a>';
+  };
+
   const tr = r.rows.map((x) =>
     '<tr><td class="nm">' + esc(x.name)
     + (x.inApp ? ' <span class="fmin">入場ずみ</span>' : '') + '</td>'
-    + '<td class="when">' + esc(x.second || '') + '</td>'
-    + '<td class="when">' + esc(x.first || '—') + '</td></tr>').join('');
+    + '<td class="ig">' + insta(x.insta) + '</td>'
+    + '<td class="when">' + esc(x.second || '') + '</td></tr>').join('');
 
   body.innerHTML = '<p class="fmnote">' + note + '</p>'
     + '<div class="fmwrap"><table class="fm">'
-    + '<thead><tr><th>お名前</th><th>意気込み</th><th>ご希望</th></tr></thead>'
+    + '<thead><tr><th>お名前</th><th>Instagram</th><th>送信日</th></tr></thead>'
     + '<tbody>' + tr + '</tbody></table></div>'
     + '<p style="margin:.6rem 0 0;font-size:.78rem">'
     + 'ご記入の中身は、スプレッドシートの「📖 意気込み」「📝 審査」でご覧ください。</p>';

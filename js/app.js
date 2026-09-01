@@ -715,7 +715,14 @@ function mockApi(action, body) {
   else if (s.self_paid) stage = '決済確認まち';
   else stage = '決済待ち';
 
-  return Promise.resolve({
+  /* ?slow=6 で、6秒かかったふりをします（待っているあいだのご案内の確かめ用）。
+     本番のGASは眠っていると立ち上がりに数秒かかるので、その様子を再現します。 */
+  const SLOW = Number(new URLSearchParams(location.search).get('slow') || 0);
+  const answer = (o) => SLOW > 0
+    ? new Promise((r) => setTimeout(() => r(o), SLOW * 1000))
+    : Promise.resolve(o);
+
+  return answer({
     ok: true, uid: 'MOCKUID', registered: true, stage,
     name: 'テスト 太郎',
     plan: Object.assign({ key: s.plan, pay_full: '#mock-pay', pay_1: '#mock-pay1', pay_2: '#mock-pay2' }, plan),

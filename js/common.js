@@ -296,15 +296,87 @@ function payHintsHtml() {
           </div>`;
 }
 
-/** ボタンの二度押し防止 */
+/**
+ * ボタンの二度押し防止と、待っているあいだのご案内。
+ *
+ *   ★2026-09-01 とーるさんご要望。
+ *     GASは眠っていると立ち上がりに5秒ほどかかります。そのあいだ
+ *     「選択中…」のまま止まって見えるので、お客様が不安になります。
+ *     時間に応じて言い方を変えて、「待てば開く」と分かるようにしました。
+ *
+ *   ・ボタンの字が変わります（読み込んでおります → しばらくこのまま…）
+ *   ・画面の下にも同じご案内を出します（ボタンが見えない位置でも分かるように）
+ *   ・「…」はCSSで動かします。文言に「…」は含めません
+ */
+var BUSY_STEPS = [
+  { at: 2000,  text: '読み込んでおります' },
+  { at: 5000,  text: 'しばらくこのままお待ちください' },
+  { at: 10000, text: 'もう少しです。閉じずにお待ちください' }
+];
+
+var BUSY_TIMERS = [];
+
 function busy(btn, on, labelWhenBusy) {
-  if (!btn) return;
-  if (on) {
-    btn.dataset.label = btn.textContent;
-    btn.textContent = labelWhenBusy || '送信中…';
-    btn.disabled = true;
-  } else {
-    if (btn.dataset.label) btn.textContent = btn.dataset.label;
-    btn.disabled = false;
+  busyClear_();
+
+  if (!on) {
+    if (btn) {
+      if (btn.dataset.label) {
+        btn.textContent = btn.dataset.label;
+        delete btn.dataset.label;
+      }
+      btn.disabled = false;
+      btn.classList.remove('is-busy');
+    }
+    return;
   }
+
+  if (btn) {
+    // ★もとの字は、すでに預かっているときは上書きしない
+    //   （二度 busy(on) が来ると「送信中」を元の字として覚えてしまうため）
+    if (!btn.dataset.label) btn.dataset.label = btn.textContent;
+    btn.textContent = busyLabel_(labelWhenBusy || '送信中');
+    btn.disabled = true;
+    btn.classList.add('is-busy');
+  }
+
+  var bar = waitBar_();
+  for (var i = 0; i < BUSY_STEPS.length; i++) {
+    (function (step) {
+      BUSY_TIMERS.push(setTimeout(function () {
+        if (btn) btn.textContent = step.text;
+        if (bar) {
+          bar.textContent = step.text;
+          bar.className = 'waitbar is-on';
+        }
+      }, step.at));
+    })(BUSY_STEPS[i]);
+  }
+}
+
+/** 末尾の「…」は落とす。動く点はCSS（.is-busy::after）が出します */
+function busyLabel_(s) {
+  return String(s).replace(/[…\.…]+$/, '');
+}
+
+function busyClear_() {
+  for (var i = 0; i < BUSY_TIMERS.length; i++) clearTimeout(BUSY_TIMERS[i]);
+  BUSY_TIMERS = [];
+  var bar = document.getElementById('waitbar');
+  if (bar) bar.className = 'waitbar';
+}
+
+/** 画面の下に出す、待っているあいだの帯。無ければ作ります */
+function waitBar_() {
+  if (typeof document === 'undefined' || !document.body) return null;
+  var bar = document.getElementById('waitbar');
+  if (!bar) {
+    bar = document.createElement('div');
+    bar.id = 'waitbar';
+    bar.className = 'waitbar';
+    bar.setAttribute('role', 'status');
+    bar.setAttribute('aria-live', 'polite');
+    document.body.appendChild(bar);
+  }
+  return bar;
 }
