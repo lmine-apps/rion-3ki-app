@@ -602,10 +602,32 @@ function mockApi(action, body) {
   const load = () => {
     try { return JSON.parse(localStorage.getItem(MOCK_KEY)) || {}; } catch (_) { return {}; }
   };
-  const save = (s) => { try { localStorage.setItem(MOCK_KEY, JSON.stringify(s)); } catch (_) {} };
+  const save = (s) => {
+    if (new URLSearchParams(location.search).get('at')) return;   // ?at= は使い捨て
+    try { localStorage.setItem(MOCK_KEY, JSON.stringify(s)); } catch (_) {}
+  };
 
-  const s = load();
-  if (action === 'enter' && !s.init) {
+  /* ?at=◯◯ でその画面を直に出す。画面一覧のPDFを実物から作るために使う。
+     localStorage は使わず、毎回この場で状態を組み立てる（前回の続きに引きずられない）。 */
+  const AT = new URLSearchParams(location.search).get('at');
+  const AT_PRESETS = {
+    terms:     {},
+    sign:      { terms: 1 },
+    payselect: { terms: 1, signed: 1 },
+    card:      { terms: 1, signed: 1, method: 'カード2回' },
+    second:    { terms: 1, signed: 1, method: 'カード2回', pay1: 1 },
+    bank:      { terms: 1, signed: 1, method: '銀行振込' },
+    bankwait:  { terms: 1, signed: 1, method: '銀行振込', bank_report: 1,
+                 holder: 'リオン ハナコ', paid_on: '2026/09/02' },
+    done:      { terms: 1, signed: 1, method: 'カード一括', done: 1 }
+  };
+
+  const s = AT && AT_PRESETS[AT]
+    ? Object.assign({ init: true,
+                      plan: new URLSearchParams(location.search).get('plan') || 'VIP' },
+                    AT_PRESETS[AT])
+    : load();
+  if (!AT && action === 'enter' && !s.init) {
     s.init = true;
     s.plan = new URLSearchParams(location.search).get('plan') || 'VIP';
     save(s);
@@ -630,12 +652,55 @@ function mockApi(action, body) {
     'スタンダード': { label: 'スタンダードコース', total: 770000, note: 'みこのセッション2回／卒業式 2027年1月24日／講義動画の視聴期限1年', split: [400000, 370000] },
     '3.5期生':     { label: '3.5期生', total: 385000, note: '中尾真巳の算命学鑑定は別途鑑定料／卒業式への参加はありません／講義動画の視聴期限1年', split: [200000, 185000] }
   };
-  const plan = plans[s.plan] || plans['VIP'];
+  /* 価格の下のサービス内容（箇条書き）。本番は GAS の PLAN_ITEMS から届く。
+     ★ここは gas/Code.gs の PLAN_ITEMS を写したもの。
+       画面一覧のPDFを実物から作るときに、箇条書きまで揃える必要があるため。
+       GAS を直したら sync_mock_items.py を流して合わせ直す。 */
+  const MOCK_ITEMS = {
+  'VIP': [
+    { t: '4ヶ月間の東洋哲学オンライン講座「凛穏塾」および関連サポート' },
+    { t: 'メイン講師による個別セッションZoom 全2回（1回120分）' },
+    { t: '算命学講師による個別鑑定Zoom 全2回（1回90分）' },
+    { t: 'オンライン講義 全11回（1回120分）' },
+    { t: '対面形式による卒業式',
+      sub: ['参加費用は受講料に含まれ、会場までの交通費のみ受講生の自己負担'] },
+    { t: '1泊2日の宿泊型リトリートプログラム 1回',
+      sub: ['参加費用は受講料に含まれ、会場までの交通費のみ受講生の自己負担'] },
+    { t: 'LINEによる質問サポート',
+      sub: ['毎週月曜日と木曜日に質問を受付し、受付後24時間以内に担当講師より回答',
+            '12月31日は休業日とし、また講師の急病その他やむを得ない事情がある場合は、回答が遅れることがあります'] },
+    { t: 'ゆるカフェ交流会Zoom 全2回（1回120分）' },
+    { t: 'オープンチャットによるグループサポート',
+      sub: ['講師からの学びやボイス配信 全4回（月1回）',
+            '講義では学べない細やかなアドバイス',
+            '宿題の提出・共有による相互学習の機会'] }
+  ],
+  'スタンダード': [
+    { t: '4ヶ月間の東洋哲学オンライン講座「凛穏塾」および関連サポート' },
+    { t: 'メイン講師による個別セッションZoom 全2回（1回120分）' },
+    { t: 'オンライン講義 全11回（1回120分）' },
+    { t: '対面形式による卒業式',
+      sub: ['参加費用は受講料に含まれ、会場までの交通費のみ受講生の自己負担'] },
+    { t: 'LINEによる質問サポート',
+      sub: ['毎週月曜日と木曜日に質問を受付し、受付後24時間以内に担当講師より回答',
+            '12月31日は休業日とし、また講師の急病その他やむを得ない事情がある場合は、回答が遅れることがあります'] },
+    { t: 'ゆるカフェ交流会Zoom 全2回（1回120分）' },
+    { t: 'オープンチャットによるグループサポート',
+      sub: ['講師からの学びやボイス配信 全4回（月1回）',
+            '講義では学べない細やかなアドバイス',
+            '宿題の提出・共有による相互学習の機会'] }
+  ]
+  // 3.5期生 … 内容が決まったらここに足す。無いあいだは note の1行だけ出ます。
+};
+
+  const plan = Object.assign({}, plans[s.plan] || plans['VIP']);
+  if (MOCK_ITEMS[s.plan]) plan.items = MOCK_ITEMS[s.plan];
 
   const withProfile = new URLSearchParams(location.search).get('profile') === '1';
 
   let stage = 'プラン未設定';
-  if (s.plan === 'none') stage = 'プラン未設定';
+  if (s.done) stage = '完了';
+  else if (s.plan === 'none') stage = 'プラン未設定';
   else if (!s.terms) stage = '規約同意待ち';
   else if (withProfile && !s.profile) stage = 'お客様情報待ち';
   else if (!s.signed) stage = '署名待ち';
@@ -655,7 +720,12 @@ function mockApi(action, body) {
     name: 'テスト 太郎',
     plan: Object.assign({ key: s.plan, pay_full: '#mock-pay', pay_1: '#mock-pay1', pay_2: '#mock-pay2' }, plan),
     payment_method: s.method || '',
-    bank: { bank: '〇〇銀行', bank_old: '旧：××銀行', branch: '△△支店', type: '普通', number: '1234567', holder: 'カ）リオン', note: '恐れ入りますが、振込手数料はご負担ください。' },
+    // 本番と同じ表記にしてある（画面一覧のPDFで文言を確かめるため）。
+    // ★口座番号だけは伏せ字。PDFは人手に渡るので、本物の番号を載せない。
+    bank: { bank: 'ドコモSMTBネット銀行', bank_old: '旧：住信SBIネット銀行',
+            branch: '法人第一支店（106）', type: '普通', number: '300●●●●',
+            holder: 'カ）リオン',
+            note: '恐れ入りますが、振込手数料はご負担ください。' },
     contract_url: new URLSearchParams(location.search).get('nocontract') === '1' ? '' : 'https://example.com/mock-contract',
     bank_due: (s.method === '銀行振込' || s.second === '銀行振込') ? '2026/09/05 23:59' : null,
     bank_days: 5,

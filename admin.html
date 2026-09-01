@@ -157,6 +157,28 @@
   .kpi.act{border-color:var(--warn);background:var(--warn-soft)}
   .kpi.act .v{color:var(--warn)}
   .kpi.done .v{color:var(--green)}
+  /* 押せるKPI（意気込み）。見た目は他のカードと揃える */
+  button.kpi{font:inherit;color:inherit;text-align:left;cursor:pointer;
+             font-family:inherit;-webkit-appearance:none;appearance:none}
+  button.kpi:hover{border-color:var(--navy)}
+  button.kpi:focus-visible{outline:2px solid var(--navy);outline-offset:2px}
+  .kpi .tapmark{display:inline-block;margin-left:.3rem;padding:0 .35rem;border-radius:4px;
+                background:var(--line);color:var(--ink-soft);font-size:.62rem;vertical-align:1px}
+
+  /* 意気込みの一覧（見るだけ） */
+  .fmnote{margin:0 0 .6rem;font-size:.85rem;color:var(--ink-soft)}
+  .fmnote b{color:var(--ink);font-family:var(--num)}
+  .fmwrap{max-height:56vh;overflow:auto;border:1px solid var(--line);border-radius:10px}
+  table.fm{border-collapse:collapse;width:100%;font-size:.84rem}
+  table.fm th,table.fm td{padding:.45rem .6rem;border-bottom:1px solid var(--line);
+                          text-align:left;vertical-align:top;white-space:nowrap}
+  table.fm th{position:sticky;top:0;background:var(--card);color:var(--ink-soft);
+              font-size:.74rem;font-weight:700;z-index:1}
+  table.fm td.when{font-family:var(--num);font-variant-numeric:tabular-nums;color:var(--ink-soft)}
+  table.fm td.nm{white-space:normal}
+  table.fm tr:last-child td{border-bottom:0}
+  .fmin{display:inline-block;padding:0 .45rem;border-radius:999px;
+        background:var(--green-soft);color:var(--green);font-size:.7rem;font-weight:700}
   .planline{font-size:.83rem;color:var(--ink-soft);display:flex;flex-wrap:wrap;gap:.2rem .9rem}
   .planline b{color:var(--ink);font-family:var(--num)}
 
@@ -512,6 +534,7 @@ function show(r) {
 function paintKpis() {
   const s = data.summary;
   const cards = [
+    { l: '意気込み', v: s.ikigomi || 0, cls: 'tap', act: 'forms' },
     { l: '合計', v: s.total },
     { l: '未案内', v: s.notInvited },
     { l: '規約同意', v: s.terms },
@@ -519,12 +542,76 @@ function paintKpis() {
     { l: '着金待ち', v: s.waiting, cls: 'act' },
     { l: '完了', v: s.done, cls: 'done' }
   ];
-  $('kpis').innerHTML = cards.map((c) =>
-    '<div class="kpi ' + (c.cls || '') + '"><span class="l">' + c.l + '</span>'
-    + '<span class="v">' + c.v + '</span></div>').join('');
+  // 「意気込み」だけは押せます（中身は見るだけ・下の showForms）
+  $('kpis').innerHTML = cards.map((c) => {
+    const inner = '<span class="l">' + c.l + (c.act ? ' <span class="tapmark">見る</span>' : '')
+                + '</span><span class="v">' + c.v + '</span>';
+    return c.act
+      ? '<button type="button" class="kpi ' + (c.cls || '') + '" data-act="' + c.act + '">'
+        + inner + '</button>'
+      : '<div class="kpi ' + (c.cls || '') + '">' + inner + '</div>';
+  }).join('');
 
   $('plans').innerHTML = data.planOrder.map((p) =>
     '<span>' + esc(p) + '　<b>' + data.byPlan[p] + '</b> 名</span>').join('');
+}
+
+/* ---------- 意気込みシート（見るだけ）----------------------------------
+   2026-09-01 とーるさんご要望。
+   「誰が出したか」と「何件か」だけを見ます。ご記入の中身はここには出しません
+   （中身はスプレッドシートの「📖 意気込み」「📝 審査」で読みます）。
+------------------------------------------------------------------------ */
+$('kpis').addEventListener('click', (e) => {
+  const b = e.target.closest('[data-act="forms"]');
+  if (b) showForms();
+});
+
+async function showForms() {
+  const el = modal(
+    '<h2>📖 意気込みシート</h2>'
+    + '<div id="fm-body" style="font-size:.88rem;color:var(--ink-soft)">読み込んでいます…</div>'
+    + '<div class="foot"><button type="button" class="btn ghost" data-close>閉じる</button></div>');
+
+  const body = el.querySelector('#fm-body');
+
+  let r;
+  try {
+    r = await api('admin_forms');
+  } catch (err) {
+    body.innerHTML = '<div class="warnbox">読み込めませんでした。'
+      + esc(String(err && err.message || err)) + '</div>';
+    return;
+  }
+  if (!r || !r.ok) {
+    body.innerHTML = '<div class="warnbox">読み込めませんでした（'
+      + esc(String(r && r.error || 'error')) + '）</div>';
+    return;
+  }
+
+  const c = r.count || {};
+  let note = '届いている意気込み <b>' + (c.second || 0) + '</b> 件';
+  if (c.inApp)     note += '　／　うちアプリに入っている方 <b>' + c.inApp + '</b> 名';
+  if (c.firstOnly) note += '<br>「希望されますか」だけで、意気込みがまだの方 <b>'
+                         + c.firstOnly + '</b> 名';
+
+  if (!r.rows.length) {
+    body.innerHTML = '<p class="fmnote">' + note + '</p>'
+      + '<p style="margin:0">まだ1件も届いていません。</p>';
+    return;
+  }
+
+  const tr = r.rows.map((x) =>
+    '<tr><td class="nm">' + esc(x.name)
+    + (x.inApp ? ' <span class="fmin">入場ずみ</span>' : '') + '</td>'
+    + '<td class="when">' + esc(x.second || '') + '</td>'
+    + '<td class="when">' + esc(x.first || '—') + '</td></tr>').join('');
+
+  body.innerHTML = '<p class="fmnote">' + note + '</p>'
+    + '<div class="fmwrap"><table class="fm">'
+    + '<thead><tr><th>お名前</th><th>意気込み</th><th>ご希望</th></tr></thead>'
+    + '<tbody>' + tr + '</tbody></table></div>'
+    + '<p style="margin:.6rem 0 0;font-size:.78rem">'
+    + 'ご記入の中身は、スプレッドシートの「📖 意気込み」「📝 審査」でご覧ください。</p>';
 }
 
 /* ---------- 一覧 ---------- */
