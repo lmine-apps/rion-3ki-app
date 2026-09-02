@@ -454,18 +454,6 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
   line-height: 1.75;
   color: var(--text);
 }
-.signvideo__badge {
-  display: inline-block;
-  margin-right: 7px;
-  padding: 1px 8px 2px;
-  border-radius: 999px;
-  background: var(--navy-800);
-  color: #fff;
-  font-size: calc(10.5px * var(--fs-scale));
-  font-weight: 700;
-  letter-spacing: .08em;
-  vertical-align: 1px;
-}
 .signvideo__box {
   max-width: 240px;               /* 縦長なので、横は絞る（高さは約519px） */
   margin: 0 auto;
