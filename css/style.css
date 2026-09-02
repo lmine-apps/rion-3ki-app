@@ -38,6 +38,14 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
 
+/* ★HTMLの hidden を必ず効かせる（2026-09-02）
+   ブラウザ既定の [hidden]{display:none} は、いちばん弱い指定です。
+   そのため .btn{display:block} のようなクラス指定に負けて、
+   hidden を付けたのに見えたままになります。
+   実際「署名が完了しました」ボタンが、隠したつもりで出ていました。
+   ★JSで el.hidden = false にすれば属性ごと外れるので、これで困りません。 */
+[hidden] { display: none !important; }
+
 body {
   font-family: var(--sans);
   color: var(--text);
