@@ -445,7 +445,10 @@ function paintSign() {
            少しだけお待ちください。</p>`;
   }
   const btn = document.querySelector('[data-act="declare-signed"]');
-  // 契約書URLがまだ無いあいだは、この申告ボタンが唯一の進み口になる
+  // ★ふだんは出しません（2026-09-02）。署名していない方が
+  //   ボタンひとつで先へ進めてしまうためです。
+  //   署名の完了は、GMOサイン → LINEの専用シナリオ → mark_signed の道で入ります。
+  //   GAS側の ALLOW_SELF_DECLARE_SIGN を true にしたときだけ出ます。
   if (btn) btn.hidden = !STATE.allow_self_sign;
 }
 
@@ -807,7 +810,8 @@ function mockApi(action, body) {
     bank_due: (s.method === '銀行振込' || s.second === '銀行振込') ? '2026/09/05 23:59' : null,
     bank_days: 5,
     require_profile: withProfile,
-    allow_self_sign: true,
+    allow_self_sign: new URLSearchParams(location.search).get('selfsign') === '1',
+
     marks: { bank_name: s.holder || '', bank_date: s.paid_on || '',
              self_paid: s.self_paid ? '（申告あり）' : null,
              second: s.second || '', due_amount: '' }
