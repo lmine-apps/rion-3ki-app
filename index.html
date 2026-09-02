@@ -10,7 +10,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="凛穏塾 3期">
 <meta name="theme-color" content="#07172c">
-<link rel="stylesheet" href="css/style.css?v=26">
+<link rel="stylesheet" href="css/style.css?v=27">
 </head>
 <body>
 
@@ -177,6 +177,17 @@
     <div class="card">
       <h2 class="card__title">契約書へのご署名</h2>
       <p>ご同意ありがとうございました。<br>続いて、契約書へのご署名をお願いいたします。</p>
+
+      <!-- 署名のしかたの動画（任意）。中身は js/app.js の paintSign が入れます -->
+      <div class="signvideo" id="sign-video" hidden>
+        <p class="signvideo__lead">
+          <span class="signvideo__badge">任意</span>
+          はじめての方へ、<b>署名のしかた</b>を短い動画でご説明しています。
+        </p>
+        <div class="signvideo__box" id="sign-video-box"></div>
+        <p class="signvideo__note">ご覧にならなくても、下から先へお進みいただけます。</p>
+      </div>
+
       <ol class="howto">
         <li>下のボタンから契約書を開きます</li>
         <li>内容をご確認のうえ、電子署名をします</li>
@@ -276,9 +287,9 @@
   </p>
 </footer>
 
-<script src="js/config.js?v=26"></script>
-<script src="js/legal.js?v=26"></script>
-<script src="js/common.js?v=26"></script>
-<script src="js/app.js?v=26"></script>
+<script src="js/config.js?v=27"></script>
+<script src="js/legal.js?v=27"></script>
+<script src="js/common.js?v=27"></script>
+<script src="js/app.js?v=27"></script>
 </body>
 </html>

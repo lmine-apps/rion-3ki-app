@@ -437,6 +437,56 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 .links a[aria-disabled="true"] { color: var(--text-mid); pointer-events: none; text-decoration: none; font-weight: 400; }
 .links a[aria-disabled="true"]::after { content: "（準備中）"; font-size: calc(11px * var(--fs-scale)); }
 
+/* ---------------------------------------- 署名のしかたの動画（2026-09-02）
+   プロラインのメディアライブラリから読み込む縦長の動画。見るのは任意。
+   ★ video.js が自分で幅・高さを書き込むので、!important で押さえています。
+--------------------------------------------------------------------- */
+.signvideo {
+  margin: 16px 0 18px;
+  padding: 14px 13px 15px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: var(--sky-100);
+}
+.signvideo__lead {
+  margin: 0 0 11px;
+  font-size: calc(13px * var(--fs-scale));
+  line-height: 1.75;
+  color: var(--text);
+}
+.signvideo__badge {
+  display: inline-block;
+  margin-right: 7px;
+  padding: 1px 8px 2px;
+  border-radius: 999px;
+  background: var(--navy-800);
+  color: #fff;
+  font-size: calc(10.5px * var(--fs-scale));
+  font-weight: 700;
+  letter-spacing: .08em;
+  vertical-align: 1px;
+}
+.signvideo__box {
+  max-width: 300px;               /* 縦長なので、横は絞る */
+  margin: 0 auto;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #000;
+  box-shadow: var(--shadow-sm);
+}
+/* ★大きさは video.js に任せます（先方の設定が fluid: true / responsive: true）。
+   こちらから width や height、aspect-ratio を指定すると、
+   video.js が高さを作るしくみ（padding-top）とぶつかって潰れます。
+   絞るのは、上の .signvideo__box の max-width だけ。 */
+.signvideo__box .video-js-container { width: 100%; }
+.signvideo__note {
+  margin: 10px 0 0;
+  font-size: calc(11.5px * var(--fs-scale));
+  line-height: 1.7;
+  color: var(--text-mid);
+  text-align: center;
+}
+
 .howto { margin: 0; padding-left: 0; list-style: none; counter-reset: ht; }
 .howto li {
   counter-increment: ht;

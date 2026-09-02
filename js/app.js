@@ -366,7 +366,72 @@ function paintWait(kind) {
  * ②署名待ち。契約書は別ツール（GMOサイン）だが、入口はこのアプリに集約する。
  * URLが未設定のうちは「準備中」を出して、お客様が待てる状態にしておく。
  */
+/* ── 署名のしかたの動画（2026-09-02 とーるさんご要望）────────────────
+   プロラインのメディアライブラリにある縦長の動画を、この画面に置きます。
+   ★見なくても先へ進めます（任意）。読み込めなかったときは、
+     動画のかたまりごと隠して、署名の導線だけ残します。
+     ここで止めてしまうと、契約書へ進めなくなってしまうためです。
+   ★プロラインの外なので [[uid]] は置き換わりません。アプリが持っている
+     uid を自分で付けます（uid はプロラインのものと同じです）。
+──────────────────────────────────────────────── */
+const SIGN_VIDEO_ID = 'RXs9JFbSBg';
+const SIGN_VIDEO_ASSETS = [
+  { css: 'https://vjs.zencdn.net/7.15.4/video-js.css' },
+  { css: 'https://autosns.jp/build/assets/video-js-DLDwZelC.css' },
+  { js:  'https://autosns.jp/js/vendor/jquery-3.7.1.min.js?v=1788289390' },
+  { js:  'https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js?v=2' },
+  { js:  'https://vjs.zencdn.net/7.15.4/video.min.js' },
+  { js:  'https://autosns.jp/build/assets/videojs-seek-buttons.min-DtWm0i3G.js' },
+  { js:  'https://autosns.jp/build/assets/videojs-vjsdownload.min-Bpm5oSU6.js' }
+];
+let signVideoStarted = false;
+
+function loadOne(spec) {
+  return new Promise((done, fail) => {
+    let el;
+    if (spec.css) {
+      el = document.createElement('link');
+      el.rel = 'stylesheet';
+      el.href = spec.css;
+    } else {
+      el = document.createElement('script');
+      el.src = spec.js;
+      el.async = false;               // 書いた順に読ませる（依存があるため）
+    }
+    el.onload = () => done();
+    el.onerror = () => fail(new Error(spec.css || spec.js));
+    document.head.appendChild(el);
+  });
+}
+
+async function loadSignVideo() {
+  if (signVideoStarted) return;
+  signVideoStarted = true;
+
+  const wrap = document.getElementById('sign-video');
+  const box = document.getElementById('sign-video-box');
+  if (!wrap || !box) return;
+
+  const elId = 'video_js_' + SIGN_VIDEO_ID;
+  box.innerHTML =
+    `<div class="video-js-container" data-element-id="${elId}">`
+    + `<video id="${elId}" class="video-js vjs-default-skin vjs-big-play-centered"></video>`
+    + '</div>';
+
+  try {
+    for (const spec of SIGN_VIDEO_ASSETS) await loadOne(spec);
+    await loadOne({ js: `https://autosns.jp/storage/video-js/${SIGN_VIDEO_ID}?uid=`
+                        + encodeURIComponent(getUid() || '') });
+    wrap.hidden = false;
+  } catch (err) {
+    // 読めなかったときは、そっと引っ込める（署名の導線は残す）
+    wrap.hidden = true;
+    box.innerHTML = '';
+  }
+}
+
 function paintSign() {
+  loadSignVideo();
   const el = document.getElementById('sign-action');
   if (el) {
     // 契約書URLがまだ無いあいだも、ボタンは本番と同じ形で置いておく。
@@ -733,7 +798,12 @@ function mockApi(action, body) {
             branch: '法人第一支店（106）', type: '普通', number: '300●●●●',
             holder: 'カ）リオン',
             note: '恐れ入りますが、振込手数料はご負担ください。' },
-    contract_url: new URLSearchParams(location.search).get('nocontract') === '1' ? '' : 'https://example.com/mock-contract',
+    // 本物のGMOサインのURL（コースごと）。開いて確かめられるように入れてある。
+    // ?nocontract=1 を付けると「準備中」の見え方になる。
+    contract_url: new URLSearchParams(location.search).get('nocontract') === '1' ? ''
+      : (s.plan === 'スタンダード'
+          ? 'https://app.gmosign.com/openForm/reception/788eb24d-ebe7-47d3-bc6d-d5adaed5d1ec'
+          : 'https://app.gmosign.com/openForm/reception/ddd4d16a-bfa2-459a-937f-8d166b65c563'),
     bank_due: (s.method === '銀行振込' || s.second === '銀行振込') ? '2026/09/05 23:59' : null,
     bank_days: 5,
     require_profile: withProfile,
