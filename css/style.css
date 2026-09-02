@@ -467,18 +467,25 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
   vertical-align: 1px;
 }
 .signvideo__box {
-  max-width: 300px;               /* 縦長なので、横は絞る */
+  max-width: 240px;               /* 縦長なので、横は絞る（高さは約519px） */
   margin: 0 auto;
   border-radius: 10px;
   overflow: hidden;
   background: #000;
   box-shadow: var(--shadow-sm);
 }
-/* ★大きさは video.js に任せます（先方の設定が fluid: true / responsive: true）。
-   こちらから width や height、aspect-ratio を指定すると、
-   video.js が高さを作るしくみ（padding-top）とぶつかって潰れます。
-   絞るのは、上の .signvideo__box の max-width だけ。 */
-.signvideo__box .video-js-container { width: 100%; }
+/* ★プロラインの埋め込みは、どの動画でも 16:9（padding-top: 56.25%）で
+   決め打ちしてきます。この動画は 1080×2336 の縦長なので、そのままだと
+   横長の枠のなかに小さく収まってしまいます。ここで正しい比率に直します。
+     2336 ÷ 1080 = 2.163 → 216.3%
+   ★動画を差し替えて縦横が変わったら、この数字も直してください。 */
+.signvideo__box .video-js.vjs-fluid { padding-top: 216.3% !important; }
+
+/* プロラインのCSSが LINE緑の太い枠を付けてくるので、それは消します */
+.signvideo__box .video-js-container {
+  width: 100%;
+  border: 0 !important;
+}
 .signvideo__note {
   margin: 10px 0 0;
   font-size: calc(11.5px * var(--fs-scale));
