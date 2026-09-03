@@ -13,9 +13,16 @@ async function boot() {
   const uid = getUid();
   if (!uid) { showScreen('screen-nouid'); return; }
 
+  /* ★署名後の入口（?signed=1）から来た方は、GASに一緒に伝える（2026-09-03）。
+     プロラインの「実行時に外部プログラム」が届かないことがあったので、
+     こちらからも署名完了を伝えられるようにした。
+     ・すでに署名ずみなら、GAS側で何もしない（二重に記録しない）
+     ・通信は1回のまま。余計な待ち時間は増えない */
+  const signed = new URLSearchParams(location.search).get('signed') === '1' ? 1 : 0;
+
   try {
     showLoading(true);
-    const res = await api('enter', { uid });
+    const res = await api('enter', signed ? { uid, signed: 1 } : { uid });
     render(res);
   } catch (err) {
     showError(String(err.message || err));
