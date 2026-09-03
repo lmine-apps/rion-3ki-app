@@ -10,7 +10,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="凛穏塾 3期">
 <meta name="theme-color" content="#07172c">
-<link rel="stylesheet" href="css/style.css?v=32">
+<link rel="stylesheet" href="css/style.css?v=33">
 </head>
 <body>
 
@@ -196,6 +196,15 @@
       <div id="sign-action"></div>
       <p class="note">ご署名をもって正式なご契約の成立となります（お支払いの完了ではありません）。<br>
         この画面は閉じていただいて構いません。公式LINEのボタンから、いつでも戻ってこられます。</p>
+
+      <!-- 署名ずみなのに画面が変わらない方への案内（2026-09-03 とーるさんご要望） -->
+      <div class="waitnote">
+        <p class="waitnote__k">ご署名がお済みなのに、この画面のままの方へ</p>
+        <p class="waitnote__b">ご署名の反映まで、<b>数分かかることがあります</b>。<br>
+          そのままお待ちいただければ、自動で次の画面に切り替わります。<br>
+          お急ぎのときは、下の<b>「最新の状態にする」</b>を押してみてください。</p>
+        <p class="waitnote__s">10分たっても変わらないときは、公式LINEにご連絡ください。</p>
+      </div>
       <button type="button" class="btn btn--primary" data-act="declare-signed" hidden>署名が完了しました</button>
       <button type="button" class="btn btn--ghost" data-act="reload">最新の状態にする</button>
     </div>
@@ -286,9 +295,9 @@
   </p>
 </footer>
 
-<script src="js/config.js?v=32"></script>
-<script src="js/legal.js?v=32"></script>
-<script src="js/common.js?v=32"></script>
-<script src="js/app.js?v=32"></script>
+<script src="js/config.js?v=33"></script>
+<script src="js/legal.js?v=33"></script>
+<script src="js/common.js?v=33"></script>
+<script src="js/app.js?v=33"></script>
 </body>
 </html>

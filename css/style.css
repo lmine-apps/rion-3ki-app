@@ -490,6 +490,35 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
   text-align: center;
 }
 
+/* --- 署名ずみなのに画面が変わらない方への案内（2026-09-03）--------------
+   プロラインからGASへ届くまで数分かかることがある。
+   放っておいても20秒ごとに見にいくが、待っている側は不安なので言葉で伝える。
+------------------------------------------------------------------------ */
+.waitnote {
+  margin: 4px 0 0;
+  padding: 13px 15px 14px;
+  border: 1px dashed rgba(18, 52, 90, .22);
+  border-radius: 11px;
+  background: rgba(255, 255, 255, .6);
+}
+.waitnote__k {
+  margin: 0 0 7px;
+  font-size: calc(12.5px * var(--fs-scale));
+  font-weight: 700;
+  color: var(--navy-800);
+}
+.waitnote__b {
+  margin: 0;
+  font-size: calc(12.5px * var(--fs-scale));
+  line-height: 1.85;
+  color: var(--text);
+}
+.waitnote__s {
+  margin: 8px 0 0;
+  font-size: calc(11.5px * var(--fs-scale));
+  color: var(--text-mid);
+}
+
 .howto { margin: 0; padding-left: 0; list-style: none; counter-reset: ht; }
 .howto li {
   counter-increment: ht;
