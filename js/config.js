@@ -84,8 +84,8 @@ const CONFIG = {
    *
    *   ★作業が終わったら false に戻すのを忘れないこと。
    * ============================================================ */
-  MAINTENANCE: false,
-  MAINTENANCE_NOTE: '',        // 例）'23時ごろに再開いたします'
+  MAINTENANCE: true,
+  MAINTENANCE_NOTE: 'まもなく再開いたします。しばらくお待ちくださいませ。',
 
   // 状態の自動再取得（ミリ秒）。決済や着金の反映を待つ画面で使う
   POLL_INTERVAL: 20000,
