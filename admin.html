@@ -91,6 +91,25 @@
   .flag.gate{background:#1f6f8b;color:#fff}
 
   /* ---------- スイッチ（テスト決済／受付の開け閉め） ---------- */
+  /* 畳んだときの1行。ふだんはこれだけが見えます */
+  /* 3期／3.5期の切り替え。ふつうのタブより少し小さく */
+  .terms{margin-bottom:.4rem}
+  .terms .tab{font-size:.78rem;padding:.28rem .8rem}
+  .terms .tab[aria-pressed="true"]{background:var(--navy);color:#fff;border-color:var(--navy)}
+
+  .switches__head{display:flex;align-items:center;gap:.5rem;cursor:pointer;list-style:none;
+    padding:.5rem .8rem;border-radius:10px;background:var(--card);border:1px solid var(--line);
+    font-size:.82rem;color:var(--ink-soft)}
+  .switches__head::-webkit-details-marker{display:none}
+  .switches__head:hover{border-color:var(--ink-faint)}
+  .switches__gear{font-size:.95rem}
+  .switches__now{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .switches__now b{color:#c0392b}
+  .switches__more{flex:none;font-size:.74rem;color:var(--ink-faint)}
+  details[open] .switches__more::after{content:'（閉じる）'}
+  details:not([open]) .switches__more::after{content:'（開く）'}
+  .switches__more{font-size:0}
+  .switches__more::after{font-size:.74rem}
   .switches{display:flex;flex-direction:column;gap:.6rem;
     background:var(--card);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem}
   .sw{display:flex;align-items:flex-start;gap:1rem;justify-content:space-between}
@@ -290,8 +309,14 @@
 <!-- ============ 一覧 ============ -->
 <main id="screen-main" class="wrap" hidden>
 
-  <!-- ============ スイッチ ============ -->
-  <section class="switches" id="switches" hidden>
+  <!-- ============ スイッチ（ふだんは畳んでおく・2026-09-07）============ -->
+  <details class="switches" id="switches" hidden>
+    <summary class="switches__head">
+      <span class="switches__gear">⚙</span>
+      <span class="switches__now" id="sw-now">設定</span>
+      <span class="switches__more">開く</span>
+    </summary>
+
     <div class="sw" id="sw-test">
       <div class="sw__t">
         <b>🧪 テスト決済モード</b>
@@ -320,12 +345,17 @@
     </div>
 
     <p class="sw__warn" id="sw-warn" hidden></p>
-  </section>
+  </details>
 
   <div class="cards" id="kpis"></div>
   <div class="planline" id="plans"></div>
 
   <div class="bar">
+    <div class="tabs terms" id="terms">
+      <button type="button" class="tab" data-t="3" aria-pressed="true">3期</button>
+      <button type="button" class="tab" data-t="3.5" aria-pressed="false">3.5期</button>
+      <button type="button" class="tab" data-t="all" aria-pressed="false">すべて</button>
+    </div>
     <div class="tabs" id="tabs">
       <button type="button" class="tab" data-f="act" aria-pressed="true">要対応</button>
       <button type="button" class="tab" data-f="all" aria-pressed="false">すべて</button>
@@ -391,6 +421,22 @@ function paintFlags(f) {
   setSwitch('open_gate_off', gateOff);
   setSwitch('maintenance', !!FLAGS.maintenance);
 
+  /* 畳んだままでも、いまの状態がひと目で分かるように（2026-09-07）。
+     ふつうのときは静かに、何かオンのときだけ赤で出します。 */
+  const swOn = [];
+  if (testOn) swOn.push('🧪 テスト決済');
+  if (gateOff) swOn.push('🚪 受付テスト中');
+  if (FLAGS.maintenance) swOn.push('🔧 メンテナンス中');
+  const nowEl = $('sw-now');
+  if (nowEl) {
+    nowEl.innerHTML = swOn.length
+      ? ('設定　<b>' + swOn.join('　') + '</b>')
+      : '設定　テスト決済オフ／受付は本番／通常営業';
+  }
+  // 何かオンのときだけ、気づけるように最初から開いておく
+  const det = $('switches');
+  if (det && swOn.length && !det.dataset.touched) det.open = true;
+
   document.querySelectorAll('[data-open-at]').forEach(el => {
     el.textContent = FLAGS.open_at_text || '—';
   });
@@ -432,6 +478,22 @@ function setSwitch(key, on) {
   b.textContent = on ? 'オン' : 'オフ';
   b.disabled = false;
 }
+
+/* 3期／3.5期の切り替え（2026-09-07） */
+document.addEventListener('click', (ev) => {
+  const b = ev.target.closest('#terms .tab');
+  if (!b) return;
+  term = b.dataset.t;
+  document.querySelectorAll('#terms .tab').forEach(x => {
+    x.setAttribute('aria-pressed', x === b ? 'true' : 'false');
+  });
+  paintList();
+});
+
+/* 運営の方がいちど開閉したら、そのあとは自動で開かない（操作を尊重） */
+document.addEventListener('toggle', (ev) => {
+  if (ev.target && ev.target.id === 'switches') ev.target.dataset.touched = '1';
+}, true);
 
 document.addEventListener('click', async (e) => {
   const b = e.target.closest('.swbtn');
@@ -676,9 +738,12 @@ function needsAction(p) {
   return false;
 }
 
+let term = '3';        // 3期／3.5期／すべて（2026-09-07）
+
 function match(p) {
   const q = $('q').value.trim();
   if (q && p.name.indexOf(q) === -1) return false;
+  if (term !== 'all' && (p.term || '3') !== term) return false;
   if (filter === 'all') return true;
   if (filter === 'act') return needsAction(p);
   if (filter === 'new') return !p.invite;
@@ -710,7 +775,13 @@ function card(p) {
     facts.push('<div><span class="k">' + k + '</span><span class="v' + (num ? ' n' : '') + '">'
                + esc(v) + '</span></div>');
   };
-  put('ご案内', p.invite || '—');
+  if (p.term === '3.5') {
+    put('説明会ひらいた', p.smOpened);
+    put('説明会', p.smJoin);
+    put('合言葉', p.smKeyword);
+  } else {
+    put('ご案内', p.invite || '—');
+  }
   put('規約同意', p.terms);
   put('ご署名', p.sign);
   put('お支払い', p.method);
