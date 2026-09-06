@@ -10,6 +10,9 @@ async function boot() {
   initFontSize();
   fillStaticLinks();
 
+  // 🔧 メンテナンス中（アプリ側のスイッチ）。GASに問い合わせる前に止めます
+  if (CONFIG.MAINTENANCE) { showMaintenance(CONFIG.MAINTENANCE_NOTE); return; }
+
   const uid = getUid();
   if (!uid) { showScreen('screen-nouid'); return; }
 

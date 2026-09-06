@@ -1109,6 +1109,33 @@ body.is-locked { overflow: hidden; }
 .doc__table th { background: rgba(229, 245, 253, .55); color: var(--navy-800); font-weight: 700; white-space: nowrap; }
 .doc__table tr:last-child td { border-bottom: 0; }
 
+/* 振込のご案内で、「振り込みました」の押し忘れを防ぐ囲み（2026-09-07）
+   お振り込みだけして押さない方がいらっしゃるため、ボタンの真上に置いています。 */
+.mustpush {
+  background: var(--alert-bg);
+  border: 1px solid var(--alert-line);
+  border-left: 4px solid var(--alert);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin: 18px 0 12px;
+}
+.mustpush__t {
+  margin: 0 0 8px;
+  font-family: var(--serif);
+  font-size: calc(15px * var(--fs-scale));
+  font-weight: 700;
+  color: var(--alert);
+  line-height: 1.6;
+}
+.mustpush__b {
+  margin: 0 0 8px;
+  font-size: calc(13px * var(--fs-scale));
+  color: var(--text);
+  line-height: 1.85;
+}
+.mustpush__b:last-child { margin-bottom: 0; }
+.mustpush__b b { color: var(--alert); }
+
 /* 読みもののなかの「公式ページ」ボタン（3Dセキュアのカード会社一覧など） */
 .doc__go {
   display: inline-block; margin-top: 5px;

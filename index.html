@@ -11,7 +11,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="凛穏塾 3期">
 <meta name="theme-color" content="#07172c">
-<link rel="stylesheet" href="css/style.css?v=40">
+<link rel="stylesheet" href="css/style.css?v=42">
 </head>
 <body>
 
@@ -254,9 +254,19 @@
     <div class="card">
       <h2 class="card__title">お振り込みのご案内</h2>
       <div id="bank-body"></div>
-      <p class="note">お振り込みが済みましたら、下のボタンでお知らせください。着金を確認しましたらLINEでご連絡します。<br>
-        この案内はLINEにもお送りしています。</p>
+      <!-- ★押し忘れ防止（2026-09-07 とーるさんご要望）
+           お振り込みだけして、このボタンを押さない方がいらっしゃるため。
+           押していただかないと運営が気づけず、お手続きが止まってしまいます。 -->
+      <div class="mustpush">
+        <p class="mustpush__t">お振り込みのあとに、必ずお願いします</p>
+        <p class="mustpush__b">下の<b>「振り込みました」</b>を押してください。<br>
+          このボタンが、運営への合図になります。</p>
+        <p class="mustpush__b">お振り込みだけでは、こちらからご入金を見つけられないことがあり、
+          お手続きが止まってしまいます。<b>30秒で終わります</b>ので、お振り込みの直後にお願いいたします。</p>
+      </div>
       <button type="button" class="btn btn--primary" data-act="report-bank">振り込みました</button>
+      <p class="note">着金を確認しましたらLINEでご連絡します。<br>
+        この案内はLINEにもお送りしています。</p>
     </div>
   </section>
 
@@ -307,9 +317,9 @@
   </p>
 </footer>
 
-<script src="js/config.js?v=40"></script>
-<script src="js/legal.js?v=40"></script>
-<script src="js/common.js?v=40"></script>
-<script src="js/app.js?v=40"></script>
+<script src="js/config.js?v=42"></script>
+<script src="js/legal.js?v=42"></script>
+<script src="js/common.js?v=42"></script>
+<script src="js/app.js?v=42"></script>
 </body>
 </html>
