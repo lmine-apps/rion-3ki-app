@@ -257,6 +257,10 @@ function paintPlan(elId, withNote) {
     if (planView().items_pending) {
       body += `<p class="plan__note">受講内容の詳細は<b>ただいま未確定</b>です。決まりしだい、公式LINEにてご案内いたします。</p>`;
     }
+    // お申し込みの期限があるコース（3.5期）は、その期限も添える
+    if (planView().deadline) {
+      body += `<p class="plan__note">お申し込みとお支払いは <b>${esc(planView().deadline)}まで</b>にお願いいたします。</p>`;
+    }
   }
 
   el.innerHTML =
@@ -844,8 +848,8 @@ function mockApi(action, body) {
     // ?nocontract=1 を付けると「準備中」の見え方になる。
     contract_url: new URLSearchParams(location.search).get('nocontract') === '1' ? ''
       : (s.plan === 'スタンダード'
-          ? 'https://app.gmosign.com/openForm/reception/788eb24d-ebe7-47d3-bc6d-d5adaed5d1ec'
-          : 'https://app.gmosign.com/openForm/reception/ddd4d16a-bfa2-459a-937f-8d166b65c563'),
+          ? 'https://app.gmosign.com/openForm/reception/17c30c6c-a3dc-4294-82fa-70f6c5396da3'
+          : 'https://app.gmosign.com/openForm/reception/d970980e-9b55-4cde-8b0d-0f7d85d1f3e0'),
     bank_due: (s.method === '銀行振込' || s.second === '銀行振込') ? '2026/09/05 23:59' : null,
     bank_days: 5,
     require_profile: withProfile,

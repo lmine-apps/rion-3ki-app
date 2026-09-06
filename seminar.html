@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>説明会のご案内｜凛穏塾 3.5期</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="凛穏塾 説明会">
+<meta name="theme-color" content="#07172c">
+<link rel="stylesheet" href="css/style.css?v=37">
+</head>
+<body>
+
+<header class="head">
+  <div class="head__inner">
+    <p class="kicker">RION JUKU / 3.5</p>
+    <h1 class="head__title">凛穏塾 3.5期</h1>
+    <p class="head__sub">説明会のご案内</p>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <div class="fontsize">
+    <span class="fontsize__label">文字サイズ</span>
+    <button type="button" data-fs="normal">中</button>
+    <button type="button" data-fs="large">大</button>
+  </div>
+
+  <div id="loading" class="loading" hidden>
+    <div class="loading__mark"></div>
+    <p data-loading-msg>読み込んでいます…</p>
+  </div>
+
+  <!-- ============ uidなし ============ -->
+  <section id="screen-nouid" class="screen card">
+    <h2 class="card__title">LINEから開いてください</h2>
+    <p>このページは、LINEにお送りしたボタンから開いていただく必要があります。</p>
+    <p class="note">お手数ですが、凛穏塾の公式LINEに届いているメッセージのボタンから開き直してください。</p>
+  </section>
+
+  <!-- ============ ご案内の対象ではない方 ============
+       面談シートで「3.5期案内」が選ばれていない方は、ここで止まります。 -->
+  <section id="screen-notlisted" class="screen card">
+    <h2 class="card__title">お問い合わせください</h2>
+    <p>恐れ入ります。こちらの説明会は、個別にご案内を差し上げた方にご参加いただいております。</p>
+    <p>お心当たりのある方は、お手数ですが<b>凛穏塾の公式LINE</b>までメッセージをお送りください。運営が確認のうえ、あらためてご連絡いたします。</p>
+    <p class="note">ご案内が行き違いになっている場合もございますので、遠慮なくお声がけください。</p>
+  </section>
+
+  <!-- ============ ①説明会の受付 ============ -->
+  <section id="screen-seminar" class="screen">
+    <div class="card">
+      <h2 class="card__title">説明会のご案内</h2>
+      <div id="seminar-body"></div>
+    </div>
+  </section>
+
+  <!-- ============ ②受付ずみ ============ -->
+  <section id="screen-seminar-done" class="screen">
+    <div class="card">
+      <h2 class="card__title">お申し込みを承りました</h2>
+      <div id="seminar-done-body"></div>
+    </div>
+  </section>
+
+  <!-- ============ ③合言葉の確認ずみ → お申し込みへ ============ -->
+  <section id="screen-ready" class="screen">
+    <div class="card card--done">
+      <h2 class="card__title">お申し込みにお進みいただけます</h2>
+      <div id="ready-body"></div>
+    </div>
+  </section>
+
+  <!-- ============ エラー ============ -->
+  <section id="screen-error" class="screen card">
+    <h2 class="card__title">うまく表示できませんでした</h2>
+    <p>通信が不安定か、一時的に混み合っている可能性があります。</p>
+    <p class="alert" id="error-detail"></p>
+    <button type="button" class="btn btn--primary" data-act="reload">もう一度読み込む</button>
+    <p class="note">何度試しても表示されない場合は、公式LINEにメッセージをお送りください。</p>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <img class="foot__logo" src="assets/logo-mark-light-160.png" alt="" width="54" height="47" loading="lazy" decoding="async">
+  <p>凛穏塾</p>
+  <p class="foot__links">
+    <button type="button" data-doc="terms">受講規約</button>
+    <button type="button" data-doc="tokusho">特定商取引法に基づく表記</button>
+    <button type="button" data-doc="privacy">プライバシーポリシー</button>
+  </p>
+</footer>
+
+<script src="js/config.js?v=37"></script>
+<script src="js/legal.js?v=37"></script>
+<script src="js/common.js?v=37"></script>
+<script src="js/seminar.js?v=37"></script>
+</body>
+</html>

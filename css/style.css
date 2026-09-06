@@ -707,6 +707,15 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 .btn--ghost::before { display: none; }
 .btn--ghost:hover { background: var(--sky-100); box-shadow: none; }
 
+/* 説明会の「参加をキャンセルする」。目立たせたくないので、線も文字も薄く */
+.btn--cancel {
+  border-color: rgba(18, 52, 90, .14);
+  color: var(--text-mid);
+  font-weight: 500;
+  margin-top: 10px;
+}
+.btn--cancel:hover { background: #f4f6f8; }
+
 /* 確認パネル（LINEアプリ内ブラウザで confirm() が出ないため自前で持つ） */
 .confirm {
   background: rgba(229, 245, 253, .55);
