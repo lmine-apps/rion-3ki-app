@@ -37,6 +37,25 @@ function fillStaticLinks() {
   if (c) c.textContent = CONFIG.COURSE.name;
 }
 
+/**
+ * その方のコースに合わせた表示のちがい（2026-09-06）。
+ * 3.5期の方に「3期生」と出てしまわないように、コース名で切り替えます。
+ * CONFIG.BY_PLAN に無いコースは、これまでどおりの表示のままです。
+ */
+function planView() {
+  const key = (STATE.plan && STATE.plan.key) || '';
+  return (CONFIG.BY_PLAN && CONFIG.BY_PLAN[key]) || {};
+}
+
+/** ヘッダーの講座名を、その方のコースに合わせて出し直す */
+function paintCourseName() {
+  const v = planView();
+  const c = document.getElementById('course-name');
+  if (c) c.textContent = v.name || CONFIG.COURSE.name;
+  const k = document.getElementById('course-kicker');
+  if (k && v.kicker) k.textContent = v.kicker;
+}
+
 // ---------------------------------------------------------------- 画面の出し分け
 /**
  * 現在地（GASが返す stage）だけを見て画面を決める。
@@ -53,6 +72,9 @@ function render(res) {
 
   if (!res || res.ok === false) { showError(res && res.error ? errorMessage(res.error) : '状態を取得できませんでした'); return; }
   STATE = res;
+
+  // ヘッダーの講座名を、その方のコースに合わせて出し直す（3.5期の方に「3期生」と出さないため）
+  paintCourseName();
 
   // テスト中だけ帯を出す。本番の金額ではないと、ひと目で分かるように
   const tb = document.getElementById('testbar');
@@ -231,6 +253,10 @@ function paintPlan(elId, withNote) {
   if (withNote !== false) {
     if (p.items && p.items.length) body = planItemsHtml(p.items);
     else if (p.note) body = `<p class="plan__note">${esc(p.note)}</p>`;
+    // 受講内容がまだ決まっていないコースは、そのことをはっきりお伝えする
+    if (planView().items_pending) {
+      body += `<p class="plan__note">受講内容の詳細は<b>ただいま未確定</b>です。決まりしだい、公式LINEにてご案内いたします。</p>`;
+    }
   }
 
   el.innerHTML =
@@ -495,8 +521,14 @@ function paintBank(n) {
 function paintDone() {
   const el = document.getElementById('done-body');
   if (!el) return;
+  const v = planView();
+  // entrance を空にしてあるコース（開講日が未確定）は、日付を書かない言い方にする
+  const entrance = Object.prototype.hasOwnProperty.call(v, 'entrance') ? v.entrance : CONFIG.ENTRANCE;
+  const lead = entrance
+    ? `お手続きはすべて完了しました。<br>${esc(entrance)}でお会いできることを楽しみにしています。`
+    : `お手続きはすべて完了しました。<br>開講の日程は<b>ただいま未確定</b>です。決まりしだい、公式LINEにてご案内いたします。`;
   el.innerHTML =
-    `<p>お手続きはすべて完了しました。<br>${esc(CONFIG.ENTRANCE)}でお会いできることを楽しみにしています。</p>
+    `<p>${lead}</p>
      <p class="note">今後のご案内はLINEにお送りします。</p>`;
 }
 

@@ -315,18 +315,23 @@ const DOCS = {
   },
 
   // ------------------------------------------------------------------ 3Dセキュア
+  //   ★同じ内容の読みもの版が 3dsecure.html にあります（LINEでお渡しする用）。
+  //     カード会社の一覧を直すときは、両方そろえてください。
+  //     最終確認：2026年9月4日（全17社のリンクが開くことを確認ずみ）
   secure: {
-    title: '3Dセキュアの設定方法',
+    title: '3Dセキュアのご案内',
     kicker: '3-D SECURE',
     body: `
-      <p class="doc__lead">カード決済のときに本人確認を求められることがあります。これが「3Dセキュア（本人認証サービス）」です。設定がお済みでないと、決済が完了できない場合があります。</p>
+      <p class="doc__lead">カード決済のときに、本人確認の画面が出ることがあります。これが「3Dセキュア（本人認証サービス）」です。ご設定がお済みでないと、決済が完了できない場合があります。</p>
 
       <h3>3Dセキュアとは</h3>
-      <p>WEBでのクレジットカード決済を安全に行うための本人認証のしくみです。事前に設定した「ID・パスワード」のほか、アプリやSMSのワンタイムパスワード、スマートフォンの生体認証などで、カードの持ち主ご本人であることを確認します。</p>
-      <p>ブランドごとに名称が異なります。JCB＝J/Secure、Visa＝Visa Secure、Mastercard＝Mastercard ID Check。</p>
+      <p>インターネットでのカード決済を安全に行うための本人確認のしくみです。<b>スマートフォンに届くワンタイムパスワード（SMS・メール）</b>、<b>カード会社アプリへのプッシュ通知</b>、<b>スマートフォンの生体認証</b>などで、カードの持ち主ご本人であることを確認します。</p>
+      <p>以前のような「あらかじめ決めた合言葉」を入れる方式は、いまはその場かぎりの番号やアプリでの承認に切り替わっています。長いパスワードを覚えておく必要はありません。</p>
+      <p class="doc__small">ブランドごとに呼び名が違います。Visa＝Visa Secure／Mastercard＝Mastercard ID Check／JCB＝J/Secure／American Express＝SafeKey／Diners Club＝ProtectBuy</p>
 
       <h3>認証が求められるタイミング</h3>
-      <p>2025年3月27日以降、カード会社ごとに用意された本人認証が行われる場合があります。認証が必要かどうかは自動的なリスク判定によって変わり、表示される画面もカード会社ごとに異なります。<b>認証に失敗すると、カード登録や決済は完了できません。</b></p>
+      <p>国のガイドラインにより、<b>2025年3月末以降、インターネットでカード決済を扱うお店には3Dセキュアの導入が原則として求められています</b>。表示される画面や確認のしかたはカード会社ごとに異なり、自動のリスク判定によって<b>同じカードでも出るときと出ないときがあります</b>。出てこなかった場合は、そのままお支払いが進みますのでご安心ください。</p>
+      <p><b>認証に失敗すると、カード登録や決済は完了できません。</b></p>
 
       <div class="doc__tip">
         3Dセキュアの設定・解除は、<b>カード会社の会員サイトでお客様ご自身が行う</b>必要があります。
@@ -337,27 +342,42 @@ const DOCS = {
       <ol>
         <li>ご利用のクレジットカード会社の会員サイトにログインします</li>
         <li>「本人認証サービス」「3Dセキュア」などの項目を確認します</li>
-        <li>SMS認証、アプリ認証、ワンタイムパスワード等を設定します</li>
+        <li>ワンタイムパスワードの受け取り先（SMS・メール）やアプリ認証を設定します</li>
         <li>設定が終わったら、もう一度カード登録または決済をお試しください</li>
       </ol>
 
-      <h3>主要なカード会社</h3>
+      <h3>カード会社別のご案内</h3>
+      <p class="doc__small">「設定不要」のカード会社は、会員サイトにご登録済みであれば、あらためてのお手続きはいりません。</p>
       <div class="doc__tablewrap">
         <table class="doc__table">
-          <tr><th>カード会社</th><th>設定に必要なもの</th></tr>
-          <tr><td>楽天カード</td><td>「e-NAVI」にログインのうえ、本人認証サービスへの登録</td></tr>
-          <tr><td>三井住友カード</td><td>「Vpass」または「One Time Pass」の登録</td></tr>
-          <tr><td>イオンカード</td><td>「暮らしのマネーサイト」にログインのうえ、本人認証サービス設定</td></tr>
-          <tr><td>JCBカード</td><td>「MyJCB」への登録</td></tr>
-          <tr><td>dカード</td><td>「dカードサイト」からお申し込み</td></tr>
-          <tr><td>au PAY カード</td><td>会員サイトから本人認証サービスの登録</td></tr>
-          <tr><td>エポスカード</td><td>「エポスNet」に登録後、本人認証サービスの設定</td></tr>
-          <tr><td>セゾンカード</td><td>「Netアンサー」に新規登録またはログインで自動登録</td></tr>
-          <tr><td>PayPayカード</td><td>自動で登録されます</td></tr>
+          <tr><th>カード会社</th><th>ご設定のしかた</th></tr>
+          <tr><td>楽天カード</td><td>「楽天e-NAVI」にログインのうえ、本人認証サービスのご登録<br><a class="doc__go" href="https://www.rakuten-card.co.jp/security/3d-secure/" target="_blank" rel="noopener">公式ページ</a></td></tr>
+          <tr><td>三井住友カード<br><span class="doc__small">セディナ・Amazon Mastercard 等も</span></td><td>「Vpass」のご登録<br><a class="doc__go" href="https://www.smbc-card.com/mem/service/sec/secure01.jsp" target="_blank" rel="noopener">公式ページ</a></td></tr>
+          <tr><td>JCBカード</td><td>「MyJCB」へのご登録<br><a class="doc__go" href="https://j-faq.jcb.co.jp/faq/show/3797" target="_blank" rel="noopener">公式ページ</a></td></tr>
+          <tr><td>イオンカード</td><td>「暮らしのマネーサイト」にログインのうえ、本人認証サービスのご設定<br><a class="doc__go" href="https://faq.aeon.co.jp/faq/show/464?site_domain=default" target="_blank" rel="noopener">公式ページ</a></td></tr>
+          <tr><td>dカード</td><td>「dカードサイト」からお申し込み（カード番号の先頭4桁で手順が変わります）<br><a class="doc__go" href="https://dcard.docomo.ne.jp/st/member_settings/security/authshopping/index.html" target="_blank" rel="noopener">公式ページ</a></td></tr>
+          <tr><td>au PAY カード</td><td>会員サイトから本人認証サービスのご登録<br><a class="doc__go" href="https://www.kddi-fs.com/function/certification/" target="_blank" rel="noopener">公式ページ</a></td></tr>
+          <tr><td>エポスカード</td><td>「エポスNet」にご登録後、本人認証サービスのご設定<br><a class="doc__go" href="https://www.eposcard.co.jp/3d/" target="_blank" rel="noopener">公式ページ</a></td></tr>
+          <tr><td>セゾンカード<br><span class="doc__small">設定不要</span></td><td>「Netアンサー」に新規ご登録またはログインで自動登録<br><a class="doc__go" href="https://faq.saisoncard.co.jp/saison/detail?site=OA5LHO14&amp;id=372" target="_blank" rel="noopener">公式ページ</a></td></tr>
+          <tr><td>UCカード<br><span class="doc__small">設定不要</span></td><td>「アットユーネット」にご登録またはログインで自動登録<br><a class="doc__go" href="https://www2.uccard.co.jp/cs/services/vbv_notice.html" target="_blank" rel="noopener">公式ページ</a></td></tr>
+          <tr><td>PayPayカード<br><span class="doc__small">設定不要</span></td><td>自動で登録されます<br><a class="doc__go" href="https://www.paypay-card.co.jp/service/000235.html" target="_blank" rel="noopener">公式ページ</a></td></tr>
+          <tr><td>三菱UFJニコス<br><span class="doc__small">MUFG・DC・NICOS</span></td><td>「My Digital Connect」のご登録で本人認証サービスにも登録されます<br><a class="doc__go" href="https://www.cr.mufg.jp/mufgcard/support/webs/3dsecure/index.html" target="_blank" rel="noopener">公式ページ</a></td></tr>
+          <tr><td>オリコカード</td><td>「eオリコ」からご登録（カードごとに必要）<br><a class="doc__go" href="https://www.orico.co.jp/creditcard/about/eorico/auth/" target="_blank" rel="noopener">公式ページ</a></td></tr>
+          <tr><td>ライフカード</td><td>「LIFE-Web Desk」からご登録<br><a class="doc__go" href="https://www.lifecard.co.jp/howto/lwd/3d.html" target="_blank" rel="noopener">公式ページ</a></td></tr>
+          <tr><td>ビューカード<br><span class="doc__small">設定不要</span></td><td>「VIEW&rsquo;s NET」のご登録で自動的にご利用いただけます<br><a class="doc__go" href="https://faq.viewcard.co.jp/faq/show/587?site_domain=default" target="_blank" rel="noopener">公式ページ</a></td></tr>
+          <tr><td>アメリカン・エキスプレス<br><span class="doc__small">設定不要</span></td><td>マイアカウントにメール・携帯番号のご登録があれば認証コードが届きます<br><a class="doc__go" href="https://www.americanexpress.com/jp/security/safekey.html" target="_blank" rel="noopener">公式ページ</a></td></tr>
+          <tr><td>ダイナースクラブ</td><td>本会員は自動登録。ご家族会員・追加会員は「クラブ・オンライン」からご登録<br><a class="doc__go" href="https://www.diners.co.jp/ja/usage/3d_secure/new_registration.html" target="_blank" rel="noopener">公式ページ</a></td></tr>
+          <tr><td>ジャックスカード<br><span class="doc__small">設定不要</span></td><td>「インターコムクラブ」にご登録済みであればそのままご利用いただけます<br><a class="doc__go" href="https://www.jaccs.co.jp/service/support/securityinfo/card/authentication/" target="_blank" rel="noopener">公式ページ</a></td></tr>
         </table>
       </div>
 
-      <p class="doc__note">上記以外のカードをご利用の場合は、カード会社の会員サイトで「3Dセキュア」「本人認証サービス」「Visa Secure」「J/Secure」などの名称でご確認ください。</p>
+      <div class="doc__tip">
+        <b>偽の認証画面にはご注意ください</b><br>
+        本物の3Dセキュアの画面で、<b>カードの暗証番号（4桁）やカード番号のすべてをあらためて入力させることはありません</b>。不審な画面が出たときは入力せずに閉じて、カード会社の公式サイトからご自身でログインしてお確かめください。
+      </div>
+
+      <p class="doc__note">上記以外のカードをご利用の場合は、カード裏面の発行会社の会員サイトで「本人認証サービス」「3Dセキュア」などの名称でご確認ください。見あたらないときは、カード裏面の電話番号へお問い合わせいただくのが確実です。<br>認証がうまくいかず決済が完了しない場合は、無理に何度もお試しにならず、公式LINEまでご連絡ください。お振込へのお切り替えもできます。</p>
+      <p class="doc__end">2026年9月現在の情報です</p>
     `
   }
 };
