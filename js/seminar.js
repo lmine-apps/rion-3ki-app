@@ -42,6 +42,12 @@ async function boot() {
 
 // ---------------------------------------------------------------- 画面の出し分け
 function render(res) {
+  // メンテナンス中は、どの口から返ってきてもこの画面に寄せる
+  if (res && res.ok === false && res.error === 'maintenance') {
+    showMaintenance(res.note);
+    return;
+  }
+
   if (!res || res.ok === false) {
     showError(res && res.error ? errorMessage(res.error) : '状態を取得できませんでした');
     return;
@@ -71,6 +77,19 @@ function render(res) {
     default:
       showScreen('screen-notlisted');
   }
+}
+
+/**
+ * メンテナンス中の画面（2026-09-06）。
+ * 運営が「メンテナンス中にする」を押しているあいだ、GASが error:'maintenance' を返します。
+ */
+function showMaintenance(note) {
+  const el = document.getElementById('maint-note');
+  if (el) {
+    if (note) { el.textContent = note; el.hidden = false; }
+    else { el.textContent = ''; el.hidden = true; }
+  }
+  showScreen('screen-maintenance');
 }
 
 function errorMessage(code) {
@@ -188,6 +207,12 @@ async function seminarCancel(btn) {
 /** ?mock=1 のときだけ使う偽サーバー。GASが無くても全画面を確認できる */
 function mockApi(action, body) {
   const KEY = 'rion35_seminar_mock';
+  /* ?maint=1 で、メンテナンス中の見え方を確かめられます */
+  if (new URLSearchParams(location.search).get('maint') === '1') {
+    return Promise.resolve({ ok: false, error: 'maintenance',
+                             note: new URLSearchParams(location.search).get('note') || '' });
+  }
+
   const load = () => { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (_) { return {}; } };
   const save = (s) => {
     if (new URLSearchParams(location.search).get('at')) return;   // ?at= は使い捨て

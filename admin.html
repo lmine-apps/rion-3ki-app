@@ -310,6 +310,15 @@
       <button type="button" class="swbtn" data-flag="open_gate_off" aria-pressed="false">オフ</button>
     </div>
 
+    <div class="sw" id="sw-maint">
+      <div class="sw__t">
+        <b>🔧 メンテナンス中の表示</b>
+        <span class="sw__d">オンのあいだ、お客様の画面が「ただいまメンテナンス中です」に切り替わります。
+          この運営用アプリと、署名・決済の通知は、これまでどおり動きます。</span>
+      </div>
+      <button type="button" class="swbtn" data-flag="maintenance" aria-pressed="false">オフ</button>
+    </div>
+
     <p class="sw__warn" id="sw-warn" hidden></p>
   </section>
 
@@ -380,6 +389,7 @@ function paintFlags(f) {
 
   setSwitch('test_mode', testOn);
   setSwitch('open_gate_off', gateOff);
+  setSwitch('maintenance', !!FLAGS.maintenance);
 
   document.querySelectorAll('[data-open-at]').forEach(el => {
     el.textContent = FLAGS.open_at_text || '—';
@@ -431,13 +441,29 @@ document.addEventListener('click', async (e) => {
   const nowOn = b.getAttribute('aria-pressed') === 'true';
   const next = !nowOn;
 
-  const label = key === 'test_mode' ? '🧪 テスト決済モード' : '🚪 受付をテスト用に開く';
+  const LABELS = { test_mode: '🧪 テスト決済モード',
+                   open_gate_off: '🚪 受付をテスト用に開く',
+                   maintenance: '🔧 メンテナンス中の表示' };
+  const label = LABELS[key] || key;
   const detail = key === 'test_mode'
     ? (next ? 'カード決済が 1回目100円／2回目150円 のページに変わります。\n'
               + 'いま手続き中のお客様も、この金額の画面になります。'
             : '本物の金額（VIP 990,000円 など）に戻します。')
+    : key === 'maintenance'
+    ? (next ? 'お客様がアプリを開くと「ただいまメンテナンス中です」と出ます。\n'
+              + 'いま手続きの途中の方も、この画面に切り替わります。\n'
+              + '（入力ずみの内容は保存されているので、解除すれば続きから進めます）'
+            : 'お客様の画面を、元どおりに戻します。')
     : (next ? '受付開始（' + (FLAGS.open_at_text || '') + '）を待たずに手続きできるようになります。'
             : '受付開始（' + (FLAGS.open_at_text || '') + '）まで、受付を閉じます。');
+
+  // メンテナンス中にするときは、画面に添える一言を聞く
+  let note = null;
+  if (key === 'maintenance' && next) {
+    note = prompt('お客様の画面に添える一言があれば入れてください。\n（例：23時ごろに再開いたします）\n\n空のままでも大丈夫です。',
+                  FLAGS.maintenance_note || '');
+    if (note === null) return;          // キャンセルされた
+  }
 
   if (!confirm(label + ' を「' + (next ? 'オン' : 'オフ') + '」にします。\n\n' + detail + '\n\nよろしいですか？')) return;
 
@@ -446,7 +472,9 @@ document.addEventListener('click', async (e) => {
     // 画面は「テスト用に開く」、GASは「開始日を守る」。向きが逆なので反転させる
     const sendKey = (key === 'open_gate_off') ? 'open_gate' : key;
     const sendVal = (key === 'open_gate_off') ? !next : next;
-    const r = await api('admin_set_flag', { key: sendKey, value: sendVal ? 'true' : 'false' });
+    const body = { key: sendKey, value: sendVal ? 'true' : 'false' };
+    if (note !== null) body.note = note;
+    const r = await api('admin_set_flag', body);
     if (!r || r.ok === false) throw new Error((r && r.error) || '切り替えられませんでした');
     paintFlags(r);
     toast(label + ' を ' + (next ? 'オン' : 'オフ') + ' にしました');

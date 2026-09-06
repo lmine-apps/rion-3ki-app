@@ -42,6 +42,19 @@ function fillStaticLinks() {
  * 3.5期の方に「3期生」と出てしまわないように、コース名で切り替えます。
  * CONFIG.BY_PLAN に無いコースは、これまでどおりの表示のままです。
  */
+/**
+ * メンテナンス中の画面（2026-09-06）。
+ * 運営が「メンテナンス中にする」を押しているあいだ、GASが error:'maintenance' を返します。
+ */
+function showMaintenance(note) {
+  const el = document.getElementById('maint-note');
+  if (el) {
+    if (note) { el.textContent = note; el.hidden = false; }
+    else { el.textContent = ''; el.hidden = true; }
+  }
+  showScreen('screen-maintenance');
+}
+
 function planView() {
   const key = (STATE.plan && STATE.plan.key) || '';
   return (CONFIG.BY_PLAN && CONFIG.BY_PLAN[key]) || {};
@@ -63,6 +76,12 @@ function paintCourseName() {
  */
 function render(res) {
   stopPolling();
+
+  // メンテナンス中は、どの口から返ってきてもこの画面に寄せる
+  if (res && res.ok === false && res.error === 'maintenance') {
+    showMaintenance(res.note);
+    return;
+  }
 
   // 受付前は、どの口から返ってきても「受付開始までお待ちください」に寄せる（念のための保険）
   if (res && res.ok === false && res.error === 'before_open') {
@@ -710,6 +729,12 @@ function errorMessage(code) {
 /** ?mock=1 のときだけ使う偽サーバー。GASが無くても全画面を確認できる */
 const MOCK_KEY = 'rion3ki_mock_state';
 function mockApi(action, body) {
+  /* ?maint=1 で、メンテナンス中の見え方を確かめられます */
+  if (new URLSearchParams(location.search).get('maint') === '1') {
+    return Promise.resolve({ ok: false, error: 'maintenance',
+                             note: new URLSearchParams(location.search).get('note') || '' });
+  }
+
   const load = () => {
     try { return JSON.parse(localStorage.getItem(MOCK_KEY)) || {}; } catch (_) { return {}; }
   };
