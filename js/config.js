@@ -20,6 +20,12 @@ const CONFIG = {
     privacy: 'https://mka0tn6z.autosns.app/cp/fYrWvBRKAV'   // プライバシーポリシー（2期のまま・要確認）
   },
 
+  /* 凛穏塾の公式LINE（トークを開くURL）。
+   * LINEから開いていない方の画面に「公式LINEを開く」ボタンを出すために使います。
+   * 空のあいだはボタンを出しません（文章でのご案内だけになります）。
+   * 例）'https://lin.ee/xxxxxxx' ／ 'https://line.me/R/ti/p/@xxxxxxx'  */
+  LINE_URL: '',
+
   // 講座の基本情報（画面に出す文言）
   COURSE: {
     name: '凛穏塾 3期生',

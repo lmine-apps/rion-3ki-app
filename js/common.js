@@ -1,14 +1,46 @@
 /* ===== 共通処理：uid管理・GAS呼び出し・画面切替 ===== */
 
-/** uid取得（URL → localStorage の順。URLにあれば保存する） */
+/**
+ * uid取得（URL → localStorage の順。URLにあれば保存する）
+ *
+ * ★2026-09-07 デモモード（?mock=1）のときは保存も読み出しもしません。
+ *   画面一覧のページ（flow35.html）が uid=preview&mock=1 でアプリを表示するので、
+ *   そのまま保存すると、あとで同じブラウザからLINEを通さずアプリを開いたときに
+ *   「preview」という方が本番のシートに入場してしまっていました。
+ */
 function getUid() {
   const urlUid = new URLSearchParams(location.search).get('uid');
-  if (urlUid && urlUid !== '[[uid]]') {
-    try { localStorage.setItem(CONFIG.UID_KEY, urlUid); } catch (_) {}
-    return urlUid;
+  const valid = urlUid && urlUid !== '[[uid]]' ? urlUid : null;
+
+  // デモモードは、この画面かぎり。ブラウザには何も残しません
+  // （?uid= を空にして開くと「LINEから開いてください」の画面を確認できます）
+  if (isMock()) return urlUid === '' ? null : (valid || 'preview');
+
+  if (valid) {
+    try { localStorage.setItem(CONFIG.UID_KEY, valid); } catch (_) {}
+    return valid;
   }
-  try { return localStorage.getItem(CONFIG.UID_KEY); } catch (_) { return null; }
+  // 直しの前に「preview」が保存されてしまったブラウザは、ここで捨てます
+  try {
+    const saved = localStorage.getItem(CONFIG.UID_KEY);
+    if (saved === 'preview') { localStorage.removeItem(CONFIG.UID_KEY); return null; }
+    return saved;
+  } catch (_) { return null; }
 }
+
+/**
+ * LINEから開いていない方の画面に置いた「公式LINEを開く」ボタン（2026-09-07）。
+ * CONFIG.LINE_URL が入っているときだけ出します。空のあいだは文章のご案内だけです。
+ */
+document.addEventListener('DOMContentLoaded', function () {
+  var url = (typeof CONFIG !== 'undefined' && CONFIG.LINE_URL) || '';
+  if (!url) return;
+  var list = document.querySelectorAll('[data-line-open]');
+  for (var i = 0; i < list.length; i++) {
+    list[i].href = url;
+    list[i].hidden = false;
+  }
+});
 
 /** デモモード（?mock=1）。GASが無くても全画面を確認できる */
 function isMock() {

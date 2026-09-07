@@ -1109,6 +1109,17 @@ body.is-locked { overflow: hidden; }
 .doc__table th { background: rgba(229, 245, 253, .55); color: var(--navy-800); font-weight: 700; white-space: nowrap; }
 .doc__table tr:last-child td { border-bottom: 0; }
 
+/* LINEから開いていない方への手順の見出し（2026-09-07）
+   公式LINEと連携しているアプリなので、開き直していただく道すじを囲みで出しています。 */
+.lineback__t {
+  margin: 0 0 4px;
+  font-family: var(--serif);
+  font-size: calc(14.5px * var(--fs-scale));
+  font-weight: 700;
+  color: var(--navy-800);
+  line-height: 1.6;
+}
+
 /* 振込のご案内で、「振り込みました」の押し忘れを防ぐ囲み（2026-09-07）
    お振り込みだけして押さない方がいらっしゃるため、ボタンの真上に置いています。 */
 .mustpush {
