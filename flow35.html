@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex,nofollow">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<title>3.5期生 画面一覧｜凛穏塾</title>
+<title>3.5期生 導線と画面一覧｜凛穏塾</title>
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -443,6 +443,51 @@
 
   .note { font-size: .82rem; color: var(--ink-faint); margin: 0; line-height: 1.8; }
 
+  /* ---------- 全体の流れ（STEP 0） ----------
+     たての1本道にして、だれが動く番かを右のふだで示しています */
+  .flow { display: flex; flex-direction: column; }
+  .fstep { display: grid; grid-template-columns: 2.2rem 1fr; column-gap: 1rem; }
+  .fstep__rail { display: flex; flex-direction: column; align-items: center; }
+  .fstep__dot {
+    width: 2.2rem; height: 2.2rem; border-radius: 50%; flex: none;
+    background: var(--mark-bg); color: var(--on-mark);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--num); font-size: .95rem; font-weight: 700;
+  }
+  .fstep__line { flex: 1; width: 2px; background: var(--line); margin: .3rem 0; min-height: .9rem; }
+  .fstep:last-child .fstep__line { display: none; }
+  .fstep__body { padding: .1rem 0 1.35rem; }
+  .fstep h3 {
+    font-family: var(--serif); font-size: 1.02rem; color: var(--navy);
+    margin: 0 0 .3rem; font-weight: 700; line-height: 1.6;
+  }
+  .fstep p { margin: 0; font-size: .86rem; color: var(--ink-soft); line-height: 1.85; }
+  .fstep p b { color: var(--ink); }
+
+  .who {
+    display: inline-block; font-size: .69rem; font-weight: 700; letter-spacing: .05em;
+    padding: .12rem .6rem; border-radius: 20px; margin-left: .5rem;
+    vertical-align: .16em; white-space: nowrap;
+  }
+  .who.ops   { background: var(--sky-soft);   color: var(--navy); }
+  .who.cust  { background: rgba(168, 130, 63, .15); color: var(--gold); }
+  .who.line  { background: var(--green-soft); color: var(--green); }
+  .who.sheet { background: var(--warn-soft);  color: var(--warn); }
+
+  /* 途中で止まる方の枝 */
+  .fbranch {
+    margin-top: .6rem; padding: .6rem .9rem;
+    background: var(--warn-soft); border-left: 3px solid var(--warn);
+    border-radius: 0 8px 8px 0;
+    font-size: .82rem; color: var(--ink-soft); line-height: 1.8;
+  }
+  .fbranch b { color: var(--warn); }
+
+  /* ふだの見かた */
+  .fkey { display: flex; flex-wrap: wrap; gap: .5rem .9rem; margin-top: .2rem; }
+  .fkey span { font-size: .78rem; color: var(--ink-faint); }
+  .fkey .who { margin-left: 0; margin-right: .3rem; }
+
   @media (max-width: 520px) {
     .shots { grid-template-columns: 1fr; }
     /* スマホでは縮めずに、そのままの大きさで上のほうを見せる（タップで全部見られます） */
@@ -465,10 +510,112 @@
   <header class="masthead">
     <div class="seal">凛</div>
     <div class="brand">RION JUKU / 3.5</div>
-    <h1>3.5期生 お申し込みの画面一覧</h1>
+    <h1>3.5期生 導線と画面一覧</h1>
     <div class="rule"></div>
-    <p class="lead">3.5期生の方が、説明会のお申し込みから受講のお手続きまでにご覧になる画面です。<br>下に並んでいるのは絵ではなく<b>アプリの実物</b>です。タップすると大きく開けます。</p>
+    <p class="lead">説明会のご案内から、ご受講のお手続きが終わるまでの流れです。<br>はじめに<b>全体の道すじ</b>を、そのあとに<b>お客様がご覧になる画面</b>を並べています。<br>画面は絵ではなく<b>アプリの実物</b>です。タップすると大きく開けます。</p>
   </header>
+
+  <!-- ============================================================ 全体の流れ -->
+  <section>
+    <div class="sec-head">
+      <div class="sec-tag">STEP 0 ／ FLOW</div>
+      <h2>3.5期の流れ</h2>
+      <p class="meta">ご案内をお送りしてから、ご受講のお手続きが終わるまでの<b>ぜんぶの道すじ</b>です。<br>だれが動く番かを、右の色つきのふだで示しています。</p>
+      <div class="fkey">
+        <span><span class="who ops">運営</span>運営が手を動かします</span>
+        <span><span class="who cust">お客様</span>お客様が画面で操作します</span>
+        <span><span class="who line">LINE</span>公式LINEでのやりとり</span>
+        <span><span class="who sheet">シート</span>📗3.5期シートに記録されます</span>
+      </div>
+    </div>
+
+    <div class="flow">
+
+      <div class="fstep">
+        <div class="fstep__rail"><div class="fstep__dot">1</div><div class="fstep__line"></div></div>
+        <div class="fstep__body">
+          <h3>3期生に合格されなかった方へ、説明会のご案内を送る<span class="who ops">運営</span></h3>
+          <p>基本は<b>全員にご案内します</b>。「📋 面談」シートの結果を<b>「3.5案内NG」</b>にした方だけ、ご案内から外していただきます。<br>ご案内のメッセージには、説明会ページのURLを添えてください。</p>
+        </div>
+      </div>
+
+      <div class="fstep">
+        <div class="fstep__rail"><div class="fstep__dot">2</div><div class="fstep__line"></div></div>
+        <div class="fstep__body">
+          <h3>お客様が説明会ページを開く<span class="who cust">お客様</span></h3>
+          <p>開いた瞬間に、アプリがもう一度「3.5案内NG」でないかを確かめます。<b>関所は2つ</b>あるので、URLが人づてに回っても事故になりません。</p>
+          <div class="fbranch"><b>ここで止まる方</b>／「3.5案内NG」の方と、面談シートに見あたらない方には「お問い合わせください」の画面が出ます。運営に連絡が来る形です。</div>
+        </div>
+      </div>
+
+      <div class="fstep">
+        <div class="fstep__rail"><div class="fstep__dot">3</div><div class="fstep__line"></div></div>
+        <div class="fstep__body">
+          <h3>📗3.5期シートに、その方の行ができる<span class="who sheet">シート</span></h3>
+          <p>「受付アプリ ひらいた」に日時が入ります。<b>まだお申し込みではありません</b>が、どなたが見てくださったかが運営にわかります。</p>
+        </div>
+      </div>
+
+      <div class="fstep">
+        <div class="fstep__rail"><div class="fstep__dot">4</div><div class="fstep__line"></div></div>
+        <div class="fstep__body">
+          <h3>「はい、参加します」を押す<span class="who cust">お客様</span></h3>
+          <p>入力するところはありません。<b>ボタンひとつ</b>で受付が終わります。</p>
+        </div>
+      </div>
+
+      <div class="fstep">
+        <div class="fstep__rail"><div class="fstep__dot">5</div><div class="fstep__line"></div></div>
+        <div class="fstep__body">
+          <h3>「参加」と記録され、LINEにもタグが付く<span class="who sheet">シート</span></h3>
+          <p>シートの「セミナー参加」が<b>参加</b>になります。あわせてプロラインへ合図が飛び、参加表明後のシナリオが動きます。<br>お客様が気が変わってキャンセルされた場合は、<b>非参加</b>に戻ります。</p>
+        </div>
+      </div>
+
+      <div class="fstep">
+        <div class="fstep__rail"><div class="fstep__dot">6</div><div class="fstep__line"></div></div>
+        <div class="fstep__body">
+          <h3>説明会の当日、合言葉をお伝えする<span class="who ops">運営</span></h3>
+          <p><b>2026年9月19日（土）21:00〜／Zoom</b>。お話のなかで合言葉をお伝えいただきます。<br>この合言葉が、お申し込みページを開けるかぎになります。</p>
+        </div>
+      </div>
+
+      <div class="fstep">
+        <div class="fstep__rail"><div class="fstep__dot">7</div><div class="fstep__line"></div></div>
+        <div class="fstep__body">
+          <h3>お客様が合言葉を公式LINEに送る<span class="who line">LINE</span></h3>
+          <p>プロラインが合言葉を受け取り、そのままアプリ側へ知らせます。シートの「合言葉 入力」に日時が入ります。</p>
+        </div>
+      </div>
+
+      <div class="fstep">
+        <div class="fstep__rail"><div class="fstep__dot">8</div><div class="fstep__line"></div></div>
+        <div class="fstep__body">
+          <h3>説明会ページが「お申し込みへ進む」に変わる<span class="who cust">お客様</span></h3>
+          <p>同じURLをもう一度開いていただくだけです。<b>新しいURLをお送りする必要はありません</b>。</p>
+        </div>
+      </div>
+
+      <div class="fstep">
+        <div class="fstep__rail"><div class="fstep__dot">9</div><div class="fstep__line"></div></div>
+        <div class="fstep__body">
+          <h3>受講規約への同意 → お客様情報 → 契約書へご署名 → お支払い<span class="who cust">お客様</span></h3>
+          <p>ここから先は<b>3期生とまったく同じ流れ</b>です（下のSTEP 2）。<br><b>385,000円（税込）</b>／一括、または2回払い 200,000円＋185,000円。カード・銀行振込のどちらもお選びいただけます。<br>お申し込みとお支払いの期限は<b>2026年9月24日（木）</b>です。</p>
+        </div>
+      </div>
+
+      <div class="fstep">
+        <div class="fstep__rail"><div class="fstep__dot">10</div><div class="fstep__line"></div></div>
+        <div class="fstep__body">
+          <h3>お手続き完了<span class="who sheet">シート</span></h3>
+          <p>署名ずみの契約書と、お支払いの記録がシートにそろいます。<br><b>2026年10月14日（水）開講</b>、2027年2月14日までの4か月間です。</p>
+        </div>
+      </div>
+
+    </div>
+
+    <p class="note" style="margin-top:1.2rem">※ 3.5期の記録は、はじめから終わりまで<b>📗3.5期シート1枚</b>に入ります。【管理】タブは3期生の合格者のためのシートなので、3.5期の方が書き込まれることは一度もありません。</p>
+  </section>
 
   <!-- ============================================================ 00 -->
   <section>
