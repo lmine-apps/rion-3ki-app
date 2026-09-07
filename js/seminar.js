@@ -116,12 +116,13 @@ function seminarInfoHtml() {
     : '<b>日時は決まりしだい、公式LINEにてご案内いたします</b>';
   const subject = s.subject ? `<p class="subject">【${esc(s.subject)}】</p>` : '';
   const qualify = s.qualify_note ? `<p class="qualify">${esc(s.qualify_note)}</p>` : '';
-  return `${subject}
-          ${qualify}
-          <dl class="bank">
-            <div><dt>日時</dt><dd>${when}</dd></div>
-            <div><dt>場所</dt><dd>${esc(s.where || '')}</dd></div>
-          </dl>`;
+  return `<div data-fade>${subject}${qualify}</div>
+          <div data-fade>
+            <dl class="bank">
+              <div><dt>日時</dt><dd>${when}</dd></div>
+              <div><dt>場所</dt><dd>${esc(s.where || '')}</dd></div>
+            </dl>
+          </div>`;
 }
 
 /**
@@ -133,28 +134,30 @@ function lectureBodyHtml() {
   const s = CONFIG.SEMINAR || {};
   let h = '';
 
-  if (s.lead) h += `<p class="lead">${esc(s.lead)}</p>`;
+  if (s.lead) h += `<div data-fade><p class="lead">${esc(s.lead)}</p></div>`;
 
   if (s.about && s.about.length) {
-    h += '<h3 class="sub-title">この講義について</h3>';
+    h += '<div data-fade><h3 class="sub-title">この講義について</h3>';
     h += s.about.map((x) => `<p>${esc(x)}</p>`).join('');
+    h += '</div>';
   }
 
   if (s.items && s.items.length) {
-    h += '<h3 class="sub-title">当日お話しすること</h3>';
+    h += '<div data-fade><h3 class="sub-title">当日お話しすること</h3>';
     h += '<ul class="plan__list">' + s.items.map((x) => `<li>${esc(x)}</li>`).join('') + '</ul>';
+    h += '</div>';
   }
 
   if (s.notes && s.notes.length) {
-    h += '<h3 class="sub-title">ご参加にあたって</h3><dl class="doc__dl">';
+    h += '<div data-fade><h3 class="sub-title">ご参加にあたって</h3><dl class="doc__dl">';
     h += s.notes.map((n) => `<div><dt>${esc(n[0])}</dt><dd>${esc(n[1])}</dd></div>`).join('');
-    h += '</dl>';
+    h += '</dl></div>';
   }
 
   if (s.message && s.message.length) {
-    h += '<div class="msg">' + s.message.map((x) => `<p>${esc(x)}</p>`).join('');
+    h += '<div data-fade><div class="msg">' + s.message.map((x) => `<p>${esc(x)}</p>`).join('');
     if (s.message_who) h += `<span class="msg__who">${esc(s.message_who)}</span>`;
-    h += '</div>';
+    h += '</div></div>';
   }
 
   return h;
@@ -191,6 +194,7 @@ function paintSeminar() {
      ${voiceHtml()}
      <div id="after-voice"></div>`;
   mountVoice();
+  watchFade(el);
 }
 
 /** 聞き終わった方に出す、詳細とお申し込みのボタン */
@@ -198,9 +202,53 @@ function afterVoiceHtml() {
   const s = CONFIG.SEMINAR || {};
   return `${seminarInfoHtml()}
           ${lectureBodyHtml()}
-          ${offerNoteHtml()}
-          <p class="note">${esc(s.note || '')}</p>
-          <button type="button" class="btn btn--primary" data-act="seminar-join">無料特別講義に参加します</button>`;
+          <div data-fade>
+            ${offerNoteHtml()}
+            <p class="note">${esc(s.note || '')}</p>
+            <button type="button" class="btn btn--primary" data-act="seminar-join">無料特別講義に参加します</button>
+          </div>`;
+}
+
+/* ================================================================
+ *  スクロールに合わせて、ふわっと出す（2026-09-08 とーるさんご要望）
+ *
+ *  data-fade を付けたかたまりが、画面に入ってきたところで
+ *  ゆっくり浮かび上がります。急がせない速さ（1.1秒）にしています。
+ *
+ *  ★JSが動かない環境では、そもそも隠しません。
+ *    <html> に js-fade が付いているときだけ隠れる書き方にしてあるので、
+ *    万一この処理が動かなくても、文章が見えなくなることはありません。
+ *  ★「動きを減らす」設定の端末では、動かさずにそのまま出します。
+ * ================================================================ */
+var FADE_OBS = null;
+
+function watchFade(root) {
+  var items = (root || document).querySelectorAll('[data-fade]:not(.is-in)');
+  if (!items.length) return;
+
+  var reduce = window.matchMedia
+    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (reduce || !('IntersectionObserver' in window)) {
+    for (var i = 0; i < items.length; i++) items[i].classList.add('is-in');
+    return;
+  }
+
+  document.documentElement.classList.add('js-fade');
+
+  if (!FADE_OBS) {
+    FADE_OBS = new IntersectionObserver(function (entries) {
+      var n = 0;
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        // 同時に入ってきたものは、少しずつ時間をずらして出す
+        e.target.style.transitionDelay = (n++ * 140) + 'ms';
+        e.target.classList.add('is-in');
+        FADE_OBS.unobserve(e.target);
+      });
+    }, { rootMargin: '0px 0px -10% 0px', threshold: 0.05 });
+  }
+  for (var j = 0; j < items.length; j++) FADE_OBS.observe(items[j]);
 }
 
 /* ================================================================
@@ -215,10 +263,18 @@ function afterVoiceHtml() {
  *  戻ってきた方が、はじめから聞き直さずにすみます。
  * ================================================================ */
 
-/** 見た目。voice が空なら何も出さない */
+/**
+ * 見た目。voice がまだ空のあいだは「ここにボイスが入ります」の枠を置きます
+ * （2026-09-08 とーるさんご要望。ボイスが届く前に、置き場所を見て確かめられるように）
+ */
 function voiceHtml() {
   const s = CONFIG.SEMINAR || {};
-  if (!s.voice) return '';
+  if (!s.voice) {
+    return `<div class="voice voice--soon">
+              <p class="voice__t">${esc(s.voice_title || 'はじめに、お話を聞いてください')}</p>
+              <p class="voice__soon">🎙 ここにボイスが入ります<span>ただいま準備しております</span></p>
+            </div>`;
+  }
   return `<div class="voice" id="voice">
             <p class="voice__t">${esc(s.voice_title || 'はじめに、お話を聞いてください')}</p>
             <div class="voice__stage" id="voice-stage"></div>
@@ -282,8 +338,9 @@ function mountVoice() {
 /** 詳細を隠す／出す。隠しているあいだは、なぜ出ないのかを書いておく */
 function revealAfterVoice(area, open) {
   if (open) {
-    area.className = 'reveal';
+    area.className = '';
     area.innerHTML = afterVoiceHtml();
+    watchFade(area);
     return;
   }
   area.className = '';
@@ -380,6 +437,7 @@ function paintSeminarDone() {
      <p class="note">この画面は閉じていただいて構いません。当日のZoomのURLは、公式LINEでお送りします。</p>
      <button type="button" class="btn btn--ghost" data-act="reload">最新の状態にする</button>
      <button type="button" class="btn btn--ghost btn--cancel" data-act="seminar-cancel">参加をキャンセルする</button>`;
+  watchFade(el);
 }
 
 /** ③合言葉を確認できた方。お申し込みのアプリへご案内する */
