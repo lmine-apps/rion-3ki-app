@@ -137,30 +137,51 @@ function lectureBodyHtml() {
   if (s.lead) h += `<div data-fade><p class="lead">${esc(s.lead)}</p></div>`;
 
   if (s.about && s.about.length) {
-    h += '<div data-fade><h3 class="sub-title">この講義について</h3>';
+    h += '<div data-fade><h3 class="mid-title">この講義について</h3>';
     h += s.about.map((x) => `<p>${esc(x)}</p>`).join('');
     h += '</div>';
   }
 
   if (s.items && s.items.length) {
-    h += '<div data-fade><h3 class="sub-title">当日お話しすること</h3>';
+    h += '<div data-fade><h3 class="mid-title">当日お話しすること</h3>';
     h += '<ul class="plan__list">' + s.items.map((x) => `<li>${esc(x)}</li>`).join('') + '</ul>';
     h += '</div>';
   }
 
   if (s.notes && s.notes.length) {
-    h += '<div data-fade><h3 class="sub-title">ご参加にあたって</h3><dl class="doc__dl">';
+    h += '<div data-fade><h3 class="mid-title">ご参加にあたって</h3><dl class="doc__dl">';
     h += s.notes.map((n) => `<div><dt>${esc(n[0])}</dt><dd>${esc(n[1])}</dd></div>`).join('');
     h += '</dl></div>';
   }
 
   if (s.message && s.message.length) {
-    h += '<div data-fade><div class="msg">' + s.message.map((x) => `<p>${esc(x)}</p>`).join('');
+    h += '<div data-fade><div class="msg">' + s.message.map((x) => `<p>${letterHtml(x)}</p>`).join('');
     if (s.message_who) h += `<span class="msg__who">${esc(s.message_who)}</span>`;
     h += '</div></div>';
   }
 
   return h;
+}
+
+/**
+ * みこさんの言葉を、お手紙のように組む（2026-09-08 とーるさんご要望）。
+ * 句読点のところで行を変えます。息づかいのまま読めるように。
+ * 閉じかっこの前では改行しません（「〜。」が割れてしまうため）。
+ */
+function letterHtml(t) {
+  var parts = String(t == null ? '' : t).match(/[^。、]*[。、]?/g) || [];
+  parts = parts.filter(function (x) { return x !== ''; });
+
+  var out = '', buf = '';
+  for (var i = 0; i < parts.length; i++) {
+    buf += parts[i];
+    var last = parts[i].slice(-1);
+    var end  = (i === parts.length - 1);
+    if (end) { out += esc(buf); break; }
+    // 句点では必ず行を変える。読点は、そこまでが短いとぶら下がるので続けます
+    if (last === '。' || buf.length >= 8) { out += esc(buf) + '<br>'; buf = ''; }
+  }
+  return out;
 }
 
 /**
