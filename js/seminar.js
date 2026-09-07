@@ -114,11 +114,13 @@ function seminarInfoHtml() {
   const when = s.when
     ? esc(s.when)
     : '<b>日時は決まりしだい、公式LINEにてご案内いたします</b>';
+  const subject = s.subject ? `<p class="subject">【${esc(s.subject)}】</p>` : '';
   // 内容がまだ決まっていないあいだは、そのことをお伝えする
   const items = (s.items && s.items.length)
     ? '<ul class="plan__list">' + s.items.map((x) => `<li>${esc(x)}</li>`).join('') + '</ul>'
     : '<p class="note">当日お話しする内容の詳細は、<b>追ってご案内いたします</b>。</p>';
-  return `<dl class="bank">
+  return `${subject}
+          <dl class="bank">
             <div><dt>日時</dt><dd>${when}</dd></div>
             <div><dt>場所</dt><dd>${esc(s.where || '')}</dd></div>
           </dl>
@@ -319,8 +321,8 @@ function paintSeminarDone() {
        講義のなかで、凛穏塾3.5期のご案内と<b>合言葉</b>をお伝えします。
        その合言葉を公式LINEにお送りいただくと、この画面がお申し込みのご案内に変わります。
      </div>
-     ${deadlineText()
-       ? `<p class="note">なお、3.5期をご受講される場合、お申し込みとお支払いのお手続きは <b>${esc(deadlineText())}まで</b>とさせていただいております。</p>`
+     ${(CONFIG.SEMINAR || {}).apply_window
+       ? `<p class="note">凛穏塾3.5期をご受講される場合、お申し込みとお支払いのお手続きは <b>${esc(CONFIG.SEMINAR.apply_window)}</b>となります。</p>`
        : ''}
      <p class="note">合言葉をお送りいただくまでは、この画面のままです。閉じていただいて構いません。</p>
      <button type="button" class="btn btn--ghost" data-act="reload">最新の状態にする</button>

@@ -1109,6 +1109,23 @@ body.is-locked { overflow: hidden; }
 .doc__table th { background: rgba(229, 245, 253, .55); color: var(--navy-800); font-weight: 700; white-space: nowrap; }
 .doc__table tr:last-child td { border-bottom: 0; }
 
+/* 無料特別講義の演題（2026-09-07）
+   【運の創り方とこの世の原則】のように、講義の題を一段大きく見せます。 */
+.subject {
+  margin: 4px 0 14px;
+  padding: 12px 10px;
+  text-align: center;
+  font-family: var(--serif);
+  font-size: calc(18px * var(--fs-scale));
+  font-weight: 700;
+  color: var(--navy-800);
+  line-height: 1.65;
+  letter-spacing: .03em;
+  border-top: 1px solid var(--sky-300);
+  border-bottom: 1px solid var(--sky-300);
+  text-wrap: balance;
+}
+
 /* 無料特別講義の受付ページで、先にお聞きいただくボイス（2026-09-07）
    聞き終わるころに「受講を希望します」のボタンが出ます。 */
 .voice {
