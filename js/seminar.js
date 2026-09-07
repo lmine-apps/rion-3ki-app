@@ -108,28 +108,61 @@ function errorMessage(code) {
 }
 
 // ---------------------------------------------------------------- 各画面の中身
-/** 特別講義のご案内（日時・内容）。CONFIG.SEMINAR を書き換えるだけで直せます */
+/** 演題・日時・場所。ボイスを聞き終わってから出します */
 function seminarInfoHtml() {
   const s = CONFIG.SEMINAR || {};
   const when = s.when
     ? esc(s.when)
     : '<b>日時は決まりしだい、公式LINEにてご案内いたします</b>';
   const subject = s.subject ? `<p class="subject">【${esc(s.subject)}】</p>` : '';
-  // 内容がまだ決まっていないあいだは、そのことをお伝えする
-  const items = (s.items && s.items.length)
-    ? '<ul class="plan__list">' + s.items.map((x) => `<li>${esc(x)}</li>`).join('') + '</ul>'
-    : '<p class="note">当日お話しする内容の詳細は、<b>追ってご案内いたします</b>。</p>';
+  const qualify = s.qualify_note ? `<p class="qualify">${esc(s.qualify_note)}</p>` : '';
   return `${subject}
+          ${qualify}
           <dl class="bank">
             <div><dt>日時</dt><dd>${when}</dd></div>
             <div><dt>場所</dt><dd>${esc(s.where || '')}</dd></div>
-          </dl>
-          ${items}`;
+          </dl>`;
+}
+
+/**
+ * 講義のご説明と、みこさんからの言葉。
+ * ボイスを聞き終わった方と、参加を承った方に出します。
+ * 中身はすべて CONFIG.SEMINAR にあるので、文章はそこだけ直せば変わります。
+ */
+function lectureBodyHtml() {
+  const s = CONFIG.SEMINAR || {};
+  let h = '';
+
+  if (s.lead) h += `<p class="lead">${esc(s.lead)}</p>`;
+
+  if (s.about && s.about.length) {
+    h += '<h3 class="sub-title">この講義について</h3>';
+    h += s.about.map((x) => `<p>${esc(x)}</p>`).join('');
+  }
+
+  if (s.items && s.items.length) {
+    h += '<h3 class="sub-title">当日お話しすること</h3>';
+    h += '<ul class="plan__list">' + s.items.map((x) => `<li>${esc(x)}</li>`).join('') + '</ul>';
+  }
+
+  if (s.notes && s.notes.length) {
+    h += '<h3 class="sub-title">ご参加にあたって</h3><dl class="doc__dl">';
+    h += s.notes.map((n) => `<div><dt>${esc(n[0])}</dt><dd>${esc(n[1])}</dd></div>`).join('');
+    h += '</dl>';
+  }
+
+  if (s.message && s.message.length) {
+    h += '<div class="msg">' + s.message.map((x) => `<p>${esc(x)}</p>`).join('');
+    if (s.message_who) h += `<span class="msg__who">${esc(s.message_who)}</span>`;
+    h += '</div>';
+  }
+
+  return h;
 }
 
 /**
  * 講義の終盤にご案内があることを、そっとお伝えする一文（2026-09-08 とーるさんご要望）。
- * 詳細ページと、参加を承ったあとのページの両方に出します。強調はしません。
+ * 詳細と、参加を承ったあとの画面の両方に出します。強調はしません。
  */
 function offerNoteHtml() {
   const t = (CONFIG.SEMINAR || {}).offer_note;
@@ -142,21 +175,32 @@ function deadlineText() {
   return v.deadline || '';
 }
 
-/** ①ボイスを聞いていただき、聞き終わったら「無料特別講義に参加します」が出る画面 */
+/**
+ * ①「お知らせ」の画面。
+ *
+ *   ★2026-09-08 とーるさんご要望。ボイスを聞く前に演題や日時が見えていると、
+ *     お話のネタバレになってしまいます。そこで、聞く前は見出しも「お知らせ」だけにして、
+ *     聞き終わったところで、詳細とお申し込みのボタンがまとめて現れる形にしました。
+ */
 function paintSeminar() {
   const el = document.getElementById('seminar-body');
   if (!el) return;
   const s = CONFIG.SEMINAR || {};
   el.innerHTML =
-    `<p class="lead">${esc(s.lead || '')}</p>
+    `<p class="lead">${esc(s.lead_before || '')}</p>
      ${voiceHtml()}
-     ${seminarInfoHtml()}
-     ${offerNoteHtml()}
-     <p class="note">${esc(s.note || '')}</p>
-     <div id="join-area">
-       <button type="button" class="btn btn--primary" data-act="seminar-join">無料特別講義に参加します</button>
-     </div>`;
+     <div id="after-voice"></div>`;
   mountVoice();
+}
+
+/** 聞き終わった方に出す、詳細とお申し込みのボタン */
+function afterVoiceHtml() {
+  const s = CONFIG.SEMINAR || {};
+  return `${seminarInfoHtml()}
+          ${lectureBodyHtml()}
+          ${offerNoteHtml()}
+          <p class="note">${esc(s.note || '')}</p>
+          <button type="button" class="btn btn--primary" data-act="seminar-join">無料特別講義に参加します</button>`;
 }
 
 /* ================================================================
@@ -201,19 +245,23 @@ function voiceRemember_(ratio) {
 
 function mountVoice() {
   const s = CONFIG.SEMINAR || {};
-  const area = document.getElementById('join-area');
+  const area = document.getElementById('after-voice');
   if (!area) return;
 
-  // ボイスを置いていないときは、いままでどおりボタンをそのまま出す
-  if (!s.voice) return;
+  // ボイスを置いていないあいだは、詳細を最初から出しておく
+  //（本番でボイスを入れ忘れても、お客様が進めなくなることはありません）
+  if (!s.voice) { revealAfterVoice(area, true); return; }
 
   // プレビュー用の抜け道。?voiceopen=1 でゲートを開けたまま見られます
-  if (new URLSearchParams(location.search).get('voiceopen') === '1') return;
+  if (new URLSearchParams(location.search).get('voiceopen') === '1') {
+    revealAfterVoice(area, true);
+    return;
+  }
 
   const gate = Number(s.voice_gate) || 0.8;
   let done = voiceHeard_() >= gate;
 
-  lockJoin(area, done);
+  revealAfterVoice(area, done);
   if (done) return;
 
   const stage = document.getElementById('voice-stage');
@@ -223,7 +271,7 @@ function mountVoice() {
     if (!(ratio > 0)) return;
     voiceRemember_(ratio);
     paintGauge(Math.max(ratio, voiceHeard_()), gate);
-    if (!done && ratio >= gate) { done = true; lockJoin(area, true); }
+    if (!done && ratio >= gate) { done = true; revealAfterVoice(area, true); }
   };
 
   paintGauge(voiceHeard_(), gate);
@@ -231,15 +279,16 @@ function mountVoice() {
   else                     mountMedia_(stage, s.voice, onProgress);
 }
 
-/** ボタンを隠す／出す。隠しているあいだは理由を書いておく */
-function lockJoin(area, open) {
+/** 詳細を隠す／出す。隠しているあいだは、なぜ出ないのかを書いておく */
+function revealAfterVoice(area, open) {
   if (open) {
-    area.innerHTML =
-      `<button type="button" class="btn btn--primary" data-act="seminar-join">無料特別講義に参加します</button>`;
+    area.className = 'reveal';
+    area.innerHTML = afterVoiceHtml();
     return;
   }
+  area.className = '';
   area.innerHTML =
-    `<p class="voice__lock">お話を聞き終わるころに、ここに<b>お申し込みのボタン</b>が出ます。<br>
+    `<p class="voice__lock">お話を聞き終わるころに、ここに<b>くわしいご案内</b>が出ます。<br>
        途中で閉じていただいても、続きからお聞きいただけます。</p>`;
 }
 
@@ -326,6 +375,7 @@ function paintSeminarDone() {
   el.innerHTML =
     `<p>特別講義へのご参加を承りました${at}。当日お会いできることを楽しみにしています。</p>
      ${seminarInfoHtml()}
+     ${lectureBodyHtml()}
      ${offerNoteHtml()}
      <p class="note">この画面は閉じていただいて構いません。当日のZoomのURLは、公式LINEでお送りします。</p>
      <button type="button" class="btn btn--ghost" data-act="reload">最新の状態にする</button>
