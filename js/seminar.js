@@ -127,6 +127,15 @@ function seminarInfoHtml() {
           ${items}`;
 }
 
+/**
+ * 講義の終盤にご案内があることを、そっとお伝えする一文（2026-09-08 とーるさんご要望）。
+ * 詳細ページと、参加を承ったあとのページの両方に出します。強調はしません。
+ */
+function offerNoteHtml() {
+  const t = (CONFIG.SEMINAR || {}).offer_note;
+  return t ? `<p class="note">${esc(t)}</p>` : '';
+}
+
 /** 3.5期のお申し込み期限。CONFIG.BY_PLAN['3.5期生'].deadline が正 */
 function deadlineText() {
   const v = (CONFIG.BY_PLAN && CONFIG.BY_PLAN['3.5期生']) || {};
@@ -142,6 +151,7 @@ function paintSeminar() {
     `<p class="lead">${esc(s.lead || '')}</p>
      ${voiceHtml()}
      ${seminarInfoHtml()}
+     ${offerNoteHtml()}
      <p class="note">${esc(s.note || '')}</p>
      <div id="join-area">
        <button type="button" class="btn btn--primary" data-act="seminar-join">無料特別講義に参加します</button>
@@ -316,18 +326,8 @@ function paintSeminarDone() {
   el.innerHTML =
     `<p>特別講義へのご参加を承りました${at}。当日お会いできることを楽しみにしています。</p>
      ${seminarInfoHtml()}
-     <div class="doc__tip" style="margin-top:14px">
-       <b>当日の流れ</b><br>
-       講義のなかで、凛穏塾3.5期のご案内と<b>合言葉</b>をお伝えします。
-       その合言葉を公式LINEにお送りいただくと、この画面がお申し込みのご案内に変わります。
-     </div>
-     ${(CONFIG.SEMINAR || {}).offer_note
-       ? `<p class="note">${esc(CONFIG.SEMINAR.offer_note)}</p>`
-       : ''}
-     ${(CONFIG.SEMINAR || {}).apply_window
-       ? `<p class="note">凛穏塾3.5期をご受講される場合、お申し込みとお支払いのお手続きは <b>${esc(CONFIG.SEMINAR.apply_window)}</b>となります。</p>`
-       : ''}
-     <p class="note">合言葉をお送りいただくまでは、この画面のままです。閉じていただいて構いません。</p>
+     ${offerNoteHtml()}
+     <p class="note">この画面は閉じていただいて構いません。当日のZoomのURLは、公式LINEでお送りします。</p>
      <button type="button" class="btn btn--ghost" data-act="reload">最新の状態にする</button>
      <button type="button" class="btn btn--ghost btn--cancel" data-act="seminar-cancel">参加をキャンセルする</button>`;
 }
