@@ -1,10 +1,10 @@
-/* ===== 凛穏塾 無料特別講義の受付（seminar.html 専用）=====
+/* ===== 凛穏塾 特別講義の受付（seminar.html 専用）=====
  *
  *   お申し込みのアプリ（index.html）とは別のページにしています。
  *   3期の方とまざらないように、URLごと分けるのが安全だからです。
  *
  *   【流れ】
- *     1. 運営が、3期に合格されなかった方へ無料特別講義のご案内を手で送る
+ *     1. 運営が、3期に合格されなかった方へ特別講義のご案内を手で送る
  *        （このページのURL付き）
  *     2. 開いた方の uid を GAS に渡す
  *        → 「📋 面談」シートで、その方の「結果」を見る
@@ -15,9 +15,9 @@
  *          166名に印を付けるより確実で、付け忘れたときの事故も小さいため。
  *     3. ページに置いたボイスをお聞きいただく
  *        → 聞き終わるころ（CONFIG.SEMINAR.voice_gate）に
- *          「受講を希望します」のボタンが出る（2026-09-07 とーるさんご要望）
- *     4.「受講を希望します」→「📗 3.5期」シートに行ができ、セミナー参加に「参加」が入る
- *        ＝ 無料特別講義への参加のお申し込みが完了
+ *          「無料特別講義に参加します」のボタンが出る（2026-09-07 とーるさんご要望）
+ *     4.「無料特別講義に参加します」→「📗 3.5期」シートに行ができ、セミナー参加に「参加」が入る
+ *        ＝ 特別講義への参加のお申し込みが完了
  *     5. 講義のなかで3.5期のご案内をして、合言葉をお伝えする
  *     6. 合言葉をLINEに送っていただく
  *        → プロラインの実行プログラムが GAS を叩き、「合言葉 入力」に日付が入る
@@ -108,7 +108,7 @@ function errorMessage(code) {
 }
 
 // ---------------------------------------------------------------- 各画面の中身
-/** 無料特別講義のご案内（日時・内容）。CONFIG.SEMINAR を書き換えるだけで直せます */
+/** 特別講義のご案内（日時・内容）。CONFIG.SEMINAR を書き換えるだけで直せます */
 function seminarInfoHtml() {
   const s = CONFIG.SEMINAR || {};
   const when = s.when
@@ -133,7 +133,7 @@ function deadlineText() {
   return v.deadline || '';
 }
 
-/** ①ボイスを聞いていただき、聞き終わったら「受講を希望します」が出る画面 */
+/** ①ボイスを聞いていただき、聞き終わったら「無料特別講義に参加します」が出る画面 */
 function paintSeminar() {
   const el = document.getElementById('seminar-body');
   if (!el) return;
@@ -144,7 +144,7 @@ function paintSeminar() {
      ${seminarInfoHtml()}
      <p class="note">${esc(s.note || '')}</p>
      <div id="join-area">
-       <button type="button" class="btn btn--primary" data-act="seminar-join">受講を希望します</button>
+       <button type="button" class="btn btn--primary" data-act="seminar-join">無料特別講義に参加します</button>
      </div>`;
   mountVoice();
 }
@@ -154,7 +154,7 @@ function paintSeminar() {
  *
  *  CONFIG.SEMINAR.voice が空のあいだは、枠もゲートも出ません
  *  （ボタンは最初から押せます）。URLを入れると、聞き終わるまで
- *  「受講を希望します」が隠れます。
+ *  「無料特別講義に参加します」が隠れます。
  *
  *  YouTube・音声ファイル・動画ファイルのどれでも受けます。
  *  聞いた進み具合はこの端末に覚えておくので、途中で閉じて
@@ -225,7 +225,7 @@ function mountVoice() {
 function lockJoin(area, open) {
   if (open) {
     area.innerHTML =
-      `<button type="button" class="btn btn--primary" data-act="seminar-join">受講を希望します</button>`;
+      `<button type="button" class="btn btn--primary" data-act="seminar-join">無料特別講義に参加します</button>`;
     return;
   }
   area.innerHTML =
@@ -314,13 +314,16 @@ function paintSeminarDone() {
   if (!el) return;
   const at = STATE.joined_at_text ? `（${esc(STATE.joined_at_text)}）` : '';
   el.innerHTML =
-    `<p>無料特別講義へのご参加を承りました${at}。当日お会いできることを楽しみにしています。</p>
+    `<p>特別講義へのご参加を承りました${at}。当日お会いできることを楽しみにしています。</p>
      ${seminarInfoHtml()}
      <div class="doc__tip" style="margin-top:14px">
        <b>当日の流れ</b><br>
        講義のなかで、凛穏塾3.5期のご案内と<b>合言葉</b>をお伝えします。
        その合言葉を公式LINEにお送りいただくと、この画面がお申し込みのご案内に変わります。
      </div>
+     ${(CONFIG.SEMINAR || {}).offer_note
+       ? `<p class="note">${esc(CONFIG.SEMINAR.offer_note)}</p>`
+       : ''}
      ${(CONFIG.SEMINAR || {}).apply_window
        ? `<p class="note">凛穏塾3.5期をご受講される場合、お申し込みとお支払いのお手続きは <b>${esc(CONFIG.SEMINAR.apply_window)}</b>となります。</p>`
        : ''}
@@ -355,7 +358,7 @@ document.addEventListener('click', async (ev) => {
   if (act === 'seminar-cancel') return seminarCancel(btn);
 });
 
-/** 無料特別講義に「受講を希望します」 */
+/** 特別講義に「無料特別講義に参加します」を押していただいたとき */
 async function seminarJoin(btn) {
   try {
     busy(btn, true);
@@ -367,7 +370,7 @@ async function seminarJoin(btn) {
 /** 参加をキャンセルする。押し間違い防止に、いちど確認します */
 async function seminarCancel(btn) {
   const ok = await askConfirm(btn,
-    '無料特別講義への参加をキャンセルしますか。あとからまたお申し込みいただけます。',
+    '特別講義への参加をキャンセルしますか。あとからまたお申し込みいただけます。',
     'キャンセルする');
   if (!ok) return;
   try {
