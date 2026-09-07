@@ -1130,9 +1130,12 @@ body.is-locked { overflow: hidden; }
   border-radius: 0 11px 11px 0;
 }
 .msg p {
-  margin: 0 0 .95em;
-  font-size: calc(13.5px * var(--fs-scale));
-  line-height: 2.05;
+  margin: 0 0 1em;
+  /* ここだけ明朝にして、画面の文字ではなく「お手紙」に見せる（2026-09-08） */
+  font-family: var(--serif);
+  font-size: calc(14.5px * var(--fs-scale));
+  line-height: 2.1;
+  letter-spacing: .02em;
   color: var(--text);
 }
 .msg p:last-of-type { margin-bottom: 0; }
