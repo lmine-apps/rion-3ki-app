@@ -11,7 +11,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="凛穏塾 3期">
 <meta name="theme-color" content="#07172c">
-<link rel="stylesheet" href="css/style.css?v=52">
+<link rel="stylesheet" href="css/style.css?v=53">
 </head>
 <body>
 
@@ -118,6 +118,16 @@
         <li><button type="button" class="doclink" data-doc="tokusho">特定商取引法に基づく表記<span>販売者・お支払い・返品について</span></button></li>
         <li><button type="button" class="doclink" data-doc="privacy">プライバシーポリシー<span>個人情報の取り扱い</span></button></li>
       </ul>
+
+      <!-- ★2026-09-09 メールアドレスをここでうかがいます（とーるさんご要望）。
+           ご決済との突き合わせと、契約書の署名URLのお届けに使います。 -->
+      <label class="field field--terms">
+        <span class="field__label">メールアドレス <em>必須</em></span>
+        <input type="email" id="terms-email" required autocomplete="email"
+               inputmode="email" placeholder="example@mail.com">
+        <span class="field__hint">ご決済の確認と、契約書のご署名URLのお届けに使います。</span>
+      </label>
+      <p class="alert" id="terms-error" hidden></p>
 
       <label class="check">
         <input type="checkbox" id="terms-check">
@@ -331,9 +341,9 @@
   </p>
 </footer>
 
-<script src="js/config.js?v=52"></script>
-<script src="js/legal.js?v=52"></script>
-<script src="js/common.js?v=52"></script>
-<script src="js/app.js?v=52"></script>
+<script src="js/config.js?v=53"></script>
+<script src="js/legal.js?v=53"></script>
+<script src="js/common.js?v=53"></script>
+<script src="js/app.js?v=53"></script>
 </body>
 </html>

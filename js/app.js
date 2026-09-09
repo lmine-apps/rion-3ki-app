@@ -138,6 +138,7 @@ function render(res) {
 
     case 'お客様情報待ち':
       bar(step.profile);
+      prefillEmail();                                // 規約でうかがったメールを入れておく
       showScreen('screen-profile');
       break;
 
@@ -597,22 +598,54 @@ async function resetPayment(btn) {
   finally { busy(btn, false); }
 }
 
-// 2つのチェック（規約への同意／書面の電子交付への承諾）が両方入るまで先へ進めない
-document.addEventListener('change', (ev) => {
-  if (ev.target.id !== 'terms-check' && ev.target.id !== 'edoc-check') return;
+/* メールアドレスと、2つのチェック（規約への同意／書面の電子交付への承諾）が
+   そろうまで、ボタンは押せません。（2026-09-09 メールを追加） */
+const MAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function termsReady() {
   const terms = document.getElementById('terms-check');
-  const edoc = document.getElementById('edoc-check');
-  const btn = document.querySelector('[data-act="agree-terms"]');
-  if (btn) btn.disabled = !(terms && terms.checked && edoc && edoc.checked);
+  const edoc  = document.getElementById('edoc-check');
+  const mail  = document.getElementById('terms-email');
+  const btn   = document.querySelector('[data-act="agree-terms"]');
+  const ok = terms && terms.checked && edoc && edoc.checked
+          && mail && MAIL_RE.test(mail.value.trim());
+  if (btn) btn.disabled = !ok;
+}
+
+document.addEventListener('change', (ev) => {
+  if (['terms-check', 'edoc-check', 'terms-email'].includes(ev.target.id)) termsReady();
+});
+document.addEventListener('input', (ev) => {
+  if (ev.target.id === 'terms-email') termsReady();
 });
 
 async function agreeTerms(btn) {
+  const mail = document.getElementById('terms-email');
+  const email = mail ? mail.value.trim() : '';
+  const err = document.getElementById('terms-error');
+  if (!MAIL_RE.test(email)) {
+    if (err) { err.textContent = 'メールアドレスをご確認ください。'; err.hidden = false; }
+    if (mail) mail.focus();
+    return;
+  }
+  if (err) err.hidden = true;
+
   try {
     busy(btn, true);
     // edoc＝書面を電子データで受け取ることへの承諾。GAS側もこれが無いと先へ進めない
-    render(await api('agree_terms', { uid: getUid(), edoc: true }));
-  } catch (err) { showError(String(err.message || err)); }
+    render(await api('agree_terms', { uid: getUid(), edoc: true, email }));
+  } catch (err2) { showError(String(err2.message || err2)); }
   finally { busy(btn, false); }
+}
+
+/**
+ * 規約のところでうかがったメールアドレスを、お客様情報の欄にあらかじめ入れておく。
+ * 二度打ちしていただかずに済みます。もちろん、その場で直していただけます。
+ * （2026-09-09）
+ */
+function prefillEmail() {
+  const el = document.querySelector('#profile-form [name="email"]');
+  if (el && !el.value && STATE.email) el.value = STATE.email;
 }
 
 async function submitProfile(btn) {
