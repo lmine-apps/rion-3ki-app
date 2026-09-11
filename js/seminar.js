@@ -130,8 +130,12 @@ function seminarInfoHtml() {
  * ボイスを聞き終わった方と、参加を承った方に出します。
  * 中身はすべて CONFIG.SEMINAR にあるので、文章はそこだけ直せば変わります。
  */
-function lectureBodyHtml() {
+/* withMessage を false にすると、みこさんからのお手紙を出しません。
+   ★2026-09-12 とーるさんご要望。受付をすませた方の画面では、
+   「今回は不合格でした」のくだりをもう一度お見せしないためです。 */
+function lectureBodyHtml(withMessage) {
   const s = CONFIG.SEMINAR || {};
+  const showMsg = (withMessage !== false);
   let h = '';
 
   if (s.lead) h += `<div data-fade><p class="lead">${esc(s.lead)}</p></div>`;
@@ -154,7 +158,7 @@ function lectureBodyHtml() {
     h += '</dl></div>';
   }
 
-  if (s.message && s.message.length) {
+  if (showMsg && s.message && s.message.length) {
     h += '<div data-fade><div class="msg">' + s.message.map((x) => `<p>${letterHtml(x)}</p>`).join('');
     if (s.message_who) h += `<span class="msg__who">${esc(s.message_who)}</span>`;
     h += '</div></div>';
@@ -528,7 +532,7 @@ function paintSeminarDone() {
     `<p>特別講義へのご参加を承りました${at}。当日お会いできることを楽しみにしています。</p>
      ${zoomNoteHtml()}
      ${seminarInfoHtml()}
-     ${lectureBodyHtml()}
+     ${lectureBodyHtml(false)}
      ${offerNoteHtml()}
      <p class="note">この画面は閉じていただいて構いません。</p>
      <button type="button" class="btn btn--ghost" data-act="reload">最新の状態にする</button>
