@@ -307,17 +307,39 @@ function voiceHtml() {
           </div>`;
 }
 
-/** この端末で「どこまで聞いたか」を覚えておくキー */
+/* ===== どこまで聞いたか =====
+ * ★2026-09-12 とーるさんご要望で「15分ほどお聞きいただいたら」に変えました。
+ *   数え方は「実際に耳を傾けていた秒数」です。バーを先に送っても進みません。
+ *   途中で閉じても、この端末に覚えているので続きから数えます。
+ */
 function voiceKey_() {
-  return 'rion35_voice_' + String((CONFIG.SEMINAR || {}).voice || '');
+  return 'rion35_heard_' + String((CONFIG.SEMINAR || {}).voice || '');
 }
 function voiceHeard_() {
   try { return Number(localStorage.getItem(voiceKey_())) || 0; } catch (_) { return 0; }
 }
-function voiceRemember_(ratio) {
-  try {
-    if (ratio > voiceHeard_()) localStorage.setItem(voiceKey_(), String(ratio));
-  } catch (_) {}
+function voiceRemember_(sec) {
+  try { localStorage.setItem(voiceKey_(), String(Math.round(sec))); } catch (_) {}
+}
+
+/* ボイスのURL。プロラインの [[uid]] は、その方のuidに置きかえます
+   （このアプリはLINEの外で開くので、置きかえないと文字のまま届いてしまいます） */
+function voiceUrl_() {
+  const raw = String((CONFIG.SEMINAR || {}).voice || '');
+  if (!raw) return '';
+  const uid = (typeof getUid === 'function' && getUid()) || '';
+  return raw.split('[[uid]]').join(encodeURIComponent(uid));
+}
+
+/* ボタンを出すまでに必要な「聞いた秒数」。
+   voice_gate_sec があればそれを、無ければ長さの voice_gate 割を使います。
+   ボイスが短いときのために、どちらか早いほうで開きます。 */
+function voiceGateSec_(duration) {
+  const s = CONFIG.SEMINAR || {};
+  const bySec   = Number(s.voice_gate_sec) || 0;
+  const byRatio = (duration > 0) ? duration * (Number(s.voice_gate) || 0.8) : 0;
+  if (bySec && byRatio) return Math.min(bySec, byRatio);
+  return bySec || byRatio || 0;
 }
 
 function mountVoice() {
@@ -335,8 +357,9 @@ function mountVoice() {
     return;
   }
 
-  const gate = Number(s.voice_gate) || 0.8;
-  let done = voiceHeard_() >= gate;
+  let heard = voiceHeard_();
+  let gate  = voiceGateSec_(0);          // 長さが分かるまでは、秒の指定だけで見ます
+  let done  = gate > 0 && heard >= gate;
 
   revealAfterVoice(area, done);
   if (done) return;
@@ -344,16 +367,17 @@ function mountVoice() {
   const stage = document.getElementById('voice-stage');
   if (!stage) return;
 
-  const onProgress = (ratio) => {
-    if (!(ratio > 0)) return;
-    voiceRemember_(ratio);
-    paintGauge(Math.max(ratio, voiceHeard_()), gate);
-    if (!done && ratio >= gate) { done = true; revealAfterVoice(area, true); }
+  /* 聞けた分（秒）を足していきます。duration は分かりしだい届きます */
+  const onProgress = (addSec, duration) => {
+    if (duration > 0) gate = voiceGateSec_(duration);
+    if (addSec > 0) { heard += addSec; voiceRemember_(heard); }
+    paintGauge(heard, gate);
+    if (!done && gate > 0 && heard >= gate) { done = true; revealAfterVoice(area, true); }
   };
 
-  paintGauge(voiceHeard_(), gate);
-  if (isYouTube_(s.voice)) mountYouTube_(stage, s.voice, onProgress);
-  else                     mountMedia_(stage, s.voice, onProgress);
+  paintGauge(heard, gate);
+  if (isYouTube_(s.voice)) mountYouTube_(stage, voiceUrl_(), onProgress);
+  else                     mountMedia_(stage, voiceUrl_(), onProgress);
 }
 
 /** 詳細を隠す／出す。隠しているあいだは、なぜ出ないのかを書いておく */
@@ -366,14 +390,14 @@ function revealAfterVoice(area, open) {
   }
   area.className = '';
   area.innerHTML =
-    `<p class="voice__lock">お話を聞き終わるころに、ここに<b>くわしいご案内</b>が出ます。<br>
+    `<p class="voice__lock">お話を15分ほどお聞きいただいたころに、ここに<b>くわしいご案内</b>が出ます。<br>
        途中で閉じていただいても、続きからお聞きいただけます。</p>`;
 }
 
-function paintGauge(ratio, gate) {
+function paintGauge(heardSec, gateSec) {
   const g = document.getElementById('voice-gauge');
-  if (!g) return;
-  const pct = Math.min(100, Math.round((ratio / gate) * 100));
+  if (!g || !(gateSec > 0)) return;
+  const pct = Math.min(100, Math.round((heardSec / gateSec) * 100));
   const bar = g.querySelector('i');
   if (bar) bar.style.width = pct + '%';
   g.setAttribute('aria-valuenow', String(pct));
@@ -398,10 +422,17 @@ function mountMedia_(stage, url, onProgress) {
   el.preload = 'metadata';
   el.playsInline = true;
   el.className = isVideo ? 'voice__video' : 'voice__audio';
+  /* ★聞いた秒数の数え方。
+     前回見たときとの差だけを足します。差が大きいときは
+     「バーを先に送った」ということなので、足しません。 */
+  let last = -1;
   el.addEventListener('timeupdate', () => {
-    if (el.duration > 0) onProgress(el.currentTime / el.duration);
+    const t = el.currentTime;
+    const d = (last >= 0) ? (t - last) : 0;
+    last = t;
+    onProgress((d > 0 && d < 2) ? d : 0, el.duration || 0);
   });
-  el.addEventListener('ended', () => onProgress(1));
+  el.addEventListener('seeking', () => { last = -1; });
   stage.appendChild(el);
 }
 
@@ -422,10 +453,13 @@ function mountYouTube_(stage, url, onProgress) {
       playerVars: { rel: 0, modestbranding: 1, playsinline: 1 },
       events: {
         onReady: () => {
+          let last = -1;
           setInterval(() => {
             try {
-              const d = player.getDuration();
-              if (d > 0) onProgress(player.getCurrentTime() / d);
+              const t = player.getCurrentTime();
+              const d = (last >= 0) ? (t - last) : 0;
+              last = t;
+              onProgress((d > 0 && d < 2) ? d : 0, player.getDuration() || 0);
             } catch (_) {}
           }, 1000);
         }
