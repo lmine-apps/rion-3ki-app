@@ -504,6 +504,17 @@ function mountYouTube_(stage, url, onProgress) {
   }
 }
 
+/* ★2026-09-12 とーるさんご要望。ZoomのURLがいつ届くのかを、
+   見落とされないように枠で囲んで出します。 */
+function zoomNoteHtml() {
+  const s = CONFIG.SEMINAR || {};
+  if (!s.zoom_note) return '';
+  return `<div class="zoomnote" data-fade>
+            <p class="zoomnote__t">当日のご参加について</p>
+            <p class="zoomnote__b">${esc(s.zoom_note)}</p>
+          </div>`;
+}
+
 /** ②受付ずみ。詳細と、キャンセルのご案内 */
 function paintSeminarDone() {
   const el = document.getElementById('seminar-done-body');
@@ -515,10 +526,11 @@ function paintSeminarDone() {
   const at = ok ? `（${esc(t)}）` : '';
   el.innerHTML =
     `<p>特別講義へのご参加を承りました${at}。当日お会いできることを楽しみにしています。</p>
+     ${zoomNoteHtml()}
      ${seminarInfoHtml()}
      ${lectureBodyHtml()}
      ${offerNoteHtml()}
-     <p class="note">この画面は閉じていただいて構いません。当日のZoomのURLは、公式LINEでお送りします。</p>
+     <p class="note">この画面は閉じていただいて構いません。</p>
      <button type="button" class="btn btn--ghost" data-act="reload">最新の状態にする</button>
      <button type="button" class="btn btn--ghost btn--cancel" data-act="seminar-cancel">参加をキャンセルする</button>`;
   watchFade(el);

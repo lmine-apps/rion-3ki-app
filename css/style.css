@@ -1430,6 +1430,31 @@ body.is-locked { overflow: hidden; }
   line-height: 1.8;
 }
 
+/* 参加を承ったあとの「ZoomのURLはいつ届くか」（2026-09-12）。
+   見落とされるとお問い合わせになるので、枠で囲んで目を留めていただきます */
+.zoomnote {
+  margin: 18px 0 4px;
+  padding: 15px 17px;
+  border: 1px solid rgba(168, 130, 63, .38);
+  border-left: 4px solid var(--gold);
+  border-radius: 10px;
+  background: rgba(168, 130, 63, .06);
+}
+.zoomnote__t {
+  margin: 0 0 6px;
+  font-family: var(--serif);
+  font-size: calc(14px * var(--fs-scale));
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: .03em;
+}
+.zoomnote__b {
+  margin: 0;
+  font-size: calc(13.5px * var(--fs-scale));
+  line-height: 1.95;
+  color: var(--navy-800);
+}
+
 /* ボタンが出るまでのあいだ、この文が代わりに立っています */
 .voice__lock {
   margin: 16px 0 0;
