@@ -1410,6 +1410,19 @@ body.is-locked { overflow: hidden; }
   background: linear-gradient(90deg, var(--sky-400), var(--navy-800));
   transition: width .4s ease;
 }
+/* ゲージのすぐ下。あと何分でご案内が出るか（2026-09-12） */
+.voice__left {
+  margin: 8px 0 0;
+  font-size: calc(12px * var(--fs-scale));
+  color: var(--navy-800);
+  letter-spacing: .02em;
+}
+.voice__left b {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--gold);
+}
+
 .voice__note {
   margin: 9px 0 0;
   font-size: calc(11.5px * var(--fs-scale));

@@ -303,6 +303,7 @@ function voiceHtml() {
                  aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="voice-gauge">
               <i></i>
             </div>
+            <p class="voice__left" id="voice-left" hidden></p>
             ${s.voice_note ? `<p class="voice__note">${esc(s.voice_note)}</p>` : ''}
           </div>`;
 }
@@ -362,17 +363,18 @@ function mountVoice() {
   let done  = gate > 0 && heard >= gate;
 
   revealAfterVoice(area, done);
-  if (done) return;
+  if (done) { paintGauge(heard, gate); return; }   // 済んだ方は、ゲージを満タンで出しておく
 
   const stage = document.getElementById('voice-stage');
   if (!stage) return;
+  stage.innerHTML = '';           // 二重に置かないように、いちど空にします
 
   /* 聞けた分（秒）を足していきます。duration は分かりしだい届きます */
   const onProgress = (addSec, duration) => {
     if (duration > 0) gate = voiceGateSec_(duration);
     if (addSec > 0) { heard += addSec; voiceRemember_(heard); }
     paintGauge(heard, gate);
-    if (!done && gate > 0 && heard >= gate) { done = true; revealAfterVoice(area, true); }
+    if (!done && gate > 0 && heard >= gate) { done = true; paintLeft(0); revealAfterVoice(area, true); }
   };
 
   paintGauge(heard, gate);
@@ -390,7 +392,7 @@ function revealAfterVoice(area, open) {
   }
   area.className = '';
   area.innerHTML =
-    `<p class="voice__lock">お話を15分ほどお聞きいただいたころに、ここに<b>くわしいご案内</b>が出ます。<br>
+    `<p class="voice__lock">お話を17分ほどお聞きいただいたころに、ここに<b>くわしいご案内</b>が出ます。<br>
        途中で閉じていただいても、続きからお聞きいただけます。</p>`;
 }
 
@@ -401,6 +403,26 @@ function paintGauge(heardSec, gateSec) {
   const bar = g.querySelector('i');
   if (bar) bar.style.width = pct + '%';
   g.setAttribute('aria-valuenow', String(pct));
+  paintLeft(gateSec - heardSec);
+}
+
+/* ★2026-09-12 とーるさんご要望。ゲージのとなりに、あとどれくらいで
+   ご案内が出るかを出します。出たあとは、この行は消します。 */
+function paintLeft(leftSec) {
+  const el = document.getElementById('voice-left');
+  if (!el) return;
+  if (!(leftSec > 0)) { el.hidden = true; el.textContent = ''; return; }
+  el.hidden = false;
+  el.innerHTML = `残り <b>${esc(mmss_(leftSec))}</b> で、ご案内が出ます`;
+}
+
+/** 秒を「◯分◯秒」に。1分未満は「◯秒」だけにします */
+function mmss_(sec) {
+  const t = Math.ceil(sec);
+  const m = Math.floor(t / 60);
+  const s = t % 60;
+  if (m <= 0) return `${s}秒`;
+  return s > 0 ? `${m}分${s}秒` : `${m}分`;
 }
 
 function isYouTube_(url) {
