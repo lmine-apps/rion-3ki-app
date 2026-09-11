@@ -449,7 +449,11 @@ function mountYouTube_(stage, url, onProgress) {
 function paintSeminarDone() {
   const el = document.getElementById('seminar-done-body');
   if (!el) return;
-  const at = STATE.joined_at_text ? `（${esc(STATE.joined_at_text)}）` : '';
+  /* ★2026-09-12 1970年と出てしまったことがあったので、念のため画面側でも守ります。
+     GASから来た文字が「2020年より前」なら、日時は出しません。 */
+  const t = String(STATE.joined_at_text || '');
+  const ok = /^20[2-9]\d\//.test(t);
+  const at = ok ? `（${esc(t)}）` : '';
   el.innerHTML =
     `<p>特別講義へのご参加を承りました${at}。当日お会いできることを楽しみにしています。</p>
      ${seminarInfoHtml()}
@@ -487,8 +491,14 @@ document.addEventListener('click', async (ev) => {
   if (act === 'seminar-cancel') return seminarCancel(btn);
 });
 
-/** 特別講義に「無料特別講義に参加します」を押していただいたとき */
+/** 特別講義に「無料特別講義に参加します」を押していただいたとき。
+ *  ★2026-09-12 とーるさんご要望。指がふれただけで参加になってしまうと
+ *  こわいので、いちど「よろしいですか」とお尋ねしてから承ります。 */
 async function seminarJoin(btn) {
+  const ok = await askConfirm(btn,
+    '無料特別講義へのご参加を承ります。よろしいですか。',
+    'はい、参加します');
+  if (!ok) return;
   try {
     busy(btn, true);
     render(await api('seminar_join', { uid: getUid() }));
