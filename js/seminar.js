@@ -15,8 +15,8 @@
  *          166名に印を付けるより確実で、付け忘れたときの事故も小さいため。
  *     3. ページに置いたボイスをお聞きいただく
  *        → 聞き終わるころ（CONFIG.SEMINAR.voice_gate）に
- *          「無料特別講義に参加します」のボタンが出る（2026-09-07 とーるさんご要望）
- *     4.「無料特別講義に参加します」→「📗 3.5期」シートに行ができ、セミナー参加に「参加」が入る
+ *          「無料の特別講義に参加します」のボタンが出る（2026-09-07 とーるさんご要望）
+ *     4.「無料の特別講義に参加します」→「📗 3.5期」シートに行ができ、セミナー参加に「参加」が入る
  *        ＝ 特別講義への参加のお申し込みが完了
  *     5. 講義のなかで3.5期のご案内をして、合言葉をお伝えする
  *     6. 合言葉をLINEに送っていただく
@@ -226,7 +226,7 @@ function afterVoiceHtml() {
           <div data-fade>
             ${offerNoteHtml()}
             <p class="note">${esc(s.note || '')}</p>
-            <button type="button" class="btn btn--primary" data-act="seminar-join">無料特別講義に参加します</button>
+            <button type="button" class="btn btn--primary" data-act="seminar-join">無料の特別講義に参加します</button>
           </div>`;
 }
 
@@ -277,7 +277,7 @@ function watchFade(root) {
  *
  *  CONFIG.SEMINAR.voice が空のあいだは、枠もゲートも出ません
  *  （ボタンは最初から押せます）。URLを入れると、聞き終わるまで
- *  「無料特別講義に参加します」が隠れます。
+ *  「無料の特別講義に参加します」が隠れます。
  *
  *  YouTube・音声ファイル・動画ファイルのどれでも受けます。
  *  聞いた進み具合はこの端末に覚えておくので、途中で閉じて
@@ -337,10 +337,13 @@ function voiceUrl_() {
    ボイスが短いときのために、どちらか早いほうで開きます。 */
 function voiceGateSec_(duration) {
   const s = CONFIG.SEMINAR || {};
-  const bySec   = Number(s.voice_gate_sec) || 0;
-  const byRatio = (duration > 0) ? duration * (Number(s.voice_gate) || 0.8) : 0;
-  if (bySec && byRatio) return Math.min(bySec, byRatio);
-  return bySec || byRatio || 0;
+  const bySec = Number(s.voice_gate_sec) || 0;
+  if (bySec) {
+    /* ボイスが指定より短いときは、ずっとボタンが出ないことになってしまうので、
+       ほぼ聞き終わったところで開きます */
+    return (duration > 0) ? Math.min(bySec, duration * 0.98) : bySec;
+  }
+  return (duration > 0) ? duration * (Number(s.voice_gate) || 0.8) : 0;
 }
 
 function mountVoice() {
@@ -392,7 +395,7 @@ function revealAfterVoice(area, open) {
   }
   area.className = '';
   area.innerHTML =
-    `<p class="voice__lock">お話を17分ほどお聞きいただいたころに、ここに<b>くわしいご案内</b>が出ます。<br>
+    `<p class="voice__lock">お話をほぼ最後までお聞きいただいたころに、ここに<b>くわしいご案内</b>が出ます。<br>
        途中で閉じていただいても、続きからお聞きいただけます。</p>`;
 }
 
@@ -547,12 +550,12 @@ document.addEventListener('click', async (ev) => {
   if (act === 'seminar-cancel') return seminarCancel(btn);
 });
 
-/** 特別講義に「無料特別講義に参加します」を押していただいたとき。
+/** 特別講義に「無料の特別講義に参加します」を押していただいたとき。
  *  ★2026-09-12 とーるさんご要望。指がふれただけで参加になってしまうと
  *  こわいので、いちど「よろしいですか」とお尋ねしてから承ります。 */
 async function seminarJoin(btn) {
   const ok = await askConfirm(btn,
-    '無料特別講義へのご参加を承ります。よろしいですか。',
+    '無料の特別講義へのご参加を承ります。よろしいですか。',
     'はい、参加します');
   if (!ok) return;
   try {
