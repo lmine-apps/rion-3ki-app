@@ -1112,6 +1112,146 @@ body.is-locked { overflow: hidden; }
 .doc__table th { background: rgba(229, 245, 253, .55); color: var(--navy-800); font-weight: 700; white-space: nowrap; }
 .doc__table tr:last-child td { border-bottom: 0; }
 
+/* ============================================================
+   3Dセキュアのご案内（2026-09-11）
+   プロラインのコンテンツページと同じ見せ方に合わせています。
+   表をやめて、図とボタンで進めるようにしました。
+   ============================================================ */
+
+/* ①「あなたがすることは2つだけ」 */
+.sec3d__two { display: flex; align-items: stretch; gap: 8px; }
+.sec3d__box {
+  flex: 1 1 0;
+  background: var(--sky-100);
+  border-radius: 12px;
+  padding: 16px 9px 14px;
+  text-align: center;
+  font-size: calc(13.5px * var(--fs-scale));
+  font-weight: 700;
+  color: var(--navy-800);
+  line-height: 1.7;
+}
+.sec3d__n {
+  display: block;
+  width: calc(36px * var(--fs-scale));
+  height: calc(36px * var(--fs-scale));
+  margin: 0 auto 9px;
+  border-radius: 50%;
+  background: var(--navy-800);
+  color: #fff;
+  font-family: var(--num);
+  font-size: calc(16px * var(--fs-scale));
+  line-height: calc(36px * var(--fs-scale));
+}
+.sec3d__arrow {
+  align-self: center;
+  color: var(--sky-400);
+  font-family: var(--num);
+  font-size: calc(19px * var(--fs-scale));
+}
+
+/* ②決済の流れ。番号のあいだを線でつなぐ */
+.sec3d__flow { list-style: none; margin: 0; padding: 0; }
+.sec3d__flow li { position: relative; padding: 0 0 18px 54px; }
+.sec3d__flow li:last-child { padding-bottom: 0; }
+.sec3d__flow li::before {
+  content: attr(data-n);
+  position: absolute;
+  left: 0; top: 0;
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: var(--navy-800);
+  color: #fff;
+  font-family: var(--num);
+  font-size: calc(13.5px * var(--fs-scale));
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+}
+.sec3d__flow li::after {
+  content: "";
+  position: absolute;
+  left: 19px; top: 45px; bottom: 3px;
+  width: 2px;
+  background: var(--sky-300);
+}
+.sec3d__flow li:last-child::after { display: none; }
+.sec3d__flow li.is-done::before { content: "✓"; background: var(--ok); font-size: calc(17px * var(--fs-scale)); }
+.sec3d__flow b {
+  display: block;
+  font-size: calc(15.5px * var(--fs-scale));
+  color: var(--text);
+  line-height: 1.7;
+}
+.sec3d__flow span {
+  display: block;
+  font-size: calc(13px * var(--fs-scale));
+  color: var(--text-mid);
+  line-height: 1.8;
+}
+
+/* ③カード会社ごとのご案内 */
+.sec3d__co {
+  border-top: 1px solid var(--line);
+  margin-top: 15px;
+  padding-top: 15px;
+}
+.sec3d__co:first-of-type { border-top: 0; margin-top: 0; padding-top: 0; }
+.sec3d__co-h {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-bottom: 6px;
+}
+.sec3d__ini {
+  flex: none;
+  width: calc(34px * var(--fs-scale));
+  height: calc(34px * var(--fs-scale));
+  border-radius: 10px;
+  background: var(--sky-100);
+  color: var(--navy-800);
+  font-family: var(--num);
+  font-weight: 700;
+  font-size: calc(12.5px * var(--fs-scale));
+  display: grid;
+  place-items: center;
+}
+.sec3d__name {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: calc(16.5px * var(--fs-scale));
+  color: var(--navy-900);
+  letter-spacing: .04em;
+}
+.pill-auto {
+  background: #e6f3ee;
+  color: var(--ok);
+  border-radius: 20px;
+  font-size: calc(11px * var(--fs-scale));
+  font-weight: 700;
+  padding: 2px 9px;
+  white-space: nowrap;
+}
+.sec3d__co p {
+  margin: 0 0 10px;
+  font-size: calc(13px * var(--fs-scale));
+  color: var(--text-mid);
+  line-height: 1.8;
+}
+.sec3d__btn {
+  display: block;
+  background: var(--navy-800);
+  color: #fff;
+  text-decoration: none;
+  border-radius: 9px;
+  padding: 13px 12px;
+  font-size: calc(14px * var(--fs-scale));
+  font-weight: 700;
+  text-align: center;
+}
+.sec3d__btn::after { content: " ↗"; }
+
 /* 章の見出し（2026-09-08）
    .sub-title は小さすぎたので、読み物の中見出しとしてこちらを使います。 */
 .mid-title {
