@@ -465,6 +465,19 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
   line-height: 1.75;
   color: var(--text);
 }
+/* ★2026-09-13 とーるさんご要望。3.5期の方が見ても迷わないように、
+   動画のすぐ上に「3期生向けの動画です」と添えます */
+.signvideo__made {
+  margin: -5px 0 10px;
+  padding: 6px 10px;
+  border-left: 3px solid var(--gold);
+  background: rgba(168, 130, 63, .07);
+  border-radius: 0 7px 7px 0;
+  font-size: calc(12px * var(--fs-scale));
+  line-height: 1.7;
+  color: var(--navy-800);
+}
+
 .signvideo__box {
   max-width: 240px;               /* 縦長なので、横は絞る（高さは約519px） */
   margin: 0 auto;

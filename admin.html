@@ -93,6 +93,15 @@
   /* ---------- スイッチ（テスト決済／受付の開け閉め） ---------- */
   /* 畳んだときの1行。ふだんはこれだけが見えます */
   /* 3期／3.5期の切り替え。ふつうのタブより少し小さく */
+  /* 3.5期のときだけ出る、無料特別講義の絞り込み（2026-09-13） */
+  .bar35{margin:.1rem 0 .5rem;padding:.45rem .6rem;border-radius:10px;
+    background:var(--sky-soft);border:1px solid var(--line);
+    display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+  .bar35__t{font-size:.78rem;font-weight:700;color:var(--navy);white-space:nowrap}
+  .bar35 .tab{font-size:.78rem;padding:.28rem .7rem}
+  .bar35 .tab b{margin-left:.3rem;font-variant-numeric:tabular-nums}
+  .bar35 .tab[aria-pressed="true"]{background:var(--navy);color:#fff;border-color:var(--navy)}
+
   .terms{margin-bottom:.4rem}
   .terms .tab{font-size:.78rem;padding:.28rem .8rem}
   .terms .tab[aria-pressed="true"]{background:var(--navy);color:#fff;border-color:var(--navy)}
@@ -367,6 +376,17 @@
     <button type="button" class="btn ghost" id="btn-invite">ご案内を送る</button>
   </div>
 
+  <!-- 3.5期のときだけ出る、無料特別講義の絞り込み（2026-09-13 とーるさんご要望） -->
+  <div class="bar35" id="bar35" hidden>
+    <span class="bar35__t">🎧 無料特別講義</span>
+    <div class="tabs" id="tabs35">
+      <button type="button" class="tab" data-s="all"     aria-pressed="true">すべて <b>0</b></button>
+      <button type="button" class="tab" data-s="opened"  aria-pressed="false">ページを開いた <b>0</b></button>
+      <button type="button" class="tab" data-s="join"    aria-pressed="false">参加します <b>0</b></button>
+      <button type="button" class="tab" data-s="keyword" aria-pressed="false">合言葉ずみ <b>0</b></button>
+    </div>
+  </div>
+
   <div class="list" id="list"></div>
 </main>
 
@@ -487,8 +507,48 @@ document.addEventListener('click', (ev) => {
   document.querySelectorAll('#terms .tab').forEach(x => {
     x.setAttribute('aria-pressed', x === b ? 'true' : 'false');
   });
+  paint35Bar();
   paintList();
 });
+
+/* 無料特別講義の絞り込み（2026-09-13 とーるさんご要望）。
+   押すと、上の「要対応」などは「すべて」に戻します。
+   そうしないと、せっかく絞ったのに要対応で隠れてしまうためです。 */
+document.addEventListener('click', (ev) => {
+  const b = ev.target.closest('#tabs35 .tab');
+  if (!b) return;
+  f35 = b.dataset.s;
+  document.querySelectorAll('#tabs35 .tab').forEach(x => {
+    x.setAttribute('aria-pressed', x === b ? 'true' : 'false');
+  });
+  if (f35 !== 'all') {
+    filter = 'all';
+    [].forEach.call($('tabs').children, (x) =>
+      x.setAttribute('aria-pressed', String(x.dataset.f === 'all')));
+  }
+  paintList();
+});
+
+/* 3.5期タブのときだけ、無料特別講義のバーを出します。人数もここで数えます */
+function paint35Bar() {
+  const bar = $('bar35');
+  if (!bar) return;
+  if (term !== '3.5') { bar.hidden = true; return; }
+  bar.hidden = false;
+
+  const rows = (data.people || []).filter(p => p.term === '3.5');
+  const n = {
+    all:     rows.length,
+    opened:  rows.filter(p => p.smOpened).length,
+    join:    rows.filter(p => p.smJoin === '参加').length,
+    keyword: rows.filter(p => p.smKeyword).length
+  };
+  document.querySelectorAll('#tabs35 .tab').forEach(x => {
+    const v = n[x.dataset.s];
+    const b2 = x.querySelector('b');
+    if (b2) b2.textContent = (v == null ? 0 : v);
+  });
+}
 
 /* 運営の方がいちど開閉したら、そのあとは自動で開かない（操作を尊重） */
 document.addEventListener('toggle', (ev) => {
@@ -620,6 +680,7 @@ function show(r) {
 
   $('foot').textContent = 'GAS ' + (r.version || '') + ' ／ ' + r.people.length + '名';
   paintKpis();
+  paint35Bar();
   paintList();
 
   if (timer) clearInterval(timer);
@@ -739,11 +800,18 @@ function needsAction(p) {
 }
 
 let term = '3';        // 3期／3.5期／すべて（2026-09-07）
+let f35  = 'all';      // 無料特別講義の絞り込み（3.5期タブのときだけ・2026-09-13）
 
 function match(p) {
   const q = $('q').value.trim();
   if (q && p.name.indexOf(q) === -1) return false;
   if (term !== 'all' && (p.term || '3') !== term) return false;
+  /* ★無料特別講義の絞り込み（3.5期タブのときだけ効きます・2026-09-13） */
+  if (term === '3.5' && f35 !== 'all') {
+    if (f35 === 'opened'  && !p.smOpened) return false;
+    if (f35 === 'join'    && p.smJoin !== '参加') return false;
+    if (f35 === 'keyword' && !p.smKeyword) return false;
+  }
   if (filter === 'all') return true;
   if (filter === 'act') return needsAction(p);
   if (filter === 'new') return !p.invite;
@@ -776,8 +844,8 @@ function card(p) {
                + esc(v) + '</span></div>');
   };
   if (p.term === '3.5') {
-    put('説明会ひらいた', p.smOpened);
-    put('説明会', p.smJoin);
+    put('特別講義ひらいた', p.smOpened);
+    put('特別講義', p.smJoin);
     put('合言葉', p.smKeyword);
   } else {
     put('ご案内', p.invite || '—');
