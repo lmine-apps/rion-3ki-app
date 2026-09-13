@@ -94,13 +94,19 @@
   /* 畳んだときの1行。ふだんはこれだけが見えます */
   /* 3期／3.5期の切り替え。ふつうのタブより少し小さく */
   /* 3.5期のときだけ出る、無料特別講義の絞り込み（2026-09-13） */
-  .bar35{margin:.1rem 0 .5rem;padding:.45rem .6rem;border-radius:10px;
+  .bar35{margin:.1rem 0 .5rem;padding:.5rem .6rem;border-radius:10px;
     background:var(--sky-soft);border:1px solid var(--line);
-    display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
-  .bar35__t{font-size:.78rem;font-weight:700;color:var(--navy);white-space:nowrap}
+    display:flex;flex-direction:column;gap:.4rem}
+  .bar35__row{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+  .bar35__t{font-size:.78rem;font-weight:700;color:var(--navy);white-space:nowrap;
+    min-width:6.6rem}
   .bar35 .tab{font-size:.78rem;padding:.28rem .7rem}
   .bar35 .tab b{margin-left:.3rem;font-variant-numeric:tabular-nums}
   .bar35 .tab[aria-pressed="true"]{background:var(--navy);color:#fff;border-color:var(--navy)}
+  .bar35 .ngbtn{font-size:.78rem;padding:.28rem .7rem;border-radius:99px;cursor:pointer;
+    border:1px solid #e0b4b4;background:#fdf1f1;color:#8c3a3a}
+  .bar35 .ngbtn b{margin-left:.3rem;font-variant-numeric:tabular-nums}
+  .bar35 .ngbtn:hover{border-color:#c98c8c}
 
   .terms{margin-bottom:.4rem}
   .terms .tab{font-size:.78rem;padding:.28rem .8rem}
@@ -378,12 +384,24 @@
 
   <!-- 3.5期のときだけ出る、無料特別講義の絞り込み（2026-09-13 とーるさんご要望） -->
   <div class="bar35" id="bar35" hidden>
-    <span class="bar35__t">🎧 無料特別講義</span>
-    <div class="tabs" id="tabs35">
-      <button type="button" class="tab" data-s="all"     aria-pressed="true">すべて <b>0</b></button>
-      <button type="button" class="tab" data-s="opened"  aria-pressed="false">ページを開いた <b>0</b></button>
-      <button type="button" class="tab" data-s="join"    aria-pressed="false">参加します <b>0</b></button>
-      <button type="button" class="tab" data-s="keyword" aria-pressed="false">合言葉ずみ <b>0</b></button>
+    <div class="bar35__row">
+      <span class="bar35__t">🎧 無料特別講義</span>
+      <div class="tabs" id="tabs35">
+        <button type="button" class="tab" data-s="all"     aria-pressed="true">すべて <b>0</b></button>
+        <button type="button" class="tab" data-s="opened"  aria-pressed="false">ページを開いた <b>0</b></button>
+        <button type="button" class="tab" data-s="join"    aria-pressed="false">参加します <b>0</b></button>
+        <button type="button" class="tab" data-s="keyword" aria-pressed="false">合言葉ずみ <b>0</b></button>
+      </div>
+      <button type="button" class="ngbtn" id="btn-ng35">🚫 3.5案内NG <b>0</b></button>
+    </div>
+    <div class="bar35__row">
+      <span class="bar35__t">📄 契約の進み具合</span>
+      <div class="tabs" id="tabs35c">
+        <button type="button" class="tab" data-c="terms" aria-pressed="false">規約同意 <b>0</b></button>
+        <button type="button" class="tab" data-c="sign"  aria-pressed="false">ご署名 <b>0</b></button>
+        <button type="button" class="tab" data-c="pay"   aria-pressed="false">お支払い <b>0</b></button>
+        <button type="button" class="tab" data-c="done"  aria-pressed="false">完了 <b>0</b></button>
+      </div>
     </div>
   </div>
 
@@ -521,13 +539,30 @@ document.addEventListener('click', (ev) => {
   document.querySelectorAll('#tabs35 .tab').forEach(x => {
     x.setAttribute('aria-pressed', x === b ? 'true' : 'false');
   });
-  if (f35 !== 'all') {
-    filter = 'all';
-    [].forEach.call($('tabs').children, (x) =>
-      x.setAttribute('aria-pressed', String(x.dataset.f === 'all')));
-  }
+  if (f35 !== 'all') openAllFilter();
   paintList();
 });
+
+/* 契約の進み具合（2026-09-13 とーるさんご要望）。
+   同じボタンをもう一度押すと、絞り込みを解きます */
+document.addEventListener('click', (ev) => {
+  const b = ev.target.closest('#tabs35c .tab');
+  if (!b) return;
+  c35 = (c35 === b.dataset.c) ? '' : b.dataset.c;
+  document.querySelectorAll('#tabs35c .tab').forEach(x => {
+    x.setAttribute('aria-pressed', x.dataset.c === c35 ? 'true' : 'false');
+  });
+  if (c35) openAllFilter();
+  paintList();
+});
+
+/* 上の「要対応」などを「すべて」に戻す。
+   絞ったのに要対応で隠れてしまうと分かりづらいためです */
+function openAllFilter() {
+  filter = 'all';
+  [].forEach.call($('tabs').children, (x) =>
+    x.setAttribute('aria-pressed', String(x.dataset.f === 'all')));
+}
 
 /* 3.5期タブのときだけ、無料特別講義のバーを出します。人数もここで数えます */
 function paint35Bar() {
@@ -548,7 +583,48 @@ function paint35Bar() {
     const b2 = x.querySelector('b');
     if (b2) b2.textContent = (v == null ? 0 : v);
   });
+
+  // 契約の進み具合
+  const c = {
+    terms: rows.filter(p => p.terms).length,
+    sign:  rows.filter(p => p.sign).length,
+    pay:   rows.filter(p => p.pay1 || p.pay2 || p.bankOk).length,
+    done:  rows.filter(p => p.stage === '完了').length
+  };
+  document.querySelectorAll('#tabs35c .tab').forEach(x => {
+    const v = c[x.dataset.c];
+    const b2 = x.querySelector('b');
+    if (b2) b2.textContent = (v == null ? 0 : v);
+  });
+
+  // 3.5案内NGの人数（📋面談シートより。GASが ng35 で返してきます）
+  const ng = (data.ng35 || []).length;
+  const nb = document.querySelector('#btn-ng35 b');
+  if (nb) nb.textContent = ng;
 }
+
+/* 🚫 3.5案内NGの方の一覧（見るだけ・2026-09-13 とーるさんご要望）。
+   この方たちにはご案内をお送りしません。誰に送らないかを確かめるための一覧です。 */
+document.addEventListener('click', (ev) => {
+  if (!ev.target.closest('#btn-ng35')) return;
+  const list = data.ng35 || [];
+  const body = list.length
+    ? '<table class="fm"><thead><tr><th>お名前</th><th>LINE表示名</th><th>メモ</th></tr></thead><tbody>'
+      + list.map(x =>
+          '<tr><td>' + esc(x.name || '（お名前なし）') + '</td>'
+        + '<td>' + esc(x.line || '—') + '</td>'
+        + '<td>' + esc(x.memo || '') + '</td></tr>').join('')
+      + '</tbody></table>'
+    : '<p style="font-size:.86rem;color:var(--ink-soft)">3.5案内NGの方はいません。</p>';
+
+  modal('<h2>🚫 3.5案内NGの方　' + list.length + '名</h2>'
+    + '<p style="margin:.2rem 0 .7rem;font-size:.8rem;color:var(--ink-soft)">'
+    + '📋面談シートで「結果」を<b>3.5案内NG</b>にした方です。'
+    + 'この方たちには、特別講義のご案内をお送りしません。<br>'
+    + '変えるときは、スプレッドシートの📋面談シートで直してください。</p>'
+    + '<div style="max-height:56vh;overflow:auto">' + body + '</div>'
+    + '<div class="foot"><button type="button" class="btn ghost" data-close>閉じる</button></div>');
+});
 
 /* 運営の方がいちど開閉したら、そのあとは自動で開かない（操作を尊重） */
 document.addEventListener('toggle', (ev) => {
@@ -801,6 +877,7 @@ function needsAction(p) {
 
 let term = '3';        // 3期／3.5期／すべて（2026-09-07）
 let f35  = 'all';      // 無料特別講義の絞り込み（3.5期タブのときだけ・2026-09-13）
+let c35  = '';         // 契約の進み具合の絞り込み（空なら絞りません・2026-09-13）
 
 function match(p) {
   const q = $('q').value.trim();
@@ -811,6 +888,13 @@ function match(p) {
     if (f35 === 'opened'  && !p.smOpened) return false;
     if (f35 === 'join'    && p.smJoin !== '参加') return false;
     if (f35 === 'keyword' && !p.smKeyword) return false;
+  }
+  /* ★契約の進み具合（3.5期タブのときだけ・2026-09-13） */
+  if (term === '3.5' && c35) {
+    if (c35 === 'terms' && !p.terms) return false;
+    if (c35 === 'sign'  && !p.sign)  return false;
+    if (c35 === 'pay'   && !(p.pay1 || p.pay2 || p.bankOk)) return false;
+    if (c35 === 'done'  && p.stage !== '完了') return false;
   }
   if (filter === 'all') return true;
   if (filter === 'act') return needsAction(p);
@@ -870,10 +954,14 @@ function card(p) {
 
   const act = needsAction(p);
   let buttons = '';
-  if (act) {
+  /* ★2026-09-13 「入金を確認する」は、着金待ちの方にだけ出します。
+     以前はコース未設定の方にも出ていて、押し間違えると
+     まだ入っていない入金を確認ずみにしてしまうおそれがありました。 */
+  if (p.stage === '着金待ち') {
     buttons = '<button type="button" class="btn danger" data-confirm="' + esc(p.uid) + '">'
             + '入金を確認する</button>';
-  } else if (!p.invite) {
+  } else if (!p.invite && p.term !== '3.5') {
+    // 3.5期の方は「ご案内」の欄を使わないので、この文は出しません
     buttons = '<span style="font-size:.82rem;color:var(--ink-faint)">'
             + 'まだご案内をお送りしていません</span>';
   }
