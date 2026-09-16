@@ -550,7 +550,7 @@ function paintReady() {
     `<p>合言葉を確認いたしました。ありがとうございます。</p>
      <p>下のボタンから、お申し込みのお手続きにお進みください。受講規約のご確認からご案内いたします。</p>
      ${deadlineText()
-       ? `<div class="doc__tip"><b>お手続きの期限</b><br>お申し込みとお支払いは <b>${esc(deadlineText())}まで</b>にお願いいたします。</div>`
+       ? `<div class="doc__tip"><b>お手続きの期限</b><br>お申込み・ご契約期限は <b>${esc(deadlineText())}まで</b>です。</div>`
        : ''}
      <a class="btn btn--primary" href="${href}">お申し込みへ進む</a>
      <p class="note">このあと、規約へのご同意 → 契約書へのご署名 → お支払い、の順にご案内します。<br>途中で閉じていただいても、続きから再開できます。</p>`;

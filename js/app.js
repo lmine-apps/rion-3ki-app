@@ -280,9 +280,11 @@ function paintPlan(elId, withNote) {
     if (planView().items_pending) {
       body += `<p class="plan__note">受講内容の詳細は<b>ただいま未確定</b>です。決まりしだい、公式LINEにてご案内いたします。</p>`;
     }
-    // お申し込みの期限があるコース（3.5期）は、その期限も添える
+    /* お申し込みの期限があるコース（3.5期）は、その期限も添える。
+       ★2026-09-16 とーるさんから言い回しのご指定。
+         「お申込み・ご契約期限は【9月24日（木）23:59まで】」 */
     if (planView().deadline) {
-      body += `<p class="plan__note">お申し込みとお支払いは <b>${esc(planView().deadline)}まで</b>にお願いいたします。</p>`;
+      body += `<p class="plan__note">お申込み・ご契約期限は <b>${esc(planView().deadline)}まで</b>です。</p>`;
     }
   }
 
