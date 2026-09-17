@@ -547,10 +547,45 @@ function paintBank(n) {
      ${resetPayHtml(n === 2 ? '2回目のお支払い方法を選び直す' : 'お支払い方法を選び直す')}`;
 }
 
+/* ★2026-09-17 とーるさんご要望。すべて終わった方には、入学式のご案内まで
+   出してお迎えします。文言は js/config.js の done_notice にあります。 */
+function doneNoticeHtml(d) {
+  const lead = (d.lead || []).map((x) => `<p class="donelead">${esc(x)}</p>`).join('');
+
+  let ent = '';
+  if (d.entrance_title || d.entrance_when) {
+    ent = `<div class="donebox" data-fade>
+             <p class="donebox__t">${esc(d.entrance_title || '')}</p>
+             ${d.entrance_when ? `<p class="donebox__when">${esc(d.entrance_when)}</p>` : ''}
+             ${d.entrance_note ? `<p class="donebox__b">${esc(d.entrance_note)}</p>` : ''}
+           </div>`;
+  }
+
+  let next = '';
+  if ((d.next && d.next.length) || d.next_title) {
+    next = `<div class="donenext" data-fade>
+              <p class="donenext__t">${esc(d.next_title || '')}</p>
+              <ul class="donenext__list">
+                ${(d.next || []).map((x) => `<li>${esc(x)}</li>`).join('')}
+              </ul>
+              ${d.next_note ? `<p class="donenext__b">${esc(d.next_note)}</p>` : ''}
+            </div>`;
+  }
+  return lead + ent + next;
+}
+
 function paintDone() {
   const el = document.getElementById('done-body');
   if (!el) return;
   const v = planView();
+
+  // ご案内の文言があるコース（3.5期）は、そちらを出す
+  if (v.done_notice) {
+    el.innerHTML = doneNoticeHtml(v.done_notice);
+    if (typeof watchFade === 'function') watchFade(el);
+    return;
+  }
+
   // entrance を空にしてあるコース（開講日が未確定）は、日付を書かない言い方にする
   const entrance = Object.prototype.hasOwnProperty.call(v, 'entrance') ? v.entrance : CONFIG.ENTRANCE;
   const lead = entrance

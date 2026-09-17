@@ -151,6 +151,80 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
   background: linear-gradient(90deg, var(--sky-500), var(--sky-300));
 }
 
+/* ===== すべて終わった方の画面（2026-09-17 とーるさんご要望）=====
+   入学式のご案内まで出して、気持ちよく締めくくります。 */
+.donelead {
+  margin: 0 0 6px;
+  text-align: center;
+  font-family: var(--serif);
+  font-size: calc(16px * var(--fs-scale));
+  font-weight: 700;
+  line-height: 1.85;
+  color: var(--navy-800);
+}
+.donelead + .donelead {
+  font-size: calc(14px * var(--fs-scale));
+  font-weight: 400;
+  color: var(--text-mid);
+}
+
+.donebox {
+  margin: 20px 0 0;
+  padding: 16px 16px 15px;
+  border: 1px solid rgba(168, 130, 63, .38);
+  border-radius: 12px;
+  background: rgba(168, 130, 63, .06);
+  text-align: center;
+}
+.donebox__t {
+  margin: 0 0 8px;
+  font-family: var(--serif);
+  font-size: calc(14px * var(--fs-scale));
+  font-weight: 700;
+  letter-spacing: .06em;
+  color: var(--gold);
+}
+.donebox__when {
+  margin: 0 0 9px;
+  font-size: calc(17px * var(--fs-scale));
+  font-weight: 700;
+  letter-spacing: .02em;
+  color: var(--navy-800);
+  font-variant-numeric: tabular-nums;
+}
+.donebox__b {
+  margin: 0;
+  font-size: calc(12.5px * var(--fs-scale));
+  line-height: 1.85;
+  color: var(--text-mid);
+}
+
+.donenext {
+  margin: 16px 0 0;
+  padding: 14px 16px 13px;
+  border-radius: 12px;
+  background: var(--sky-100);
+}
+.donenext__t {
+  margin: 0 0 8px;
+  font-size: calc(13px * var(--fs-scale));
+  font-weight: 700;
+  color: var(--navy-800);
+}
+.donenext__list {
+  margin: 0;
+  padding: 0 0 0 1.1em;
+  font-size: calc(13.5px * var(--fs-scale));
+  line-height: 2;
+  color: var(--text);
+}
+.donenext__b {
+  margin: 8px 0 0;
+  font-size: calc(11.5px * var(--fs-scale));
+  line-height: 1.8;
+  color: var(--text-mid);
+}
+
 /* 画面の出し分け。.card より後に :not() で詳細度を上げて置く
    （.card が display:flex を持つため、単純な .screen{display:none} だと打ち消される） */
 .screen:not(.is-active) { display: none; }
