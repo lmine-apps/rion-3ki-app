@@ -531,6 +531,59 @@
 }
 
 
+/* ─── 自前の再生ボタン（再生バーを消したとき用） ─── */
+#rinon-arch-page .rn-ctrl {
+  display: none;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 13px 0;
+}
+#rinon-arch-page .rn-ctrl.rn-on { display: flex; }
+#rinon-arch-page .rn-play {
+  flex: 0 0 auto;
+  width: 44px !important;
+  height: 44px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 1px solid rgba(175,224,247,0.40) !important;
+  border-radius: 999px !important;
+  background: rgba(255,255,255,0.08) !important;
+  background-color: rgba(255,255,255,0.08) !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  color: #ffffff !important;
+  font-family: inherit !important;
+  font-size: 15px !important;
+  line-height: 1 !important;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+#rinon-arch-page .rn-play:hover { background: rgba(255,255,255,0.16) !important; }
+#rinon-arch-page .rn-ctrl-mid { flex: 1 1 auto; min-width: 0; }
+#rinon-arch-page .rn-ctrl-line {
+  height: 4px;
+  border-radius: 99px;
+  background: rgba(255,255,255,0.14);
+  overflow: hidden;
+}
+#rinon-arch-page .rn-ctrl-line span {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: 99px;
+  background: var(--rn-sky-300);
+}
+#rinon-arch-page .rn-ctrl-t {
+  display: block !important;
+  margin-top: 6px !important;
+  color: rgba(255,255,255,0.62) !important;
+  font-family: Georgia, "Times New Roman", serif !important;
+  font-size: 11px !important;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+
 /* ─── 再生速度 ─── */
 #rinon-arch-page .rn-speed {
   display: none;                 /* Vimeoの部品が使えたときだけ出します */
@@ -967,8 +1020,16 @@
     </div>
   </div>
 
+  <div class="rn-ctrl" data-rn-ctrl>
+    <button type="button" class="rn-play" data-rn-play aria-label="再生">▶</button>
+    <div class="rn-ctrl-mid">
+      <div class="rn-ctrl-line" aria-hidden="true"><span data-rn-line></span></div>
+      <span class="rn-ctrl-t"><span data-rn-cur>0:00:00</span> / 2:43:43</span>
+    </div>
+  </div>
+
   <p class="rn-movie-note">
-    再生ボタンを押すとはじまります　／　<b>約2時間44分</b>
+    <span data-rn-note>再生ボタンを押すとはじまります</span>　／　<b>約2時間44分</b>
   </p>
 
   <div class="rn-speed" data-rn-speed>
@@ -992,9 +1053,8 @@
     <span class="rn-meter-left" data-rn-left>あと <b>1時間52分</b></span>
 
     <p class="rn-meter-n">
-再生が<span data-rn-at>1時間</span>まで進むと、<br>
-      講義のなかでお話しした講座のご案内が、この下に出ます。<br>
-      もくじで飛んでいただいてもかまいません。
+<span data-rn-at>1時間</span>ご視聴いただくと、<br>
+      講義のなかでお話しした講座のご案内が、この下に出ます。
     </p>
   </div>
   <!-- ══════════════════════════════════════════
@@ -1013,25 +1073,25 @@
          章立て（押すとその場面から見られます）
     ══════════════════════════════════════════ -->
 
-  <section class="rn-card rn-in">
+  <section class="rn-card rn-in" data-rn-chapcard>
   <h2 class="rn-card-title">
     もくじ
   </h2>
 
   <div class="rn-card-body">
     <ul class="rn-chaps">
-      <li><button type="button" class="rn-chap" data-t="4m56s"><span class="rn-chap-t">0:04:56</span><span class="rn-chap-n">運の創り方とこの世の法則</span></button></li>
-      <li><button type="button" class="rn-chap" data-t="10m28s"><span class="rn-chap-t">0:10:28</span><span class="rn-chap-n">因果の法則①</span></button></li>
-      <li><button type="button" class="rn-chap" data-t="17m37s"><span class="rn-chap-t">0:17:37</span><span class="rn-chap-n">知る・気づく</span></button></li>
-      <li><button type="button" class="rn-chap" data-t="25m51s"><span class="rn-chap-t">0:25:51</span><span class="rn-chap-n">「やり方」より「在り方」</span></button></li>
-      <li><button type="button" class="rn-chap" data-t="30m40s"><span class="rn-chap-t">0:30:40</span><span class="rn-chap-n">因果の法則②</span></button></li>
-      <li><button type="button" class="rn-chap" data-t="48m27s"><span class="rn-chap-t">0:48:27</span><span class="rn-chap-n">運を下げる行動</span></button></li>
-      <li><button type="button" class="rn-chap" data-t="1h5m9s"><span class="rn-chap-t">1:05:09</span><span class="rn-chap-n">運を上げる行動</span></button></li>
-      <li><button type="button" class="rn-chap" data-t="1h15m40s"><span class="rn-chap-t">1:15:40</span><span class="rn-chap-n">凛穏の教え　〜お金編〜</span></button></li>
-      <li><button type="button" class="rn-chap" data-t="1h31m6s"><span class="rn-chap-t">1:31:06</span><span class="rn-chap-n">凛穏の教え　〜親不孝編〜</span></button></li>
-      <li><button type="button" class="rn-chap" data-t="1h38m51s"><span class="rn-chap-t">1:38:51</span><span class="rn-chap-n">凛穏の教え　〜周波数編〜</span></button></li>
-      <li><button type="button" class="rn-chap" data-t="1h47m17s"><span class="rn-chap-t">1:47:17</span><span class="rn-chap-n">宿題</span></button></li>
-      <li><button type="button" class="rn-chap" data-t="1h51m27s"><span class="rn-chap-t">1:51:27</span><span class="rn-chap-n">凛穏塾 グループサポート講座のご説明</span></button></li>
+      <li><button type="button" class="rn-chap" data-sec="296"><span class="rn-chap-t">0:04:56</span><span class="rn-chap-n">運の創り方とこの世の法則</span></button></li>
+      <li><button type="button" class="rn-chap" data-sec="628"><span class="rn-chap-t">0:10:28</span><span class="rn-chap-n">因果の法則①</span></button></li>
+      <li><button type="button" class="rn-chap" data-sec="1057"><span class="rn-chap-t">0:17:37</span><span class="rn-chap-n">知る・気づく</span></button></li>
+      <li><button type="button" class="rn-chap" data-sec="1551"><span class="rn-chap-t">0:25:51</span><span class="rn-chap-n">「やり方」より「在り方」</span></button></li>
+      <li><button type="button" class="rn-chap" data-sec="1840"><span class="rn-chap-t">0:30:40</span><span class="rn-chap-n">因果の法則②</span></button></li>
+      <li><button type="button" class="rn-chap" data-sec="2907"><span class="rn-chap-t">0:48:27</span><span class="rn-chap-n">運を下げる行動</span></button></li>
+      <li><button type="button" class="rn-chap" data-sec="3909"><span class="rn-chap-t">1:05:09</span><span class="rn-chap-n">運を上げる行動</span></button></li>
+      <li><button type="button" class="rn-chap" data-sec="4540"><span class="rn-chap-t">1:15:40</span><span class="rn-chap-n">凛穏の教え　〜お金編〜</span></button></li>
+      <li><button type="button" class="rn-chap" data-sec="5466"><span class="rn-chap-t">1:31:06</span><span class="rn-chap-n">凛穏の教え　〜親不孝編〜</span></button></li>
+      <li><button type="button" class="rn-chap" data-sec="5931"><span class="rn-chap-t">1:38:51</span><span class="rn-chap-n">凛穏の教え　〜周波数編〜</span></button></li>
+      <li><button type="button" class="rn-chap" data-sec="6437"><span class="rn-chap-t">1:47:17</span><span class="rn-chap-n">宿題</span></button></li>
+      <li><button type="button" class="rn-chap" data-sec="6687"><span class="rn-chap-t">1:51:27</span><span class="rn-chap-n">凛穏塾 グループサポート講座のご説明</span></button></li>
     </ul>
 
     <p class="rn-chaps-note">
@@ -1210,7 +1270,7 @@
 })();
 
 /* ==========================================================
-   再生速度と、グループサポート講座のご案内
+   動画まわり（速度・もくじ・ご案内）
    ------------------------------------------------------------
    ★ご案内を出すタイミング
        GATE_SEC = 3600   … 1時間（秒で書きます）
@@ -1220,9 +1280,14 @@
        'seek'  … 再生位置が GATE_SEC を過ぎたら出す（早送りでもOK）
        'watch' … 実際に見ていた時間を足していく（早送りは数えない）
 
-   ・「あと◯分」は、いまの再生速度で計算します（1.5倍なら短くなります）
-   ・Vimeoの部品が読み込めなかったときは、ページを開いている時間で代わりにします
-   ・いちど出たら、その端末では次からすぐに出ます
+   ★もくじ（CHAPS）
+       'open'   … 最初から出しておく
+       'locked' … ご案内が出るまで隠しておく
+
+   ★再生バー（BAR）
+       true  … Vimeoのふつうの再生バーを出す
+       false … 再生バーを消して、自前の再生ボタンだけにする
+               （Vimeoの部品が読めなかったときは、自動でふつうのバーに戻します）
 
    ★確かめ用（URLのうしろに付けると動きます）
        ?open=1    … ご案内を最初から出す
@@ -1230,21 +1295,25 @@
    ========================================================== */
 (function () {
   var GATE_SEC = 3600;
-  var MODE = 'seek';
+  var MODE  = 'seek';
+  var CHAPS = 'open';
+  var BAR   = true;
   var KEY = 'rinon_arch_offer';
 
   var q = String(location.search || '');
   var mg = q.match(/[?&]gate=(\d+)/);
   if (mg) GATE_SEC = Number(mg[1]);
   var FORCE = /[?&]open=1/.test(q);
-  var TEST = FORCE || !!mg;      /* 確かめ用のときは、前に見た記録を使わない */
+  var TEST = FORCE || !!mg;
 
   var pos = 0;        /* どこまで進んだか（秒） */
-  var last = -1;      /* ひとつ前の再生位置（watch のときに使います） */
-  var rate = 1;       /* いまの再生速度 */
+  var last = -1;      /* ひとつ前の再生位置 */
+  var rate = 1;
   var opened = false;
+  var player = null;
 
   function root() { return document.getElementById('rinon-arch-page'); }
+  function one(sel) { var r = root(); return r ? r.querySelector(sel) : null; }
 
   function jp(sec) {
     var t = Math.max(0, Math.ceil(sec));
@@ -1266,29 +1335,37 @@
     if (ss || !out) out += ss + '秒';
     return out;
   }
+  function clock(sec) {
+    var t = Math.max(0, Math.floor(sec));
+    var h = Math.floor(t / 3600);
+    var m = Math.floor((t - h * 3600) / 60);
+    var ss = t - h * 3600 - m * 60;
+    return h + ':' + (m < 10 ? '0' : '') + m + ':' + (ss < 10 ? '0' : '') + ss;
+  }
 
   function paint() {
-    var r = root();
-    if (!r) return;
-    var bar = r.querySelector('[data-rn-bar]');
-    var left = r.querySelector('[data-rn-left]');
+    var bar = one('[data-rn-bar]');
+    var left = one('[data-rn-left]');
     if (bar) bar.style.width = Math.min(100, (pos / GATE_SEC) * 100) + '%';
     if (left) {
       var rest = (GATE_SEC - pos) / (rate > 0 ? rate : 1);
-      left.innerHTML = rest > 0
-        ? 'あと <b>' + jp(rest) + '</b>'
-        : 'ご案内が出ました';
+      left.innerHTML = rest > 0 ? 'あと <b>' + jp(rest) + '</b>' : 'ご案内が出ました';
     }
   }
 
   function show() {
-    var r = root();
-    if (!r || opened) return;
+    if (opened) return;
     opened = true;
-    var el = r.querySelector('[data-rn-offer]');
+    var el = one('[data-rn-offer]');
     if (el) el.className = 'rn-offer rn-in rn-shown';
-    var m = r.querySelector('[data-rn-meter]');
+    var m = one('[data-rn-meter]');
     if (m) m.className = 'rn-meter rn-is-hidden';
+    if (CHAPS === 'locked') {
+      var c = one('[data-rn-chapcard]');
+      if (c) c.className = 'rn-card rn-in rn-shown';
+      var n = one('[data-rn-note]');
+      if (n) n.innerHTML = 'もくじから、見たいところへ移動できます';
+    }
     if (!TEST) { try { localStorage.setItem(KEY, '1'); } catch (e) {} }
   }
 
@@ -1297,33 +1374,67 @@
     try { return localStorage.getItem(KEY) === '1'; } catch (e) { return false; }
   }
 
-  /* 再生位置が来るたびに呼ばれます */
   function tick(cur) {
     if (MODE === 'seek') {
-      if (cur > pos) pos = cur;              /* 早送りもそのまま進みます */
+      if (cur > pos) pos = cur;
     } else {
       var d = (last >= 0) ? (cur - last) : 0;
-      /* 差が大きいときは「バーを送った」ということなので足しません */
       if (d > 0 && d < 2 * (rate > 0 ? rate : 1) + 1) pos += d;
       last = cur;
     }
     paint();
     if (pos >= GATE_SEC) show();
+
+    var cu = one('[data-rn-cur]');
+    if (cu) cu.innerHTML = clock(cur);
+    var li = one('[data-rn-line]');
+    if (li) li.style.width = Math.min(100, (cur / 9823) * 100) + '%';
+  }
+
+  /* もくじ：押したところへ飛ぶ */
+  function wireChaps() {
+    var r = root();
+    if (!r) return;
+    var bs = r.querySelectorAll('.rn-chap');
+    for (var i = 0; i < bs.length; i++) {
+      bs[i].onclick = function () {
+        if (!player) return;
+        var t = Number(this.getAttribute('data-sec'));
+        player.setCurrentTime(t).then(function () {
+          return player.play();
+        }, function () {}).then(function () {}, function () {});
+        var m = one('.rn-movie');
+        if (m && m.scrollIntoView) m.scrollIntoView({ block: 'start' });
+      };
+    }
+  }
+
+  /* 自前の再生ボタン */
+  function wirePlay() {
+    var box = one('[data-rn-ctrl]');
+    var b = one('[data-rn-play]');
+    if (!box || !b || !player) return;
+    box.className = 'rn-ctrl rn-on';
+    b.onclick = function () {
+      player.getPaused().then(function (p) {
+        return p ? player.play() : player.pause();
+      }, function () {});
+    };
+    player.on('play',  function () { b.innerHTML = '❙❙'; b.setAttribute('aria-label', '一時停止'); });
+    player.on('pause', function () { b.innerHTML = '▶';  b.setAttribute('aria-label', '再生'); });
   }
 
   /* 「グループ」を押したら、その言葉をコピーする */
   function wireWord() {
-    var r = root();
-    if (!r) return;
-    var at = r.querySelector('[data-rn-at]');
+    var at = one('[data-rn-at]');
     if (at) at.innerHTML = hms(GATE_SEC);
 
-    var b = r.querySelector('[data-rn-word]');
+    var b = one('[data-rn-word]');
     if (!b) return;
     b.onclick = function () {
-      var word = 'グループ';
+      var word = b.textContent.replace(/\s/g, '');
       var done = function () {
-        var n = r.querySelector('.rn-offer-n');
+        var n = one('.rn-offer-n');
         if (!n) return;
         var was = n.innerHTML;
         n.innerHTML = 'コピーしました。公式LINEのトークに貼って、お送りください。';
@@ -1344,18 +1455,17 @@
     };
   }
 
-  /* 再生速度のボタン */
-  function wireSpeed(p) {
-    var r = root();
-    var box = r && r.querySelector('[data-rn-speed]');
-    if (!box) return;
+  /* 再生速度 */
+  function wireSpeed() {
+    var box = one('[data-rn-speed]');
+    if (!box || !player) return;
     box.className = 'rn-speed rn-on';
     var bs = box.querySelectorAll('.rn-sp');
     for (var i = 0; i < bs.length; i++) {
       bs[i].onclick = function () {
         var me = this;
         var v = Number(me.getAttribute('data-sp'));
-        p.setPlaybackRate(v).then(function () {
+        player.setPlaybackRate(v).then(function () {
           rate = v;
           for (var j = 0; j < bs.length; j++) {
             bs[j].className = 'rn-sp' + (bs[j] === me ? ' rn-sp-on' : '');
@@ -1366,27 +1476,16 @@
     }
   }
 
-  function watch() {
-    var r = root();
-    if (!r) return;
-    var f = r.querySelector('[data-rn-movie] iframe');
-
-    var ok = false;
-    if (f && window.Vimeo && window.Vimeo.Player) {
-      try {
-        var p = new window.Vimeo.Player(f);
-        p.on('timeupdate', function (d) { if (d) tick(d.seconds); });
-        p.on('seeked', function () { last = -1; });      /* 送ったぶんは数えない */
-        p.on('playbackratechange', function (d) {
-          if (d && d.playbackRate) { rate = d.playbackRate; paint(); }
-        });
-        wireSpeed(p);
-        ok = true;
-      } catch (e) {}
+  /* Vimeoの部品が読めなかったとき：ふつうの再生バーに戻す */
+  function giveUp() {
+    if (!BAR) {
+      var f = one('[data-rn-movie] iframe');
+      if (f) {
+        var full = f.getAttribute('data-rn-src');
+        if (full) f.setAttribute('src', full);
+      }
     }
-    if (ok) return;
-
-    /* Vimeoの部品が使えないとき：ページを開いている時間で代わりにする */
+    if (CHAPS === 'locked') return;           /* もくじは出せないので、そのまま */
     var t0 = (new Date()).getTime();
     setInterval(function () {
       var sec = ((new Date()).getTime() - t0) / 1000;
@@ -1396,70 +1495,43 @@
     }, 1000);
   }
 
+  function ready() {
+    var f = one('[data-rn-movie] iframe');
+    if (!f || !window.Vimeo || !window.Vimeo.Player) { giveUp(); return; }
+    try {
+      player = new window.Vimeo.Player(f);
+    } catch (e) { giveUp(); return; }
+
+    player.on('timeupdate', function (d) { if (d) tick(d.seconds); });
+    player.on('seeked', function () { last = -1; });
+    player.on('playbackratechange', function (d) {
+      if (d && d.playbackRate) { rate = d.playbackRate; paint(); }
+    });
+    wireSpeed();
+    wireChaps();
+    if (!BAR) wirePlay();
+  }
+
   function init() {
     wireWord();
     paint();
 
+    if (CHAPS === 'locked') {
+      var c = one('[data-rn-chapcard]');
+      if (c) c.className = 'rn-card rn-is-hidden';
+    }
     if (FORCE || seen()) { pos = GATE_SEC; paint(); show(); }
 
-    if (window.Vimeo && window.Vimeo.Player) { watch(); return; }
+    if (window.Vimeo && window.Vimeo.Player) { ready(); return; }
     var sc = document.createElement('script');
     sc.src = 'https://player.vimeo.com/api/player.js';
     sc.async = true;
-    sc.onload = watch;
-    sc.onerror = watch;
+    sc.onload = ready;
+    sc.onerror = giveUp;
     document.head.appendChild(sc);
+    setTimeout(function () { if (!player) giveUp(); }, 6000);   /* 念のため */
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else { init(); }
-})();
-
-/* ==========================================================
-   もくじ：押したところから再生する
-   ・Vimeo の #t= を付け直して、その場面から始めます
-   ・外部の部品は読み込みません（プロラインでも確実に動くように）
-   ・視聴期間が終わって動画が外れているときは、何も起きません
-   ========================================================== */
-(function () {
-  function jump(ev) {
-    var btn = ev.target;
-    while (btn && btn.className !== undefined
-           && String(btn.className).indexOf('rn-chap') === -1) {
-      btn = btn.parentNode;
-    }
-    if (!btn || !btn.getAttribute) return;
-    var t = btn.getAttribute('data-t');
-    if (!t) return;
-
-    var root = document.getElementById('rinon-arch-page');
-    if (!root) return;
-    var box = root.querySelector('[data-rn-movie]');
-    if (!box || box.getAttribute('data-locked')) return;   /* 期限ぎれのときは何もしない */
-    var f = box.querySelector('iframe');
-    if (!f) return;
-
-    var base = f.getAttribute('data-rn-src') || f.getAttribute('src') || '';
-    base = base.split('#')[0];
-    if (base.indexOf('autoplay=') === -1) {
-      base += (base.indexOf('?') === -1 ? '?' : '&') + 'autoplay=1';
-    }
-    f.setAttribute('src', base + '#t=' + t);
-
-    /* 動画のところまで戻す（もくじは動画より下にあるため） */
-    var m = root.querySelector('.rn-movie');
-    if (m && m.scrollIntoView) m.scrollIntoView({ block: 'start' });
-  }
-
-  function init() {
-    var root = document.getElementById('rinon-arch-page');
-    if (!root) return;
-    var btns = root.querySelectorAll('.rn-chap');
-    for (var i = 0; i < btns.length; i++) {
-      btns[i].onclick = jump;
-    }
-  }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else { init(); }
