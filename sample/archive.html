@@ -638,6 +638,265 @@
   line-height: 1.75 !important;
 }
 
+/* ─── 受付の流れ（①②③） ─── */
+#rinon-arch-page .rn-steps {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  gap: 0 !important;
+  margin: 18px 0 0 !important;
+  padding: 0 !important;
+  list-style: none !important;
+}
+#rinon-arch-page .rn-steps li {
+  list-style: none !important;
+  position: relative;
+  flex: 1 1 0;
+  margin: 0 !important;
+  padding: 0 4px !important;
+  text-align: center;
+  border: 0 !important;
+}
+/* となりへつなぐ線 */
+#rinon-arch-page .rn-steps li::before {
+  content: "";
+  position: absolute;
+  top: 13px;
+  left: -50%;
+  width: 100%;
+  height: 1px;
+  background: rgba(175,224,247,0.26);
+}
+#rinon-arch-page .rn-steps li:first-child::before { display: none; }
+#rinon-arch-page .rn-step-n {
+  position: relative;
+  display: block;
+  width: 27px;
+  height: 27px;
+  margin: 0 auto 7px;
+  border: 1px solid rgba(175,224,247,0.34);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.72);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 25px;
+}
+#rinon-arch-page .rn-step-t {
+  display: block;
+  color: rgba(255,255,255,0.62);
+  font-size: 11.5px;
+  line-height: 1.5;
+  letter-spacing: 0.02em;
+}
+#rinon-arch-page .rn-steps .rn-now .rn-step-n {
+  border-color: var(--rn-sky-300);
+  background: var(--rn-sky-300);
+  color: var(--rn-navy-950);
+}
+#rinon-arch-page .rn-steps .rn-now .rn-step-t {
+  color: #ffffff;
+  font-weight: 700;
+}
+#rinon-arch-page .rn-step-now {
+  display: block;
+  margin-top: 4px;
+  color: var(--rn-sky-300);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+/* ─── ご案内までのメーター ─── */
+#rinon-arch-page .rn-meter {
+  margin-top: 14px;
+  padding: 16px 16px 15px;
+  border: 1px solid var(--rn-line);
+  border-radius: 14px;
+  background: rgba(255,255,255,0.97);
+  box-shadow: 0 7px 24px rgba(7,23,44,0.07);
+}
+#rinon-arch-page .rn-meter-k {
+  display: block !important;
+  margin-bottom: 10px !important;
+  color: var(--rn-navy-800) !important;
+  font-size: 12.5px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.06em !important;
+  text-align: center;
+}
+#rinon-arch-page .rn-meter-bar {
+  height: 8px;
+  border-radius: 99px;
+  background: rgba(18,52,90,0.10);
+  overflow: hidden;
+}
+#rinon-arch-page .rn-meter-bar span {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--rn-sky-400), var(--rn-navy-700));
+  transition: width .6s ease;
+}
+#rinon-arch-page .rn-meter-left {
+  display: block !important;
+  margin: 11px 0 0 !important;
+  color: var(--rn-navy-800) !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.02em !important;
+  text-align: center;
+}
+#rinon-arch-page .rn-meter-left b {
+  color: var(--rn-warn) !important;
+  font-size: 19px !important;
+  font-weight: 700 !important;
+  font-variant-numeric: tabular-nums;
+}
+#rinon-arch-page .rn-meter-n {
+  margin: 9px 0 0 !important;
+  color: var(--rn-text-mid) !important;
+  font-size: 11.5px !important;
+  line-height: 1.8 !important;
+  text-align: center;
+}
+
+/* ─── グループサポート講座のご案内（時間が来たら出ます） ─── */
+#rinon-arch-page .rn-offer {
+  margin-top: 14px;
+  padding: 22px 17px 21px;
+  border: 1px solid rgba(175,224,247,0.26);
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at 50% -18%, rgba(132,206,241,0.30), transparent 48%),
+    linear-gradient(150deg, var(--rn-navy-950), var(--rn-navy-800));
+  box-shadow: var(--rn-shadow);
+  text-align: center;
+}
+#rinon-arch-page .rn-offer-k {
+  display: block !important;
+  margin-bottom: 10px !important;
+  color: var(--rn-sky-300) !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.22em !important;
+}
+#rinon-arch-page .rn-offer-t {
+  margin: 0 0 14px !important;
+  color: #ffffff !important;
+  font-family: "Yu Mincho", "Hiragino Mincho ProN", serif;
+  font-size: clamp(17px, 5vw, 21px) !important;
+  font-weight: 500 !important;
+  line-height: 1.55 !important;
+  letter-spacing: 0.07em;
+}
+#rinon-arch-page .rn-offer-b {
+  margin: 0 0 15px !important;
+  color: rgba(255,255,255,0.84) !important;
+  font-size: 13.5px !important;
+  line-height: 1.95 !important;
+}
+#rinon-arch-page .rn-word {
+  display: inline-block !important;
+  margin: 0 0 13px !important;
+  padding: 11px 26px !important;
+  border: 1px solid rgba(175,224,247,0.40) !important;
+  border-radius: 999px !important;
+  background: rgba(255,255,255,0.06) !important;
+  background-color: rgba(255,255,255,0.06) !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  color: #ffffff !important;
+  font-family: inherit !important;
+  font-size: 19px !important;
+  font-weight: 700 !important;
+  line-height: 1.4 !important;
+  letter-spacing: 0.3em !important;
+  text-indent: 0.3em;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+#rinon-arch-page .rn-word:hover { background: rgba(255,255,255,0.12) !important; }
+#rinon-arch-page .rn-offer-n {
+  margin: 0 !important;
+  color: rgba(255,255,255,0.62) !important;
+  font-size: 11.5px !important;
+  line-height: 1.8 !important;
+}
+#rinon-arch-page .rn-offer-rule {
+  width: 38px;
+  height: 1px;
+  margin: 0 auto 14px;
+  background: linear-gradient(90deg, transparent, rgba(175,224,247,0.62), transparent);
+}
+
+/* ─── 章立て（押すとその場面へ） ─── */
+#rinon-arch-page .rn-chaps {
+  list-style: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+#rinon-arch-page .rn-chaps li {
+  list-style: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border-bottom: 1px solid rgba(18,52,90,0.07);
+}
+#rinon-arch-page .rn-chaps li:last-child { border-bottom: 0; }
+#rinon-arch-page .rn-chap {
+  display: flex !important;
+  align-items: baseline !important;
+  gap: 12px !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 11px 4px !important;
+  border: 0 !important;
+  border-radius: 8px !important;
+  background: none !important;
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  color: var(--rn-text) !important;
+  font-family: inherit !important;
+  font-size: 13.5px !important;
+  font-weight: 400 !important;
+  line-height: 1.7 !important;
+  letter-spacing: 0 !important;
+  text-align: left !important;
+  text-decoration: none !important;
+  text-transform: none !important;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+#rinon-arch-page .rn-chap:hover,
+#rinon-arch-page .rn-chap:focus { background: var(--rn-sky-100) !important; }
+#rinon-arch-page .rn-chap-t {
+  flex: 0 0 auto;
+  min-width: 4.6em;
+  color: var(--rn-navy-700) !important;
+  font-family: Georgia, "Times New Roman", serif !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+#rinon-arch-page .rn-chap-n {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+#rinon-arch-page .rn-chaps-note {
+  margin: 14px 0 0 !important;
+  padding-top: 13px !important;
+  border-top: 1px solid rgba(18,52,90,0.07);
+  color: var(--rn-text-mid) !important;
+  font-size: 11.5px !important;
+  line-height: 1.75 !important;
+}
+
 /* ─── 動画がまだのあいだの置き場所（届いたらiframeに差し替えます） ─── */
 #rinon-arch-page .rn-soon {
   position: absolute;
@@ -721,6 +980,24 @@
   </div>
   </section>
   <!-- ══════════════════════════════════════════
+         ご案内までのメーター
+         ★ご案内が出たら、この箱は消えます
+    ══════════════════════════════════════════ -->
+
+  <div class="rn-meter rn-in" data-rn-meter>
+    <span class="rn-meter-k">グループサポート講座のご案内まで</span>
+
+    <div class="rn-meter-bar" aria-hidden="true"><span data-rn-bar></span></div>
+
+    <span class="rn-meter-left" data-rn-left>あと <b>1時間52分</b></span>
+
+    <p class="rn-meter-n">
+再生が<span data-rn-at>1時間</span>まで進むと、<br>
+      講義のなかでお話しした講座のご案内が、この下に出ます。<br>
+      もくじで飛んでいただいてもかまいません。
+    </p>
+  </div>
+  <!-- ══════════════════════════════════════════
          視聴期限
     ══════════════════════════════════════════ -->
 
@@ -785,6 +1062,50 @@
     </ul>
   </div>
   </section>
+  <!-- ══════════════════════════════════════════
+         グループサポート講座のご案内
+         ★はじめは隠れていて、ご視聴が進むと出てきます。
+           出すタイミングは、いちばん下の GATE_SEC で決めています。
+    ══════════════════════════════════════════ -->
+
+  <div class="rn-offer rn-is-hidden" data-rn-offer>
+    <div class="rn-offer-rule"></div>
+    <span class="rn-offer-k">GROUP SUPPORT</span>
+
+    <p class="rn-offer-t">
+      凛穏塾 3.5期生<br>
+      グループサポート講座
+    </p>
+
+    <p class="rn-offer-b">
+      講義のなかでお話しした講座の、<br>
+      くわしいご案内をお送りします。<br>
+      公式LINEに、この言葉を送ってください。
+    </p>
+
+    <button type="button" class="rn-word" data-rn-word>グループ</button>
+
+    <p class="rn-offer-n">
+      押すと「グループ」をコピーします。<br>
+      公式LINEのトークに貼って、お送りください。
+    </p>
+
+    <ul class="rn-steps">
+      <li class="rn-now">
+        <span class="rn-step-n">1</span>
+        <span class="rn-step-t">キーワード<br>入力</span>
+        <span class="rn-step-now">次はこれ</span>
+      </li>
+      <li>
+        <span class="rn-step-n">2</span>
+        <span class="rn-step-t">規約に<br>ご同意</span>
+      </li>
+      <li>
+        <span class="rn-step-n">3</span>
+        <span class="rn-step-t">お支払い</span>
+      </li>
+    </ul>
+  </div>
   <!-- ══════════════════════════════════════════
          結び
     ══════════════════════════════════════════ -->
@@ -889,45 +1210,207 @@
 })();
 
 /* ==========================================================
-   再生速度（等倍／1.2／1.5／2倍）
-   ・Vimeoの部品を読み込んで切り替えます
-   ・読み込めなかったときは、速度のボタンごと出しません
+   再生速度と、グループサポート講座のご案内
+   ------------------------------------------------------------
+   ★ご案内を出すタイミング
+       GATE_SEC = 3600   … 1時間（秒で書きます）
+       45分 → 2700 ／ 1時間30分 → 5400 ／ 2時間 → 7200
+
+   ★数えかた（MODE）
+       'seek'  … 再生位置が GATE_SEC を過ぎたら出す（早送りでもOK）
+       'watch' … 実際に見ていた時間を足していく（早送りは数えない）
+
+   ・「あと◯分」は、いまの再生速度で計算します（1.5倍なら短くなります）
+   ・Vimeoの部品が読み込めなかったときは、ページを開いている時間で代わりにします
+   ・いちど出たら、その端末では次からすぐに出ます
+
+   ★確かめ用（URLのうしろに付けると動きます）
+       ?open=1    … ご案内を最初から出す
+       ?gate=20   … 20秒で出るようにする
    ========================================================== */
 (function () {
-  function init() {
-    var root = document.getElementById('rinon-arch-page');
-    if (!root) return;
-    var f = root.querySelector('[data-rn-movie] iframe');
-    var box = root.querySelector('[data-rn-speed]');
-    if (!f || !box) return;
+  var GATE_SEC = 3600;
+  var MODE = 'seek';
+  var KEY = 'rinon_arch_offer';
 
-    function wire() {
-      if (!window.Vimeo || !window.Vimeo.Player) return;
-      var p;
-      try { p = new window.Vimeo.Player(f); } catch (e) { return; }
-      box.className = 'rn-speed rn-on';
+  var q = String(location.search || '');
+  var mg = q.match(/[?&]gate=(\d+)/);
+  if (mg) GATE_SEC = Number(mg[1]);
+  var FORCE = /[?&]open=1/.test(q);
+  var TEST = FORCE || !!mg;      /* 確かめ用のときは、前に見た記録を使わない */
 
-      var bs = box.querySelectorAll('.rn-sp');
-      for (var i = 0; i < bs.length; i++) {
-        bs[i].onclick = function () {
-          var me = this;
-          var v = Number(me.getAttribute('data-sp'));
-          p.setPlaybackRate(v).then(function () {
-            for (var j = 0; j < bs.length; j++) {
-              bs[j].className = 'rn-sp' + (bs[j] === me ? ' rn-sp-on' : '');
-            }
-          }, function () {});
-        };
-      }
+  var pos = 0;        /* どこまで進んだか（秒） */
+  var last = -1;      /* ひとつ前の再生位置（watch のときに使います） */
+  var rate = 1;       /* いまの再生速度 */
+  var opened = false;
+
+  function root() { return document.getElementById('rinon-arch-page'); }
+
+  function jp(sec) {
+    var t = Math.max(0, Math.ceil(sec));
+    if (t < 60) return t + '秒';
+    var m = Math.ceil(t / 60);
+    if (m < 60) return m + '分';
+    var h = Math.floor(m / 60);
+    var mm = m - h * 60;
+    return mm ? (h + '時間' + mm + '分') : (h + '時間');
+  }
+  function hms(sec) {
+    var t = Math.max(0, Math.round(sec));
+    var h = Math.floor(t / 3600);
+    var m = Math.floor((t - h * 3600) / 60);
+    var ss = t - h * 3600 - m * 60;
+    var out = '';
+    if (h) out += h + '時間';
+    if (m) out += m + '分';
+    if (ss || !out) out += ss + '秒';
+    return out;
+  }
+
+  function paint() {
+    var r = root();
+    if (!r) return;
+    var bar = r.querySelector('[data-rn-bar]');
+    var left = r.querySelector('[data-rn-left]');
+    if (bar) bar.style.width = Math.min(100, (pos / GATE_SEC) * 100) + '%';
+    if (left) {
+      var rest = (GATE_SEC - pos) / (rate > 0 ? rate : 1);
+      left.innerHTML = rest > 0
+        ? 'あと <b>' + jp(rest) + '</b>'
+        : 'ご案内が出ました';
     }
+  }
 
-    if (window.Vimeo && window.Vimeo.Player) { wire(); return; }
+  function show() {
+    var r = root();
+    if (!r || opened) return;
+    opened = true;
+    var el = r.querySelector('[data-rn-offer]');
+    if (el) el.className = 'rn-offer rn-in rn-shown';
+    var m = r.querySelector('[data-rn-meter]');
+    if (m) m.className = 'rn-meter rn-is-hidden';
+    if (!TEST) { try { localStorage.setItem(KEY, '1'); } catch (e) {} }
+  }
+
+  function seen() {
+    if (TEST) return false;
+    try { return localStorage.getItem(KEY) === '1'; } catch (e) { return false; }
+  }
+
+  /* 再生位置が来るたびに呼ばれます */
+  function tick(cur) {
+    if (MODE === 'seek') {
+      if (cur > pos) pos = cur;              /* 早送りもそのまま進みます */
+    } else {
+      var d = (last >= 0) ? (cur - last) : 0;
+      /* 差が大きいときは「バーを送った」ということなので足しません */
+      if (d > 0 && d < 2 * (rate > 0 ? rate : 1) + 1) pos += d;
+      last = cur;
+    }
+    paint();
+    if (pos >= GATE_SEC) show();
+  }
+
+  /* 「グループ」を押したら、その言葉をコピーする */
+  function wireWord() {
+    var r = root();
+    if (!r) return;
+    var at = r.querySelector('[data-rn-at]');
+    if (at) at.innerHTML = hms(GATE_SEC);
+
+    var b = r.querySelector('[data-rn-word]');
+    if (!b) return;
+    b.onclick = function () {
+      var word = 'グループ';
+      var done = function () {
+        var n = r.querySelector('.rn-offer-n');
+        if (!n) return;
+        var was = n.innerHTML;
+        n.innerHTML = 'コピーしました。公式LINEのトークに貼って、お送りください。';
+        setTimeout(function () { n.innerHTML = was; }, 4000);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(word).then(done, function () {});
+        return;
+      }
+      var ta = document.createElement('textarea');
+      ta.value = word;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); done(); } catch (e) {}
+      document.body.removeChild(ta);
+    };
+  }
+
+  /* 再生速度のボタン */
+  function wireSpeed(p) {
+    var r = root();
+    var box = r && r.querySelector('[data-rn-speed]');
+    if (!box) return;
+    box.className = 'rn-speed rn-on';
+    var bs = box.querySelectorAll('.rn-sp');
+    for (var i = 0; i < bs.length; i++) {
+      bs[i].onclick = function () {
+        var me = this;
+        var v = Number(me.getAttribute('data-sp'));
+        p.setPlaybackRate(v).then(function () {
+          rate = v;
+          for (var j = 0; j < bs.length; j++) {
+            bs[j].className = 'rn-sp' + (bs[j] === me ? ' rn-sp-on' : '');
+          }
+          paint();
+        }, function () {});
+      };
+    }
+  }
+
+  function watch() {
+    var r = root();
+    if (!r) return;
+    var f = r.querySelector('[data-rn-movie] iframe');
+
+    var ok = false;
+    if (f && window.Vimeo && window.Vimeo.Player) {
+      try {
+        var p = new window.Vimeo.Player(f);
+        p.on('timeupdate', function (d) { if (d) tick(d.seconds); });
+        p.on('seeked', function () { last = -1; });      /* 送ったぶんは数えない */
+        p.on('playbackratechange', function (d) {
+          if (d && d.playbackRate) { rate = d.playbackRate; paint(); }
+        });
+        wireSpeed(p);
+        ok = true;
+      } catch (e) {}
+    }
+    if (ok) return;
+
+    /* Vimeoの部品が使えないとき：ページを開いている時間で代わりにする */
+    var t0 = (new Date()).getTime();
+    setInterval(function () {
+      var sec = ((new Date()).getTime() - t0) / 1000;
+      if (sec > pos) pos = sec;
+      paint();
+      if (pos >= GATE_SEC) show();
+    }, 1000);
+  }
+
+  function init() {
+    wireWord();
+    paint();
+
+    if (FORCE || seen()) { pos = GATE_SEC; paint(); show(); }
+
+    if (window.Vimeo && window.Vimeo.Player) { watch(); return; }
     var sc = document.createElement('script');
     sc.src = 'https://player.vimeo.com/api/player.js';
     sc.async = true;
-    sc.onload = wire;
+    sc.onload = watch;
+    sc.onerror = watch;
     document.head.appendChild(sc);
   }
+
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
   } else { init(); }
