@@ -530,6 +530,50 @@
   #rinon-arch-page .rn-list li { font-size: 13px !important; }
 }
 
+
+/* ─── 再生速度 ─── */
+#rinon-arch-page .rn-speed {
+  display: none;                 /* Vimeoの部品が使えたときだけ出します */
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 0 10px 12px;
+}
+#rinon-arch-page .rn-speed.rn-on { display: flex; }
+#rinon-arch-page .rn-speed-k {
+  margin-right: 3px;
+  color: rgba(255,255,255,0.58) !important;
+  font-size: 10.5px !important;
+  letter-spacing: 0.1em;
+}
+#rinon-arch-page .rn-sp {
+  margin: 0 !important;
+  padding: 6px 13px !important;
+  border: 1px solid rgba(175,224,247,0.30) !important;
+  border-radius: 999px !important;
+  background: rgba(255,255,255,0.05) !important;
+  background-color: rgba(255,255,255,0.05) !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  color: rgba(255,255,255,0.86) !important;
+  font-family: inherit !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  line-height: 1.4 !important;
+  letter-spacing: 0.02em !important;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+#rinon-arch-page .rn-sp:hover { background: rgba(255,255,255,0.12) !important; }
+#rinon-arch-page .rn-sp.rn-sp-on {
+  border-color: var(--rn-sky-300) !important;
+  background: var(--rn-sky-300) !important;
+  background-color: var(--rn-sky-300) !important;
+  color: var(--rn-navy-950) !important;
+}
+
 /* ─── ご案内までのメーター ─── */
 #rinon-arch-page .rn-meter {
   margin-top: 14px;
@@ -792,6 +836,14 @@
   <p class="rn-movie-note">
     再生ボタンを押すとはじまります　／　<b>約2時間44分</b>
   </p>
+
+  <div class="rn-speed" data-rn-speed>
+    <span class="rn-speed-k">再生速度</span>
+    <button type="button" class="rn-sp rn-sp-on" data-sp="1">等倍</button>
+    <button type="button" class="rn-sp" data-sp="1.2">1.2倍</button>
+    <button type="button" class="rn-sp" data-sp="1.5">1.5倍</button>
+    <button type="button" class="rn-sp" data-sp="2">2倍</button>
+  </div>
   </section>
   <!-- ══════════════════════════════════════════
          ご案内までのメーター
@@ -977,14 +1029,15 @@
 })();
 
 /* ==========================================================
-   グループサポート講座のご案内を、ご視聴が進んだところで出す
+   再生速度と、グループサポート講座のご案内
    ------------------------------------------------------------
-   ★出すタイミングは、この GATE_SEC だけで決まります（秒）。
+   ★ご案内を出すタイミングは、この GATE_SEC だけで決まります（秒）。
      6687 = 1時間51分27秒（講座のご説明がはじまるところ）
-     早めたいときは、この数字を小さくしてください。
-       1時間30分 → 5400 ／ 1時間 → 3600 ／ 30分 → 1800
+     短くしたいときは、この数字を小さくしてください。
+       1時間30分 → 5400 ／ 1時間 → 3600 ／ 45分 → 2700 ／ 30分 → 1800
 
-   ・動画の再生位置を見て、メーターを動かします
+   ・動画の再生位置を見て、メーターを進めます
+   ・「あと◯分」は、いまの再生速度で計算します（1.5倍なら短くなります）
    ・Vimeoの部品が読み込めなかったときは、ページを開いている時間で代わりにします
    ・いちど出たら、その端末では次からすぐに出ます
 
@@ -996,18 +1049,19 @@
   var GATE_SEC = 6687;
   var KEY = 'rinon_arch_offer';
 
-  /* 確かめ用のスイッチ */
   var q = String(location.search || '');
   var mg = q.match(/[?&]gate=(\d+)/);
   if (mg) GATE_SEC = Number(mg[1]);
   var FORCE = /[?&]open=1/.test(q);
+  /* 確かめ用のURLのときは、前に見た記録を使わない（毎回まっさらで試せます） */
+  var TEST = FORCE || !!mg;
 
-  var pos = 0;                 /* いまどこまで進んだか（秒） */
+  var pos = 0;        /* いまどこまで進んだか（秒） */
+  var rate = 1;       /* いまの再生速度 */
   var opened = false;
 
   function root() { return document.getElementById('rinon-arch-page'); }
 
-  /* 秒を「1時間52分」「7分」「40秒」のように読みやすくする */
   function jp(sec) {
     var t = Math.max(0, Math.ceil(sec));
     if (t < 60) return t + '秒';
@@ -1036,7 +1090,7 @@
     var left = r.querySelector('[data-rn-left]');
     if (bar) bar.style.width = Math.min(100, (pos / GATE_SEC) * 100) + '%';
     if (left) {
-      var rest = GATE_SEC - pos;
+      var rest = (GATE_SEC - pos) / (rate > 0 ? rate : 1);
       left.innerHTML = rest > 0
         ? 'あと <b>' + jp(rest) + '</b>'
         : 'ご案内が出ました';
@@ -1047,25 +1101,28 @@
     var r = root();
     if (!r || opened) return;
     opened = true;
-
     var el = r.querySelector('[data-rn-offer]');
     if (el) el.className = 'rn-offer rn-in rn-shown';
-
     var m = r.querySelector('[data-rn-meter]');
     if (m) m.className = 'rn-meter rn-is-hidden';
-
-    try { localStorage.setItem(KEY, '1'); } catch (e) {}
+    if (!TEST) { try { localStorage.setItem(KEY, '1'); } catch (e) {} }
   }
 
   function seen() {
+    if (TEST) return false;
     try { return localStorage.getItem(KEY) === '1'; } catch (e) { return false; }
   }
 
+  function step(sec) {
+    if (sec > pos) pos = sec;
+    paint();
+    if (pos >= GATE_SEC) show();
+  }
+
   /* 「グループ」を押したら、その言葉をコピーする */
-  function wire() {
+  function wireWord() {
     var r = root();
     if (!r) return;
-
     var at = r.querySelector('[data-rn-at]');
     if (at) at.innerHTML = hms(GATE_SEC);
 
@@ -1095,13 +1152,28 @@
     };
   }
 
-  function step(sec) {
-    if (sec > pos) pos = sec;
-    paint();
-    if (pos >= GATE_SEC) show();
+  /* 再生速度のボタン */
+  function wireSpeed(p) {
+    var r = root();
+    var box = r && r.querySelector('[data-rn-speed]');
+    if (!box) return;
+    box.className = 'rn-speed rn-on';
+    var bs = box.querySelectorAll('.rn-sp');
+    for (var i = 0; i < bs.length; i++) {
+      bs[i].onclick = function () {
+        var me = this;
+        var v = Number(me.getAttribute('data-sp'));
+        p.setPlaybackRate(v).then(function () {
+          rate = v;
+          for (var j = 0; j < bs.length; j++) {
+            bs[j].className = 'rn-sp' + (bs[j] === me ? ' rn-sp-on' : '');
+          }
+          paint();
+        }, function () {});
+      };
+    }
   }
 
-  /* 動画の再生位置を見る。だめなら、ページを開いている時間で代わりにする */
   function watch() {
     var r = root();
     if (!r) return;
@@ -1112,6 +1184,10 @@
       try {
         var p = new window.Vimeo.Player(f);
         p.on('timeupdate', function (d) { if (d) step(d.seconds); });
+        p.on('playbackratechange', function (d) {
+          if (d && d.playbackRate) { rate = d.playbackRate; paint(); }
+        });
+        wireSpeed(p);
         ok = true;
       } catch (e) {}
     }
@@ -1125,10 +1201,10 @@
   }
 
   function init() {
-    wire();
+    wireWord();
     paint();
 
-    if (FORCE || seen()) { pos = GATE_SEC; paint(); show(); return; }
+    if (FORCE || seen()) { pos = GATE_SEC; paint(); show(); }
 
     if (window.Vimeo && window.Vimeo.Player) { watch(); return; }
     var sc = document.createElement('script');

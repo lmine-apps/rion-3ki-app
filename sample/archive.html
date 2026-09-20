@@ -530,6 +530,50 @@
   #rinon-arch-page .rn-list li { font-size: 13px !important; }
 }
 
+
+/* ─── 再生速度 ─── */
+#rinon-arch-page .rn-speed {
+  display: none;                 /* Vimeoの部品が使えたときだけ出します */
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 0 10px 12px;
+}
+#rinon-arch-page .rn-speed.rn-on { display: flex; }
+#rinon-arch-page .rn-speed-k {
+  margin-right: 3px;
+  color: rgba(255,255,255,0.58) !important;
+  font-size: 10.5px !important;
+  letter-spacing: 0.1em;
+}
+#rinon-arch-page .rn-sp {
+  margin: 0 !important;
+  padding: 6px 13px !important;
+  border: 1px solid rgba(175,224,247,0.30) !important;
+  border-radius: 999px !important;
+  background: rgba(255,255,255,0.05) !important;
+  background-color: rgba(255,255,255,0.05) !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  color: rgba(255,255,255,0.86) !important;
+  font-family: inherit !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  line-height: 1.4 !important;
+  letter-spacing: 0.02em !important;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+#rinon-arch-page .rn-sp:hover { background: rgba(255,255,255,0.12) !important; }
+#rinon-arch-page .rn-sp.rn-sp-on {
+  border-color: var(--rn-sky-300) !important;
+  background: var(--rn-sky-300) !important;
+  background-color: var(--rn-sky-300) !important;
+  color: var(--rn-navy-950) !important;
+}
+
 /* ─── 章立て（押すとその場面へ） ─── */
 #rinon-arch-page .rn-chaps {
   list-style: none !important;
@@ -667,6 +711,14 @@
   <p class="rn-movie-note">
     再生ボタンを押すとはじまります　／　<b>約2時間44分</b>
   </p>
+
+  <div class="rn-speed" data-rn-speed>
+    <span class="rn-speed-k">再生速度</span>
+    <button type="button" class="rn-sp rn-sp-on" data-sp="1">等倍</button>
+    <button type="button" class="rn-sp" data-sp="1.2">1.2倍</button>
+    <button type="button" class="rn-sp" data-sp="1.5">1.5倍</button>
+    <button type="button" class="rn-sp" data-sp="2">2倍</button>
+  </div>
   </section>
   <!-- ══════════════════════════════════════════
          視聴期限
@@ -834,6 +886,51 @@
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', start);
   } else { start(); }
+})();
+
+/* ==========================================================
+   再生速度（等倍／1.2／1.5／2倍）
+   ・Vimeoの部品を読み込んで切り替えます
+   ・読み込めなかったときは、速度のボタンごと出しません
+   ========================================================== */
+(function () {
+  function init() {
+    var root = document.getElementById('rinon-arch-page');
+    if (!root) return;
+    var f = root.querySelector('[data-rn-movie] iframe');
+    var box = root.querySelector('[data-rn-speed]');
+    if (!f || !box) return;
+
+    function wire() {
+      if (!window.Vimeo || !window.Vimeo.Player) return;
+      var p;
+      try { p = new window.Vimeo.Player(f); } catch (e) { return; }
+      box.className = 'rn-speed rn-on';
+
+      var bs = box.querySelectorAll('.rn-sp');
+      for (var i = 0; i < bs.length; i++) {
+        bs[i].onclick = function () {
+          var me = this;
+          var v = Number(me.getAttribute('data-sp'));
+          p.setPlaybackRate(v).then(function () {
+            for (var j = 0; j < bs.length; j++) {
+              bs[j].className = 'rn-sp' + (bs[j] === me ? ' rn-sp-on' : '');
+            }
+          }, function () {});
+        };
+      }
+    }
+
+    if (window.Vimeo && window.Vimeo.Player) { wire(); return; }
+    var sc = document.createElement('script');
+    sc.src = 'https://player.vimeo.com/api/player.js';
+    sc.async = true;
+    sc.onload = wire;
+    document.head.appendChild(sc);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else { init(); }
 })();
 
 /* ==========================================================
