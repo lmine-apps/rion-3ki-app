@@ -1046,16 +1046,13 @@
     ══════════════════════════════════════════ -->
 
   <div class="rn-meter rn-in" data-rn-meter>
-    <span class="rn-meter-k">グループサポート講座のご案内まで</span>
+    <span class="rn-meter-k" data-rn-mk>グループサポート講座のご案内まで</span>
 
     <div class="rn-meter-bar" aria-hidden="true"><span data-rn-bar></span></div>
 
     <span class="rn-meter-left" data-rn-left>あと <b>1時間52分</b></span>
 
-    <p class="rn-meter-n">
-<span data-rn-at>1時間</span>ご視聴いただくと、<br>
-      講義のなかでお話しした講座のご案内が、この下に出ます。
-    </p>
+    <p class="rn-meter-n" data-rn-mn></p>
   </div>
   <!-- ══════════════════════════════════════════
          視聴期限
@@ -1270,46 +1267,48 @@
 })();
 
 /* ==========================================================
-   動画まわり（速度・もくじ・ご案内）
+   動画まわり（速度・もくじ・合言葉）
    ------------------------------------------------------------
-   ★ご案内を出すタイミング
-       GATE_SEC = 3600   … 1時間（秒で書きます）
-       45分 → 2700 ／ 1時間30分 → 5400 ／ 2時間 → 7200
+   ★出すタイミング（秒で書きます）
+       CHAP_SEC = 1200   … もくじを出すまで。1200 = 20分
+                           0 にすると、最初からもくじを出します
+       GATE_SEC = 3600   … 合言葉を出すまで。3600 = 1時間
 
-   ★数えかた（MODE）
-       'seek'  … 再生位置が GATE_SEC を過ぎたら出す（早送りでもOK）
-       'watch' … 実際に見ていた時間を足していく（早送りは数えない）
-
-   ★もくじ（CHAPS）
-       'open'   … 最初から出しておく
-       'locked' … ご案内が出るまで隠しておく
+   ★数えかた
+       もくじ   … 実際に見ていた時間だけで数えます（早送りは数えません）
+       合言葉   … 「実際に見た時間が1時間」か「1時間先まで進んだ」かの
+                   どちらかで出ます
 
    ★再生バー（BAR）
        true  … Vimeoのふつうの再生バーを出す
        false … 再生バーを消して、自前の再生ボタンだけにする
-               （Vimeoの部品が読めなかったときは、自動でふつうのバーに戻します）
+               （Vimeoの部品が読めなかったときは、自動でバーを戻します）
 
    ★確かめ用（URLのうしろに付けると動きます）
-       ?open=1    … ご案内を最初から出す
-       ?gate=20   … 20秒で出るようにする
+       ?open=1    … 全部ひらいた状態で見る
+       ?gate=20   … 合言葉を20秒で出す
+       ?chap=10   … もくじを10秒で出す
    ========================================================== */
 (function () {
+  var CHAP_SEC = 0;
   var GATE_SEC = 3600;
-  var MODE  = 'seek';
-  var CHAPS = 'open';
-  var BAR   = true;
+  var BAR = true;
   var KEY = 'rinon_arch_offer';
 
   var q = String(location.search || '');
   var mg = q.match(/[?&]gate=(\d+)/);
   if (mg) GATE_SEC = Number(mg[1]);
+  var mc = q.match(/[?&]chap=(\d+)/);
+  if (mc) CHAP_SEC = Number(mc[1]);
   var FORCE = /[?&]open=1/.test(q);
-  var TEST = FORCE || !!mg;
+  var TEST = FORCE || !!mg || !!mc;
 
-  var pos = 0;        /* どこまで進んだか（秒） */
-  var last = -1;      /* ひとつ前の再生位置 */
+  var watched = 0;    /* 実際に見ていた時間（秒） */
+  var maxPos  = 0;    /* いちばん先まで進んだところ（秒） */
+  var last = -1;
   var rate = 1;
-  var opened = false;
+  var chapOpen = (CHAP_SEC <= 0);
+  var offerOpen = false;
   var player = null;
 
   function root() { return document.getElementById('rinon-arch-page'); }
@@ -1343,29 +1342,47 @@
     return h + ':' + (m < 10 ? '0' : '') + m + ':' + (ss < 10 ? '0' : '') + ss;
   }
 
+  /* メーターは、いま目指しているところに合わせて出し分けます */
   function paint() {
-    var bar = one('[data-rn-bar]');
+    if (offerOpen) return;
+    var k    = one('[data-rn-mk]');
+    var bar  = one('[data-rn-bar]');
     var left = one('[data-rn-left]');
-    if (bar) bar.style.width = Math.min(100, (pos / GATE_SEC) * 100) + '%';
-    if (left) {
-      var rest = (GATE_SEC - pos) / (rate > 0 ? rate : 1);
-      left.innerHTML = rest > 0 ? 'あと <b>' + jp(rest) + '</b>' : 'ご案内が出ました';
+    var note = one('[data-rn-mn]');
+
+    var toChap = !chapOpen;
+    var goal = toChap ? CHAP_SEC : GATE_SEC;
+    var now  = toChap ? watched : Math.max(watched, maxPos);
+    var rest = (goal - now) / (rate > 0 ? rate : 1);
+
+    if (k) k.innerHTML = toChap ? 'もくじが出るまで' : 'グループサポート講座のご案内まで';
+    if (bar) bar.style.width = Math.min(100, (now / goal) * 100) + '%';
+    if (left) left.innerHTML = rest > 0 ? 'あと <b>' + jp(rest) + '</b>' : 'もうすぐです';
+    if (note) {
+      note.innerHTML = toChap
+        ? (hms(CHAP_SEC) + 'ご視聴いただくと<b>もくじ</b>が出て、<br>見たいところへ移動できるようになります。')
+        : ('再生が<b>1時間</b>まで進むと、合言葉が出ます。<br>もくじで飛んでいただいてもかまいません。');
     }
   }
 
-  function show() {
-    if (opened) return;
-    opened = true;
+  function openChaps() {
+    if (chapOpen) return;
+    chapOpen = true;
+    var c = one('[data-rn-chapcard]');
+    if (c) c.className = 'rn-card rn-in rn-shown';
+    var n = one('[data-rn-note]');
+    if (n && !BAR) n.innerHTML = 'もくじから、見たいところへ移動できます';
+    paint();
+  }
+
+  function openOffer() {
+    if (offerOpen) return;
+    offerOpen = true;
+    openChaps();
     var el = one('[data-rn-offer]');
     if (el) el.className = 'rn-offer rn-in rn-shown';
     var m = one('[data-rn-meter]');
     if (m) m.className = 'rn-meter rn-is-hidden';
-    if (CHAPS === 'locked') {
-      var c = one('[data-rn-chapcard]');
-      if (c) c.className = 'rn-card rn-in rn-shown';
-      var n = one('[data-rn-note]');
-      if (n) n.innerHTML = 'もくじから、見たいところへ移動できます';
-    }
     if (!TEST) { try { localStorage.setItem(KEY, '1'); } catch (e) {} }
   }
 
@@ -1375,15 +1392,14 @@
   }
 
   function tick(cur) {
-    if (MODE === 'seek') {
-      if (cur > pos) pos = cur;
-    } else {
-      var d = (last >= 0) ? (cur - last) : 0;
-      if (d > 0 && d < 2 * (rate > 0 ? rate : 1) + 1) pos += d;
-      last = cur;
-    }
+    if (cur > maxPos) maxPos = cur;
+    var d = (last >= 0) ? (cur - last) : 0;
+    if (d > 0 && d < 2 * (rate > 0 ? rate : 1) + 1) watched += d;
+    last = cur;
+
+    if (!chapOpen && watched >= CHAP_SEC) openChaps();
+    if (!offerOpen && (watched >= GATE_SEC || maxPos >= GATE_SEC)) openOffer();
     paint();
-    if (pos >= GATE_SEC) show();
 
     var cu = one('[data-rn-cur]');
     if (cu) cu.innerHTML = clock(cur);
@@ -1391,7 +1407,6 @@
     if (li) li.style.width = Math.min(100, (cur / 9823) * 100) + '%';
   }
 
-  /* もくじ：押したところへ飛ぶ */
   function wireChaps() {
     var r = root();
     if (!r) return;
@@ -1400,16 +1415,14 @@
       bs[i].onclick = function () {
         if (!player) return;
         var t = Number(this.getAttribute('data-sec'));
-        player.setCurrentTime(t).then(function () {
-          return player.play();
-        }, function () {}).then(function () {}, function () {});
+        player.setCurrentTime(t).then(function () { return player.play(); },
+                                      function () {}).then(function () {}, function () {});
         var m = one('.rn-movie');
         if (m && m.scrollIntoView) m.scrollIntoView({ block: 'start' });
       };
     }
   }
 
-  /* 自前の再生ボタン */
   function wirePlay() {
     var box = one('[data-rn-ctrl]');
     var b = one('[data-rn-play]');
@@ -1424,11 +1437,7 @@
     player.on('pause', function () { b.innerHTML = '▶';  b.setAttribute('aria-label', '再生'); });
   }
 
-  /* 「グループ」を押したら、その言葉をコピーする */
   function wireWord() {
-    var at = one('[data-rn-at]');
-    if (at) at.innerHTML = hms(GATE_SEC);
-
     var b = one('[data-rn-word]');
     if (!b) return;
     b.onclick = function () {
@@ -1455,7 +1464,6 @@
     };
   }
 
-  /* 再生速度 */
   function wireSpeed() {
     var box = one('[data-rn-speed]');
     if (!box || !player) return;
@@ -1476,31 +1484,29 @@
     }
   }
 
-  /* Vimeoの部品が読めなかったとき：ふつうの再生バーに戻す */
+  /* Vimeoの部品が読めなかったとき */
   function giveUp() {
     if (!BAR) {
       var f = one('[data-rn-movie] iframe');
       if (f) {
         var full = f.getAttribute('data-rn-src');
-        if (full) f.setAttribute('src', full);
+        if (full) f.setAttribute('src', full);   /* ふつうの再生バーを戻す */
       }
     }
-    if (CHAPS === 'locked') return;           /* もくじは出せないので、そのまま */
     var t0 = (new Date()).getTime();
     setInterval(function () {
       var sec = ((new Date()).getTime() - t0) / 1000;
-      if (sec > pos) pos = sec;
+      if (sec > watched) watched = sec;
+      if (!chapOpen && watched >= CHAP_SEC) openChaps();
+      if (!offerOpen && watched >= GATE_SEC) openOffer();
       paint();
-      if (pos >= GATE_SEC) show();
     }, 1000);
   }
 
   function ready() {
     var f = one('[data-rn-movie] iframe');
     if (!f || !window.Vimeo || !window.Vimeo.Player) { giveUp(); return; }
-    try {
-      player = new window.Vimeo.Player(f);
-    } catch (e) { giveUp(); return; }
+    try { player = new window.Vimeo.Player(f); } catch (e) { giveUp(); return; }
 
     player.on('timeupdate', function (d) { if (d) tick(d.seconds); });
     player.on('seeked', function () { last = -1; });
@@ -1514,13 +1520,14 @@
 
   function init() {
     wireWord();
-    paint();
 
-    if (CHAPS === 'locked') {
+    if (!chapOpen) {
       var c = one('[data-rn-chapcard]');
       if (c) c.className = 'rn-card rn-is-hidden';
     }
-    if (FORCE || seen()) { pos = GATE_SEC; paint(); show(); }
+    paint();
+
+    if (FORCE || seen()) { watched = GATE_SEC; maxPos = GATE_SEC; openOffer(); }
 
     if (window.Vimeo && window.Vimeo.Player) { ready(); return; }
     var sc = document.createElement('script');
@@ -1529,7 +1536,7 @@
     sc.onload = ready;
     sc.onerror = giveUp;
     document.head.appendChild(sc);
-    setTimeout(function () { if (!player) giveUp(); }, 6000);   /* 念のため */
+    setTimeout(function () { if (!player) giveUp(); }, 6000);
   }
 
   if (document.readyState === 'loading') {
