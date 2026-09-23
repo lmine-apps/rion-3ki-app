@@ -395,7 +395,8 @@ function paintCardPayment(n) {
   const last = (n === 3);
 
   el.innerHTML =
-    `<h2 class="card__title">${esc(heading)}</h2>
+    `${STATE.special ? `<p class="special-tag">${esc(STATE.special)}</p>` : ''}
+     <h2 class="card__title">${esc(heading)}</h2>
      <div class="amount">${esc(yen(amount))}<span class="amount__tax">（税込）</span></div>
      ${isSplit && n === 1 ? '<p class="note">1回目のお支払いが確認できたら、この画面に2回目のボタンが出ます。</p>' : ''}
      ${isSplit && n === 2 ? '<p class="note">1回目のお支払いを確認しました。ありがとうございます。</p>' : ''}
@@ -1094,6 +1095,7 @@ function mockApi(action, body) {
                           pay_2: '#mock-pay2', pay_3: s.split3 ? '#mock-pay3' : '' }, plan,
                         s.split3 ? { split: [200000, 100000, 85000] } : {}),
     payment_method: s.method || '',
+    special: s.split3 ? '波多野さん専用' : '',
     // 本番と同じ表記にしてある（画面一覧のPDFで文言を確かめるため）。
     // ★口座番号だけは伏せ字。PDFは人手に渡るので、本物の番号を載せない。
     bank: { bank: 'ドコモSMTBネット銀行', bank_old: '旧：住信SBIネット銀行',

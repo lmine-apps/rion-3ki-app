@@ -1742,3 +1742,22 @@ body.is-locked { overflow: hidden; }
   .mail__btns { flex-direction: row; }
   .mail__btns .btn { flex: 1 1 0; }
 }
+
+
+/* ============================================================
+   お一人のために用意したお支払い画面に、小さく添える一言
+   ★2026-09-23 とーるさんご要望（波多野さんの3回分け）
+   ============================================================ */
+.special-tag {
+  display: inline-block;
+  margin: 0 0 9px;
+  padding: 3px 11px;
+  border: 1px solid rgba(98, 183, 231, .45);
+  border-radius: 999px;
+  background: var(--sky-100);
+  color: var(--navy-700);
+  font-size: calc(11px * var(--fs-scale));
+  font-weight: 700;
+  line-height: 1.6;
+  letter-spacing: .06em;
+}
