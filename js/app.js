@@ -173,6 +173,13 @@ function render(res) {
       showScreen('screen-card');
       break;
 
+    /* ★2026-09-23 2回目を2つに分けてお支払いいただく方だけ通ります */
+    case '3回目決済待ち':
+      bar(step.pay);
+      paintCardPayment(3);
+      showScreen('screen-card');
+      break;
+
     case '2回目入金待ち':
       bar(step.pay);
       paintBank(2);
@@ -381,20 +388,23 @@ function paintCardPayment(n) {
   if (!el) return;
 
   const isSplit = STATE.payment_method === 'カード2回';
-  const url = isSplit ? (n === 2 ? p.pay_2 : p.pay_1) : p.pay_full;
+  /* ★2026-09-23 3回に分けてお支払いいただく方は、pay_3 が入ってきます */
+  const url = isSplit ? (n === 3 ? p.pay_3 : (n === 2 ? p.pay_2 : p.pay_1)) : p.pay_full;
   const amount = isSplit ? p.split[n - 1] : p.total;
   const heading = isSplit ? `${n}回目のお支払い` : 'お支払い';
+  const last = (n === 3);
 
   el.innerHTML =
     `<h2 class="card__title">${esc(heading)}</h2>
      <div class="amount">${esc(yen(amount))}<span class="amount__tax">（税込）</span></div>
      ${isSplit && n === 1 ? '<p class="note">1回目のお支払いが確認できたら、この画面に2回目のボタンが出ます。</p>' : ''}
      ${isSplit && n === 2 ? '<p class="note">1回目のお支払いを確認しました。ありがとうございます。</p>' : ''}
+     ${last ? '<p class="note">2回目のお支払いを確認しました。ありがとうございます。こちらが最後のお支払いです。</p>' : ''}
      ${url
         ? `<a class="btn btn--primary" href="${esc(url)}">カードでお支払いに進む</a>`
         : '<p class="alert">決済ページの準備が整い次第、こちらに表示されます。少しお待ちください。</p>'}
      <p class="note">お支払い後、この画面が切り替わるまで少し時間がかかることがあります。閉じてしまっても、LINEのボタンからいつでも戻れます。</p>
-     ${resetPayHtml(isSplit && n === 2 ? '2回目のお支払い方法を選び直す' : 'お支払い方法を選び直す')}
+     ${last ? '' : resetPayHtml(isSplit && n === 2 ? '2回目のお支払い方法を選び直す' : 'お支払い方法を選び直す')}
      <button type="button" class="doc-hint" data-act="declare-paid">お支払いが済んでいるのに、この画面が変わらないとき</button>
      ${payHintsHtml()}`;
 }
@@ -731,7 +741,8 @@ document.addEventListener('click', async (ev) => {
 
 /** お支払い方法を選び直す。押し間違い対策に、一度たしかめてから送る */
 async function resetPayment(btn) {
-  const second = (STATE.stage === '2回目決済待ち' || STATE.stage === '2回目入金待ち');
+  const second = (STATE.stage === '2回目決済待ち' || STATE.stage === '2回目入金待ち'
+                  || STATE.stage === '3回目決済待ち');
   const ok = await askConfirm(btn,
     second
       ? '2回目のお支払い方法を選び直しますか。カードか銀行振込を、もう一度お選びいただけます。'
@@ -940,7 +951,10 @@ function mockApi(action, body) {
     bank:      { terms: 1, signed: 1, method: '銀行振込' },
     bankwait:  { terms: 1, signed: 1, method: '銀行振込', bank_report: 1,
                  holder: 'リオン ハナコ', paid_on: '2026/09/02' },
-    done:      { terms: 1, signed: 1, method: 'カード一括', done: 1 }
+    done:      { terms: 1, signed: 1, method: 'カード一括', done: 1 },
+    /* ★3回に分けてお支払いいただく方の確認用 */
+    pay2of3:   { terms: 1, signed: 1, method: 'カード2回', pay1: 1, split3: 1 },
+    pay3of3:   { terms: 1, signed: 1, method: 'カード2回', pay1: 1, split3: 1, step2: 1 }
   };
 
   const s = AT && AT_PRESETS[AT]
@@ -1046,6 +1060,9 @@ function mockApi(action, body) {
   else if (!s.signed) stage = '署名待ち';
   else if (!s.method) stage = '支払方法未選択';
   else if (s.method === '銀行振込') stage = s.bank_report ? '着金待ち' : '入金待ち';
+  else if (s.method === 'カード2回' && s.pay1 && s.split3) {
+    stage = s.step2 ? '3回目決済待ち' : '2回目決済待ち';
+  }
   else if (s.method === 'カード2回' && s.pay1) {
     if (!s.second) stage = '2回目の方法選択待ち';
     else if (s.second === '銀行振込') stage = s.bank_report ? '着金待ち' : '2回目入金待ち';
@@ -1073,7 +1090,9 @@ function mockApi(action, body) {
       if (q) return s.email || q;
       return s.email || 'taro.rion@example.com';
     })(),
-    plan: Object.assign({ key: s.plan, pay_full: '#mock-pay', pay_1: '#mock-pay1', pay_2: '#mock-pay2' }, plan),
+    plan: Object.assign({ key: s.plan, pay_full: '#mock-pay', pay_1: '#mock-pay1',
+                          pay_2: '#mock-pay2', pay_3: s.split3 ? '#mock-pay3' : '' }, plan,
+                        s.split3 ? { split: [200000, 100000, 85000] } : {}),
     payment_method: s.method || '',
     // 本番と同じ表記にしてある（画面一覧のPDFで文言を確かめるため）。
     // ★口座番号だけは伏せ字。PDFは人手に渡るので、本物の番号を載せない。
