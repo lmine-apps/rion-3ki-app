@@ -202,6 +202,7 @@ function render(res) {
     case '完了':
       bar(step.pay, true);
       paintDone();
+      paintMail();
       showScreen('screen-done');
       break;
 
@@ -596,6 +597,99 @@ function paintDone() {
      <p class="note">今後のご案内はLINEにお送りします。</p>`;
 }
 
+
+/* ★2026-09-22 とーるさんご要望。動画視聴アプリのログインに使うメールアドレスを、
+   お支払いが決まった方に確かめていただきます。
+   ・すでに入っている方 … そのまま確かめる／直す
+   ・空の方             … その場でご登録いただく
+   保存先はシートのD列（メールアドレス）です。列は増やしていません。 */
+let MAIL_EDIT = false;
+
+function paintMail(msg) {
+  const el = document.getElementById('mail-body');
+  if (!el) return;
+
+  const cur = (STATE.email || '').trim();
+  const lead = `講義アーカイブ視聴の際に、ログインでお使いいただく<b>メールアドレス</b>になります。`;
+
+  if (msg) {
+    el.innerHTML =
+      `<div class="card card--mail is-ok">
+         <p class="mail__done">${esc(msg)}</p>
+         <p class="mail__cur">${esc(cur)}</p>
+         <p class="mail__note">${lead}</p>
+         <button type="button" class="btn btn--ghost btn--sm" data-act="mail-edit">変更する</button>
+       </div>`;
+    return;
+  }
+
+  // 未登録、または「変更する」を押されたとき → 入力していただく
+  if (!cur || MAIL_EDIT) {
+    el.innerHTML =
+      `<div class="card card--mail">
+         <h2 class="card__title">${cur ? 'メールアドレスの変更' : 'メールアドレスのご登録'}</h2>
+         <p class="mail__lead">${lead}</p>
+         <label class="field">
+           <span class="field__label">メールアドレス</span>
+           <input type="email" id="mail-input" value="${esc(cur)}"
+                  autocomplete="email" inputmode="email" placeholder="example@mail.com">
+           <span class="field__hint">お間違いがあると、講義アーカイブをご覧いただけません。</span>
+         </label>
+         <p class="alert" id="mail-error" hidden></p>
+         <button type="button" class="btn btn--primary" data-act="mail-save">この内容で登録する</button>
+       </div>`;
+    return;
+  }
+
+  // もう確かめていただいた方 → そのことをお伝えするだけ
+  if (STATE.marks && STATE.marks.mail_ok) {
+    el.innerHTML =
+      `<div class="card card--mail is-ok">
+         <p class="mail__done">メールアドレスは確認ずみです</p>
+         <p class="mail__cur">${esc(cur)}</p>
+         <p class="mail__note">${lead}</p>
+         <button type="button" class="btn btn--ghost btn--sm" data-act="mail-edit">変更する</button>
+       </div>`;
+    return;
+  }
+
+  // すでに入っている方 → 確かめていただく
+  el.innerHTML =
+    `<div class="card card--mail">
+       <h2 class="card__title">メールアドレスのご確認</h2>
+       <p class="mail__lead">${lead}<br>こちらでお間違いないでしょうか。</p>
+       <p class="mail__cur">${esc(cur)}</p>
+       <div class="mail__btns">
+         <button type="button" class="btn btn--primary" data-act="mail-ok">間違いありません</button>
+         <button type="button" class="btn btn--ghost" data-act="mail-edit">変更する</button>
+       </div>
+     </div>`;
+}
+
+async function saveMail(btn, email) {
+  const err = document.getElementById('mail-error');
+  if (err) err.hidden = true;
+  if (!MAIL_RE.test(email)) {
+    if (err) { err.textContent = 'メールアドレスをご確認ください。'; err.hidden = false; }
+    return;
+  }
+  busy(btn, true, '送信');
+  try {
+    const res = await api('save_email', { uid: getUid(), email });
+    if (res && res.ok) {
+      STATE = res;
+      MAIL_EDIT = false;
+      paintMail('ありがとうございます。こちらのアドレスで承りました。');
+      return;
+    }
+    if (err) { err.textContent = errorMessage(res && res.error); err.hidden = false; }
+  } catch (e) {
+    if (err) { err.textContent = '通信できませんでした。少ししてからもう一度お試しください。'; err.hidden = false; }
+  } finally {
+    busy(btn, false);
+  }
+}
+
 // ---------------------------------------------------------------- 操作
 document.addEventListener('click', async (ev) => {
   const btn = ev.target.closest('[data-act]');
@@ -609,6 +703,22 @@ document.addEventListener('click', async (ev) => {
   if (act === 'declare-paid') return declarePaid(btn);
   if (act === 'reset-pay')    return resetPayment(btn);
   if (act === 'reload')       return boot();
+
+  // メールアドレスの確認・登録
+  if (act === 'mail-ok') {
+    return saveMail(btn, (STATE.email || '').trim());
+  }
+  if (act === 'mail-edit') {
+    MAIL_EDIT = true;
+    paintMail();
+    const f = document.getElementById('mail-input');
+    if (f) f.focus();
+    return;
+  }
+  if (act === 'mail-save') {
+    const f = document.getElementById('mail-input');
+    return saveMail(btn, f ? f.value.trim() : '');
+  }
 
   // 契約書URLがまだ無いとき。押したら理由をその場でお伝えする
   if (act === 'contract-soon') {
@@ -793,7 +903,9 @@ function errorMessage(code) {
     not_bank: '銀行振込を選んだ方のみのお手続きです。',
     confirm_required: '署名の確認は運営が行います。少しお待ちください。',
     unauthorized: 'この画面を開く権限がありません。LINEのボタンから開き直してください。',
-    before_open: 'お申し込みの受付は、まだ始まっていません。開始しましたらLINEでお知らせします。'
+    before_open: 'お申し込みの受付は、まだ始まっていません。開始しましたらLINEでお知らせします。',
+    email_required: 'メールアドレスをご入力ください。',
+    email_invalid: 'メールアドレスの形をご確認ください。'
   };
   return map[code] || ('エラーが発生しました（' + code + '）');
 }
@@ -855,6 +967,16 @@ function mockApi(action, body) {
     save(s);
   }
   if (action === 'mock_pay1')      { s.pay1 = true; save(s); }
+  /* メールアドレスの確認・登録（見え方を確かめるためのまね）
+     ?mail=none を付けると「まだ登録されていない方」の画面になります */
+  if (action === 'save_email') {
+    const m = (body && body.email || '').trim();
+    if (!m) return Promise.resolve({ ok: false, error: 'email_required' });
+    if (!MAIL_RE.test(m)) return Promise.resolve({ ok: false, error: 'email_invalid' });
+    s.email = m;
+    s.mail_ok = '2026/09/22 10:00';
+    save(s);
+  }
 
   const plans = {
     'VIP':        { label: 'VIPコース', total: 990000, note: 'みこの個別セッション2回／中尾真巳の算命学鑑定2回（受講料に含む）／リトリート 12月5〜6日（参加費無料）／卒業式 2027年1月24日／講義動画の視聴期限1年', split: [500000, 490000] },
@@ -943,6 +1065,14 @@ function mockApi(action, body) {
   return answer({
     ok: true, uid: 'MOCKUID', registered: true, stage,
     name: 'テスト 太郎',
+    /* ?mail=none … まだ登録されていない方の見え方
+       ?mail=xxx@yy.zz … そのアドレスが入っている方の見え方 */
+    email: (function () {
+      const q = new URLSearchParams(location.search).get('mail');
+      if (q === 'none') return s.email || '';
+      if (q) return s.email || q;
+      return s.email || 'taro.rion@example.com';
+    })(),
     plan: Object.assign({ key: s.plan, pay_full: '#mock-pay', pay_1: '#mock-pay1', pay_2: '#mock-pay2' }, plan),
     payment_method: s.method || '',
     // 本番と同じ表記にしてある（画面一覧のPDFで文言を確かめるため）。
@@ -962,7 +1092,8 @@ function mockApi(action, body) {
     require_profile: withProfile,
     allow_self_sign: new URLSearchParams(location.search).get('selfsign') === '1',
 
-    marks: { bank_name: s.holder || '', bank_date: s.paid_on || '',
+    /* ?mailok=1 で「もう確認ずみの方」の見え方になります */
+    marks: { mail_ok: s.mail_ok || (new URLSearchParams(location.search).get('mailok') ? '2026/09/22 10:00' : ''), bank_name: s.holder || '', bank_date: s.paid_on || '',
              self_paid: s.self_paid ? '（申告あり）' : null,
              second: s.second || '', due_amount: '' }
   });

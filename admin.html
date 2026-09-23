@@ -377,6 +377,9 @@
       <button type="button" class="tab" data-f="new" aria-pressed="false">未案内</button>
       <button type="button" class="tab" data-f="prog" aria-pressed="false">進行中</button>
       <button type="button" class="tab" data-f="done" aria-pressed="false">完了</button>
+      <!-- ★2026-09-22 講義アーカイブ視聴用のメールアドレスを、まだご本人に
+           確かめていただけていない方。お支払いが決まった方だけを出します。 -->
+      <button type="button" class="tab" data-f="mail" aria-pressed="false">アドレス未確認</button>
     </div>
     <input type="search" class="search" id="q" placeholder="お名前でさがす">
     <button type="button" class="btn ghost" id="btn-invite">ご案内を送る</button>
@@ -901,6 +904,8 @@ function match(p) {
   if (filter === 'new') return !p.invite;
   if (filter === 'done') return p.stage === '完了';
   if (filter === 'prog') return !!p.invite && p.stage !== '完了';
+  /* 完了した方のうち、アドレスの確認がまだの方（空アドレスもここに入ります） */
+  if (filter === 'mail') return p.stage === '完了' && !p.mailOk;
   return true;
 }
 
@@ -971,6 +976,13 @@ function card(p) {
     buttons = '<button type="button" class="btn" data-setplan="' + esc(p.uid) + '">'
             + 'コースを決める</button>'
             + (buttons ? ' ' + buttons : '');
+  }
+
+  /* ★2026-09-22 お手続きが終わった方には、講義アーカイブ視聴用のアドレスと、
+     ご本人に確かめていただけたかを出します。空欄＝まだ回収できていない方です。 */
+  if (p.stage === '完了') {
+    put('視聴アドレス', p.email || '（未回収）');
+    put('アドレス確認', p.mailOk || '（まだ）');
   }
 
   return '<div class="row ' + (act ? 'act' : (p.stage === '完了' ? 'fin' : '')) + '">'

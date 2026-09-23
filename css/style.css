@@ -1670,3 +1670,75 @@ body.is-locked { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; transition: none !important; }
 }
+
+
+/* ============================================================
+   動画視聴アプリ用のメールアドレス（完了画面）
+   ★2026-09-22 とーるさんご要望。お支払いが決まった方に、
+     ログインに使うアドレスを確かめていただく／ご登録いただく箱です。
+   ============================================================ */
+.card--mail {
+  margin-top: 14px;
+  padding: 20px 18px 19px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: var(--shadow-sm);
+}
+.card--mail.is-ok {
+  border-color: rgba(98, 183, 231, .42);
+  background: linear-gradient(160deg, #fff, var(--sky-100));
+}
+.card--mail .card__title { margin-bottom: 8px; }
+
+.mail__lead {
+  margin: 0 0 13px;
+  color: var(--text);
+  font-size: calc(14px * var(--fs-scale));
+  line-height: 1.9;
+}
+.mail__note {
+  margin: 9px 0 13px;
+  color: var(--text-mid);
+  font-size: calc(12.5px * var(--fs-scale));
+  line-height: 1.8;
+}
+.mail__done {
+  margin: 0 0 9px;
+  color: var(--navy-800);
+  font-family: var(--serif);
+  font-size: calc(15.5px * var(--fs-scale));
+  font-weight: 600;
+  line-height: 1.7;
+  letter-spacing: .04em;
+}
+/* アドレスそのもの。長くても折り返して、全部読めるようにする */
+.mail__cur {
+  margin: 0 0 15px;
+  padding: 13px 14px;
+  border: 1px solid rgba(98, 183, 231, .34);
+  border-radius: 10px;
+  background: var(--sky-100);
+  color: var(--navy-900);
+  font-family: var(--sans);
+  font-size: calc(15px * var(--fs-scale));
+  font-weight: 700;
+  line-height: 1.6;
+  letter-spacing: .01em;
+  word-break: break-all;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+.mail__btns {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.btn--sm {
+  padding: 9px 16px;
+  font-size: calc(13px * var(--fs-scale));
+}
+@media (min-width: 460px) {
+  .mail__btns { flex-direction: row; }
+  .mail__btns .btn { flex: 1 1 0; }
+}
