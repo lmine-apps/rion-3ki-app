@@ -1095,7 +1095,7 @@ function mockApi(action, body) {
                           pay_2: '#mock-pay2', pay_3: s.split3 ? '#mock-pay3' : '' }, plan,
                         s.split3 ? { split: [200000, 100000, 85000] } : {}),
     payment_method: s.method || '',
-    special: s.split3 ? '波多野さん専用' : '',
+    special: s.split3 ? '波多野さま専用' : '',
     // 本番と同じ表記にしてある（画面一覧のPDFで文言を確かめるため）。
     // ★口座番号だけは伏せ字。PDFは人手に渡るので、本物の番号を載せない。
     bank: { bank: 'ドコモSMTBネット銀行', bank_old: '旧：住信SBIネット銀行',
