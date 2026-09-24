@@ -1761,3 +1761,34 @@ body.is-locked { overflow: hidden; }
   line-height: 1.6;
   letter-spacing: .06em;
 }
+
+
+/* ============================================================
+   締切後のお知らせ帯（ご署名が済んでいる方の画面の上に出ます）
+   ★2026-09-24 とーるさんご要望
+   ============================================================ */
+.afterclose {
+  margin: 0 0 14px;
+  padding: 15px 16px 14px;
+  border: 1px solid rgba(168, 130, 63, .34);
+  border-radius: 12px;
+  background: linear-gradient(160deg, #fffaf0, #fff6e6);
+  box-shadow: var(--shadow-sm);
+}
+.afterclose__t {
+  margin: 0 0 7px;
+  color: #8a6520;
+  font-family: var(--serif);
+  font-size: calc(15px * var(--fs-scale));
+  font-weight: 600;
+  line-height: 1.6;
+  letter-spacing: .05em;
+}
+.afterclose__b {
+  margin: 0 0 6px;
+  color: var(--text);
+  font-size: calc(13px * var(--fs-scale));
+  line-height: 1.9;
+}
+.afterclose__b:last-child { margin-bottom: 0; }
+.afterclose__b b { color: var(--navy-800); font-weight: 700; }

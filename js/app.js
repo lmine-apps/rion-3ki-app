@@ -77,6 +77,33 @@ function paintCourseName() {
  * 現在地（GASが返す stage）だけを見て画面を決める。
  * どの端末から入っても、スプシの進捗どおりの画面が開く。
  */
+/* ★2026-09-24 お申し込みの締切まわり。
+   ・まだご署名が済んでいない方 … 「受付終了」の画面
+   ・ご署名が済んでいる方       … いつもの画面＋上にお知らせ帯 */
+function paintClosed() {
+  const el = document.getElementById('closed-body');
+  if (!el) return;
+  el.innerHTML =
+    `<p>凛穏塾 3.5期生 グループサポート講座のお申し込みは、
+        <b>${esc(STATE.close_at_text || '')}</b> をもって受付を終了いたしました。</p>
+     <p class="note">お手続きの途中でお越しいただいたのに、申し訳ございません。</p>
+     <p class="note">次の期のご案内は、公式LINEにてお知らせいたします。
+        ご不明な点がありましたら、<b>公式LINEのチャット</b>からお気軽にお申し付けください。</p>`;
+}
+
+function paintAfterClose(show) {
+  const el = document.getElementById('after-close');
+  if (!el) return;
+  if (!show) { el.hidden = true; el.innerHTML = ''; return; }
+  el.hidden = false;
+  el.innerHTML =
+    `<p class="afterclose__t">受付期間は終了しました</p>
+     <p class="afterclose__b">ご署名をいただいておりますので、
+        <b>お手続きはこのままお進みいただけます</b>。どうぞご安心ください。</p>
+     <p class="afterclose__b">キャンセルをご希望の場合は、
+        <b>公式LINEのチャット</b>からお申し付けください。</p>`;
+}
+
 function render(res) {
   stopPolling();
 
@@ -110,6 +137,17 @@ function render(res) {
   }
 
   // 受付前。コースが入っていても、開始のときこくまでは進ませない
+  /* ★締切を過ぎていて、まだご署名が済んでいない方 */
+  if (res.closed_out) {
+    paintAfterClose(false);
+    paintClosed();
+    showScreen('screen-closed');
+    stopPolling();
+    return;
+  }
+  /* 締切後でも、ご署名が済んでいる方はそのまま進めます（上にお知らせを出します） */
+  paintAfterClose(!!res.closed && res.stage !== '完了');
+
   if (res.stage === '受付前') {
     startOpenCountdown(res.open_at);
     showScreen('screen-beforeopen');
@@ -916,6 +954,7 @@ function errorMessage(code) {
     confirm_required: '署名の確認は運営が行います。少しお待ちください。',
     unauthorized: 'この画面を開く権限がありません。LINEのボタンから開き直してください。',
     before_open: 'お申し込みの受付は、まだ始まっていません。開始しましたらLINEでお知らせします。',
+    closed: 'お申し込みの受付は終了しました。ご不明な点は公式LINEのチャットからお申し付けください。',
     email_required: 'メールアドレスをご入力ください。',
     email_invalid: 'メールアドレスの形をご確認ください。'
   };
@@ -1113,6 +1152,10 @@ function mockApi(action, body) {
     require_profile: withProfile,
     allow_self_sign: new URLSearchParams(location.search).get('selfsign') === '1',
 
+    /* ?closed=1 で「締切後」の見え方になります（?closed=out で受付終了の画面） */
+    closed: (function(){ var c=new URLSearchParams(location.search).get('closed'); return c==='1'||c==='out'; })(),
+    closed_out: new URLSearchParams(location.search).get('closed') === 'out',
+    close_at_text: '2026-09-24 23:59',
     /* ?mailok=1 で「もう確認ずみの方」の見え方になります */
     marks: { mail_ok: s.mail_ok || (new URLSearchParams(location.search).get('mailok') ? '2026/09/22 10:00' : ''), bank_name: s.holder || '', bank_date: s.paid_on || '',
              self_paid: s.self_paid ? '（申告あり）' : null,

@@ -11,7 +11,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="凛穏塾 3期">
 <meta name="theme-color" content="#07172c">
-<link rel="stylesheet" href="css/style.css?v=67">
+<link rel="stylesheet" href="css/style.css?v=68">
 </head>
 <body>
 
@@ -45,6 +45,16 @@
     <div class="loading__mark"></div>
     <p data-loading-msg>読み込んでいます…</p>
   </div>
+
+  <!-- ============ 受付は終了しました（3.5期の締切後・まだご署名がお済みでない方） ============
+       ★2026-09-24 とーるさんご要望。締切を過ぎたら、ご署名前の方はこの画面になります。 -->
+  <section id="screen-closed" class="screen card">
+    <h2 class="card__title">お申し込みの受付は終了しました</h2>
+    <div id="closed-body"></div>
+  </section>
+
+  <!-- ============ 締切後のお知らせ帯（ご署名が済んでいる方に出ます） ============ -->
+  <div id="after-close" class="afterclose" hidden></div>
 
   <!-- ============ uidなし ============ -->
   <section id="screen-nouid" class="screen card">
@@ -349,9 +359,9 @@
   </p>
 </footer>
 
-<script src="js/config.js?v=67"></script>
-<script src="js/legal.js?v=67"></script>
-<script src="js/common.js?v=67"></script>
-<script src="js/app.js?v=67"></script>
+<script src="js/config.js?v=68"></script>
+<script src="js/legal.js?v=68"></script>
+<script src="js/common.js?v=68"></script>
+<script src="js/app.js?v=68"></script>
 </body>
 </html>
