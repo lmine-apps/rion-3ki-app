@@ -94,6 +94,18 @@ function paintClosed() {
 function paintAfterClose(show) {
   const el = document.getElementById('after-close');
   if (!el) return;
+
+  /* その方だけのご案内（締切をのばした方など）。「|」で行を分けています */
+  const note = (STATE.close_note || '').trim();
+  if (note) {
+    const rows = note.split('|').map((x) => x.trim()).filter(Boolean);
+    el.hidden = false;
+    el.innerHTML =
+      `<p class="afterclose__t">${esc(rows[0] || '')}</p>`
+      + rows.slice(1).map((x) => `<p class="afterclose__b">${esc(x)}</p>`).join('');
+    return;
+  }
+
   if (!show) { el.hidden = true; el.innerHTML = ''; return; }
   el.hidden = false;
   el.innerHTML =
@@ -1156,6 +1168,10 @@ function mockApi(action, body) {
     closed: (function(){ var c=new URLSearchParams(location.search).get('closed'); return c==='1'||c==='out'; })(),
     closed_out: new URLSearchParams(location.search).get('closed') === 'out',
     close_at_text: '2026-09-24 23:59',
+    /* ?note=1 で「その方だけのご案内」の見え方になります */
+    close_note: new URLSearchParams(location.search).get('note') === '1'
+      ? 'お手続きは 9月25日（金）23:59 まで承ります|契約書へのご署名、お支払い、お振り込みのご連絡まで、この時刻までにお願いいたします。|キャンセルをご希望の場合は、公式LINEのチャットからお知らせください。'
+      : '',
     /* ?mailok=1 で「もう確認ずみの方」の見え方になります */
     marks: { mail_ok: s.mail_ok || (new URLSearchParams(location.search).get('mailok') ? '2026/09/22 10:00' : ''), bank_name: s.holder || '', bank_date: s.paid_on || '',
              self_paid: s.self_paid ? '（申告あり）' : null,
