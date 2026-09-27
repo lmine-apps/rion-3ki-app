@@ -77,6 +77,94 @@ function paintCourseName() {
  * 現在地（GASが返す stage）だけを見て画面を決める。
  * どの端末から入っても、スプシの進捗どおりの画面が開く。
  */
+/* ★2026-09-27 クーリングオフのお手続き。
+   ①まだ … ご案内と「はい、お願いします」のボタン
+   ②お申し出ずみ … 承った日時と、運営からご連絡する旨
+   ③返金ずみ … 完了のお知らせ */
+function paintCooling() {
+  const el = document.getElementById('cooling-body');
+  if (!el) return;
+  const c = STATE.cooling || {};
+
+  if (c.refunded) {
+    el.innerHTML =
+      `<h2 class="card__title">お手続きが完了しました</h2>
+       <p>クーリングオフのお手続きが完了いたしました。</p>
+       <dl class="kv">
+         <dt>お申し出</dt><dd>${esc(c.requested || '—')}</dd>
+         <dt>返金手続き</dt><dd>${esc(c.refunded)}</dd>
+       </dl>
+       <p class="note">ご返金の反映には、カード会社によって数日から1か月ほどかかることがあります。</p>
+       <p class="note">ご不明な点は、公式LINEのチャットからお気軽にお申し付けください。</p>
+       <button type="button" class="btn btn--ghost" data-act="cooling-back">もとの画面にもどる</button>`;
+    return;
+  }
+
+  if (c.requested) {
+    el.innerHTML =
+      `<h2 class="card__title">お申し出を承りました</h2>
+       <p>クーリングオフのお申し出を、${esc(c.requested)} に承りました。</p>
+       <p>このあとの<b>ご返金のお手続きは、運営にて進めております</b>。
+          完了しましたら、あらためて公式LINEからご連絡いたします。</p>
+       <p class="note">お手数をおかけしますが、少しお待ちください。
+          ご不明な点は、公式LINEのチャットからお申し付けください。</p>
+       <button type="button" class="btn btn--ghost" data-act="cooling-back">もとの画面にもどる</button>`;
+    return;
+  }
+
+  /* ご自身のお手続きの記録を、そのままお見せします */
+  const m = STATE.marks || {};
+  const rows = [['契約書のご署名', m.signed]];
+  if (m.pay1) rows.push([m.pay2 ? 'お支払い（1回目）' : 'お支払い', m.pay1]);
+  if (m.pay2) rows.push(['お支払い（2回目）', m.pay2]);
+  const kv = rows.filter((r) => r[1]).map(
+    (r) => `<dt>${esc(r[0])}</dt><dd>${esc(r[1])}</dd>`).join('');
+
+  el.innerHTML =
+    `<h2 class="card__title">クーリングオフのお手続き</h2>
+     <p>このたびは、ご検討いただきありがとうございました。</p>
+     ${kv ? `<p>${esc(STATE.name || '')}さまのお手続きは、下記のとおり記録されています。</p>
+            <dl class="kv">${kv}</dl>` : ''}
+     <p>下のボタンを押していただくと、<b>クーリングオフのお申し出として承ります</b>。
+        そのあとのご返金のお手続きは、運営にて進めます。</p>
+     <p class="note">押したあとの取り消しはこの画面からはできません。
+        お間違いの場合は、公式LINEのチャットからお知らせください。</p>
+     <button type="button" class="btn btn--primary" data-act="cooling-yes">はい、お願いします</button>
+     <p class="alert" id="cooling-error" hidden></p>
+     <button type="button" class="btn btn--ghost" data-act="cooling-back">もとの画面にもどる</button>`;
+}
+
+/* 基本の画面の下に置く、クーリングオフの入口。対象の方だけ出ます */
+function paintCoolingLink() {
+  const el = document.getElementById('cooling-link');
+  if (!el) return;
+  const c = STATE && STATE.cooling;
+  if (!c || !c.on) { el.hidden = true; el.innerHTML = ''; return; }
+
+  const label = c.requested
+    ? 'クーリングオフのお手続き状況を見る'
+    : 'クーリングオフをご希望の場合はこちら';
+  el.hidden = false;
+  el.innerHTML =
+    `<button type="button" class="coolink__btn" data-act="cooling-open">${esc(label)}</button>`;
+}
+
+async function coolingYes(btn) {
+  const ok = await askConfirm(btn,
+    'クーリングオフのお申し出として承ります。よろしいですか。', 'はい、お願いします');
+  if (!ok) return;
+  const err = document.getElementById('cooling-error');
+  if (err) err.hidden = true;
+  try {
+    busy(btn, true, '送信');
+    const res = await api('cooling_request', { uid: getUid() });
+    if (res && res.ok) { render(res); return; }
+    if (err) { err.textContent = errorMessage(res && res.error); err.hidden = false; }
+  } catch (e) {
+    if (err) { err.textContent = '通信できませんでした。少ししてからもう一度お試しください。'; err.hidden = false; }
+  } finally { busy(btn, false); }
+}
+
 /* ★2026-09-24 お申し込みの締切まわり。
    ・まだご署名が済んでいない方 … 「受付終了」の画面
    ・ご署名が済んでいる方       … いつもの画面＋上にお知らせ帯 */
@@ -149,6 +237,10 @@ function render(res) {
   }
 
   // 受付前。コースが入っていても、開始のときこくまでは進ませない
+  /* ★クーリングオフの対象の方。基本の画面はそのまま出して、
+     いちばん下に入口のボタンだけ置きます（タップでお手続きの画面へ） */
+  paintCoolingLink();
+
   /* ★締切を過ぎていて、まだご署名が済んでいない方 */
   if (res.closed_out) {
     paintAfterClose(false);
@@ -764,6 +856,15 @@ document.addEventListener('click', async (ev) => {
   if (act === 'declare-paid') return declarePaid(btn);
   if (act === 'reset-pay')    return resetPayment(btn);
   if (act === 'reload')       return boot();
+  if (act === 'cooling-yes')  return coolingYes(btn);
+  if (act === 'cooling-open') {
+    paintCooling();
+    showScreen('screen-cooling');
+    stopPolling();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    return;
+  }
+  if (act === 'cooling-back') return render(STATE);
 
   // メールアドレスの確認・登録
   if (act === 'mail-ok') {
@@ -967,6 +1068,7 @@ function errorMessage(code) {
     unauthorized: 'この画面を開く権限がありません。LINEのボタンから開き直してください。',
     before_open: 'お申し込みの受付は、まだ始まっていません。開始しましたらLINEでお知らせします。',
     closed: 'お申し込みの受付は終了しました。ご不明な点は公式LINEのチャットからお申し付けください。',
+    not_cooling: 'この画面のお手続きの対象ではありません。公式LINEのチャットからお問い合わせください。',
     email_required: 'メールアドレスをご入力ください。',
     email_invalid: 'メールアドレスの形をご確認ください。'
   };
@@ -1164,6 +1266,15 @@ function mockApi(action, body) {
     require_profile: withProfile,
     allow_self_sign: new URLSearchParams(location.search).get('selfsign') === '1',
 
+    /* ?cool=1 お申し出まえ ／ ?cool=req 申し出ずみ ／ ?cool=done 返金ずみ */
+    cooling: (function () {
+      const v = new URLSearchParams(location.search).get('cool');
+      if (!v) return null;
+      return { on: true,
+               requested: (v === 'req' || v === 'done') ? '2026/09/27 10:00' : null,
+               status: (v === 'done') ? '完了' : '未',
+               refunded: (v === 'done') ? '2026/09/27 15:30' : null };
+    })(),
     /* ?closed=1 で「締切後」の見え方になります（?closed=out で受付終了の画面） */
     closed: (function(){ var c=new URLSearchParams(location.search).get('closed'); return c==='1'||c==='out'; })(),
     closed_out: new URLSearchParams(location.search).get('closed') === 'out',
@@ -1175,6 +1286,9 @@ function mockApi(action, body) {
     /* ?mailok=1 で「もう確認ずみの方」の見え方になります */
     marks: { mail_ok: s.mail_ok || (new URLSearchParams(location.search).get('mailok') ? '2026/09/22 10:00' : ''), bank_name: s.holder || '', bank_date: s.paid_on || '',
              self_paid: s.self_paid ? '（申告あり）' : null,
+             signed: s.signed ? '2026/09/23 08:51' : null,
+             pay1:   s.pay1 || s.done ? '2026/09/23 12:12' : null,
+             pay2:   s.pay2 ? '2026/09/23 21:19' : null,
              second: s.second || '', due_amount: '' }
   });
 }

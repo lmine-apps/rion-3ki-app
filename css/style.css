@@ -1792,3 +1792,62 @@ body.is-locked { overflow: hidden; }
 }
 .afterclose__b:last-child { margin-bottom: 0; }
 .afterclose__b b { color: var(--navy-800); font-weight: 700; }
+
+
+/* ============================================================
+   小さな一覧（クーリングオフの日時など）
+   ★2026-09-27
+   ============================================================ */
+.kv {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 14px;
+  margin: 14px 0;
+  padding: 13px 15px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--sky-100);
+}
+.kv dt {
+  margin: 0;
+  color: var(--navy-800);
+  font-size: calc(12.5px * var(--fs-scale));
+  font-weight: 700;
+  white-space: nowrap;
+}
+.kv dd {
+  margin: 0;
+  color: var(--text);
+  font-size: calc(13px * var(--fs-scale));
+  font-variant-numeric: tabular-nums;
+}
+
+
+/* ============================================================
+   クーリングオフの入口（対象の方だけ、画面のいちばん下に出ます）
+   ★2026-09-27 とーるさんご要望。目立たせすぎない置き方にしています。
+   ============================================================ */
+.coolink {
+  margin: 26px 0 4px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+  text-align: center;
+}
+.coolink__btn {
+  padding: 9px 18px;
+  border: 1px solid var(--line);
+  border-radius: 99px;
+  background: transparent;
+  color: var(--text-mid);
+  font-family: inherit;
+  font-size: calc(12.5px * var(--fs-scale));
+  line-height: 1.6;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.coolink__btn:hover {
+  border-color: var(--sky-400);
+  background: var(--sky-100);
+  color: var(--navy-800);
+}
