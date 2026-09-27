@@ -295,6 +295,30 @@
   }
   :root[data-theme="dark"] .foot-logo{background-image:url("assets/logo-mark-light-160.png")}
   @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+  /* ===== 🧊 クーリングオフ ===== */
+  .coolwrap{max-height:62vh;overflow:auto;margin:.2rem 0 .6rem}
+  .coolrow{padding:.6rem .7rem;border:1px solid var(--line);border-radius:10px;
+           margin-bottom:.5rem;background:#fff}
+  .coolrow.done{background:#eaf7ef;border-color:#bfe0cb}
+  .coolrow__top{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;margin-bottom:.25rem}
+  .coolrow__name{font-weight:700}
+  .coolrow__facts{display:flex;flex-wrap:wrap;gap:.1rem .9rem;
+                  font-size:.78rem;color:var(--ink-faint);margin-bottom:.4rem}
+  .coolrow__acts{display:flex;flex-wrap:wrap;gap:.4rem}
+  .pill{font-size:.71rem;font-weight:700;padding:.1rem .6rem;border-radius:999px;white-space:nowrap}
+  .pill.wait{background:#fdf0e3;color:#8a5a20}
+  .pill.req{background:#fdecea;color:#8f3028}
+  .pill.fin{background:#e4f3ea;color:#1c7a4b}
+  .coolempty{padding:1rem;text-align:center;color:var(--ink-faint);font-size:.85rem}
+  .coolpick{margin-top:.4rem;padding-top:.7rem;border-top:1px solid var(--line)}
+  .coolpick input[type=search]{width:100%;padding:.5rem .7rem;border:1px solid var(--line);
+    border-radius:8px;font:inherit;margin-bottom:.4rem}
+  .coolcand{max-height:34vh;overflow:auto}
+  .coolcand button{display:block;width:100%;text-align:left;padding:.45rem .6rem;
+    border:1px solid var(--line);border-radius:8px;background:#fff;margin-bottom:.3rem;
+    font:inherit;cursor:pointer}
+  .coolcand button:hover{background:#eef6fb}
+  .coolcand .sub{font-size:.76rem;color:var(--ink-faint)}
 </style>
 </head>
 <body>
@@ -383,6 +407,7 @@
     </div>
     <input type="search" class="search" id="q" placeholder="お名前でさがす">
     <button type="button" class="btn ghost" id="btn-invite">ご案内を送る</button>
+    <button type="button" class="btn ghost" id="btn-cool">🧊 クーリングオフ</button>
   </div>
 
   <!-- 3.5期のときだけ出る、無料特別講義の絞り込み（2026-09-13 とーるさんご要望） -->
@@ -996,7 +1021,126 @@ function card(p) {
     + '</div>';
 }
 
+/* ---------- 🧊 クーリングオフ ----------
+   ★2026-09-27 とーるさんご要望。対象者を選び、申し出・返金処理をここで見ます。 */
+let coolData = null;
+
+async function openCool() {
+  const el = modal(
+    '<h3>🧊 クーリングオフ</h3>'
+    + '<p class="lead">対象にした方のアプリに、いつもの画面の下へ'
+    + '「クーリングオフをご希望の場合はこちら」の入口が出ます。</p>'
+    + '<div id="cool-body" class="coolempty">読み込んでいます…</div>'
+    + '<div class="row end"><button type="button" class="btn ghost" data-close>とじる</button></div>');
+  await loadCool();
+}
+
+async function loadCool() {
+  const box = document.getElementById('cool-body');
+  if (!box) return;
+  try {
+    const r = await api('admin_cool_list');
+    if (!r || !r.ok) { box.innerHTML = '<div class="coolempty">読み込めませんでした</div>'; return; }
+    coolData = r;
+    paintCool();
+  } catch (e) {
+    box.innerHTML = '<div class="coolempty">通信できませんでした</div>';
+  }
+}
+
+function paintCool() {
+  const box = document.getElementById('cool-body');
+  if (!box || !coolData) return;
+  const targets = coolData.targets || [];
+  const rows = (coolData.rows || []).filter((x) => targets.indexOf(x.uid) > -1);
+
+  const list = rows.length ? rows.map((x) => {
+    const done = !!x.done;
+    const tag = done ? '<span class="pill fin">返金ずみ</span>'
+              : x.req ? '<span class="pill req">申し出あり</span>'
+                      : '<span class="pill wait">お待ち中</span>';
+    const facts = [
+      x.sign ? '署名 ' + esc(x.sign) : '',
+      x.pay1 ? '決済1 ' + esc(x.pay1) : '',
+      x.pay2 ? '決済2 ' + esc(x.pay2) : '',
+      x.req  ? 'お申し出 ' + esc(x.req) : '',
+      x.done ? '返金 ' + esc(x.done) : ''
+    ].filter(Boolean).map((t) => '<span>' + t + '</span>').join('');
+    const acts = (done
+        ? '<button type="button" class="btn ghost" data-cool-undo="' + esc(x.uid) + '">返金を未に戻す</button>'
+        : '<button type="button" class="btn" data-cool-done="' + esc(x.uid) + '">返金処理した</button>')
+      + '<button type="button" class="btn ghost" data-cool-off="' + esc(x.uid) + '">対象から外す</button>';
+    return '<div class="coolrow' + (done ? ' done' : '') + '">'
+      + '<div class="coolrow__top"><span class="coolrow__name">' + esc(x.name || x.sns || x.uid)
+      + '</span><span class="tag plan">' + esc(x.plan || '—') + '</span>' + tag + '</div>'
+      + '<div class="coolrow__facts">' + facts + '</div>'
+      + '<div class="coolrow__acts">' + acts + '</div></div>';
+  }).join('') : '<div class="coolempty">いまは対象の方がいません</div>';
+
+  box.className = '';
+  box.innerHTML =
+    '<div class="coolwrap">' + list + '</div>'
+    + '<div class="coolpick">'
+    + '<p class="lead">対象にする方をさがす</p>'
+    + '<input type="search" id="cool-q" placeholder="お名前・LINE表示名でさがす" autocomplete="off">'
+    + '<div class="coolcand" id="cool-cand"></div></div>';
+
+  const q = document.getElementById('cool-q');
+  if (q) { q.oninput = paintCoolCand; }
+  paintCoolCand();
+}
+
+function paintCoolCand() {
+  const box = document.getElementById('cool-cand');
+  if (!box) return;
+  const q = (document.getElementById('cool-q') || {}).value || '';
+  const key = q.trim().toLowerCase();
+  const targets = (coolData && coolData.targets) || [];
+  let people = (data && data.people) || [];
+  people = people.filter((p) => targets.indexOf(p.uid) === -1);
+  if (key) {
+    people = people.filter((p) =>
+      (p.name || '').toLowerCase().indexOf(key) > -1 || (p.uid || '').indexOf(key) > -1);
+  } else {
+    people = people.filter((p) => p.stage === '完了');
+  }
+  if (!people.length) {
+    box.innerHTML = '<div class="coolempty">見つかりません</div>';
+    return;
+  }
+  box.innerHTML = people.slice(0, 30).map((p) =>
+    '<button type="button" data-cool-add="' + esc(p.uid) + '">' + esc(p.name)
+    + '<br><span class="sub">' + esc(p.plan) + '／' + esc(p.stage) + '</span></button>').join('');
+}
+
+async function coolCall(action, body, label) {
+  const box = document.getElementById('cool-body');
+  if (box) { box.className = 'coolempty'; box.innerHTML = label + '…'; }
+  try {
+    const r = await api(action, body);
+    if (r && r.ok) { coolData = r; paintCool(); toast(label + 'ました'); return; }
+    toast('うまくいきませんでした', true);
+    paintCool();
+  } catch (e) {
+    toast('通信できませんでした', true);
+    paintCool();
+  }
+}
+
+document.addEventListener('click', (e) => {
+  const add  = e.target.closest('[data-cool-add]');
+  const off  = e.target.closest('[data-cool-off]');
+  const done = e.target.closest('[data-cool-done]');
+  const undo = e.target.closest('[data-cool-undo]');
+  if (add)  coolCall('admin_cool_add',    { uid: add.dataset.coolAdd },  '対象にし');
+  if (off)  coolCall('admin_cool_remove', { uid: off.dataset.coolOff },  '対象から外し');
+  if (done) coolCall('admin_cool_refund', { uid: done.dataset.coolDone, done: 'true' },  '返金処理を完了にし');
+  if (undo) coolCall('admin_cool_refund', { uid: undo.dataset.coolUndo, done: 'false' }, '未に戻し');
+});
+
 /* ---------- 入金確認（誤タップ防止つき） ---------- */
+document.getElementById('btn-cool').addEventListener('click', openCool);
+
 document.addEventListener('click', (e) => {
   const b = e.target.closest('[data-confirm]');
   if (b) askConfirm(b.dataset.confirm);
