@@ -241,6 +241,16 @@ function render(res) {
      いちばん下に入口のボタンだけ置きます（タップでお手続きの画面へ） */
   paintCoolingLink();
 
+  /* ?open=cool … 見本をお見せするとき用。最初から手続きの画面を出します */
+  if (!COOL_SHOWN && res.cooling && res.cooling.on
+      && new URLSearchParams(location.search).get('open') === 'cool') {
+    COOL_SHOWN = true;
+    paintCooling();
+    showScreen('screen-cooling');
+    stopPolling();
+    return;
+  }
+
   /* ★締切を過ぎていて、まだご署名が済んでいない方 */
   if (res.closed_out) {
     paintAfterClose(false);
@@ -757,6 +767,7 @@ function paintDone() {
    ・空の方             … その場でご登録いただく
    保存先はシートのD列（メールアドレス）です。列は増やしていません。 */
 let MAIL_EDIT = false;
+let COOL_SHOWN = false;   /* ?open=cool を一度だけ効かせる */
 
 function paintMail(msg) {
   const el = document.getElementById('mail-body');

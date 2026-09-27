@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>クーリングオフ画面のサンプル｜凛穏塾</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;padding:0 0 40px;background:#eef3f7;color:#172b3d;
+       font-family:"Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif;
+       font-size:14px;line-height:1.8}
+  header{padding:22px 16px 20px;background:linear-gradient(145deg,#07172c,#12345a);
+         color:#fff;text-align:center}
+  h1{margin:0 0 6px;font-family:"Yu Mincho","Hiragino Mincho ProN",serif;
+     font-size:20px;font-weight:500;letter-spacing:.08em}
+  header p{margin:0;color:rgba(255,255,255,.72);font-size:12px;line-height:1.7}
+  .wrap{max-width:1180px;margin:0 auto;padding:18px 12px}
+  .note{margin:0 auto 18px;max-width:900px;padding:13px 16px;border-radius:11px;
+        background:#e5f5fd;color:#12345a;font-size:12.5px;line-height:1.95}
+  .note b{color:#b04a38}
+  .row{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+  .col{flex:1 1 270px;max-width:320px}
+  .cap{display:flex;align-items:center;gap:8px;margin:0 0 4px;
+       font-size:13.5px;font-weight:700;color:#12345a}
+  .n{display:inline-flex;align-items:center;justify-content:center;
+     width:22px;height:22px;border-radius:99px;background:#12345a;color:#fff;
+     font-family:Georgia,serif;font-size:12px;flex:0 0 auto}
+  .desc{margin:0 0 8px;color:#61768a;font-size:11.5px;line-height:1.75;min-height:3.4em}
+  .phone{border:1px solid #cddde9;border-radius:14px;overflow:hidden;background:#fff;
+         box-shadow:0 6px 20px rgba(7,23,44,.09)}
+  iframe{display:block;width:100%;height:700px;border:0}
+  .foot{margin:22px auto 0;max-width:900px;padding:0 6px;color:#61768a;font-size:11.5px;
+        line-height:1.9;text-align:center}
+</style>
+</head>
+<body>
+<header>
+  <h1>クーリングオフ画面のサンプル</h1>
+  <p>凛穏塾 お申し込みアプリ／ご本人に見える画面です</p>
+</header>
+<div class="wrap">
+  <p class="note">
+    ・<b>対象のお客様おひとりにだけ</b>、入口のボタンが出ます。ほかの方の画面は今までどおりです。<br>
+    ・お客様へ<b>LINEは自動で送りません</b>。ご連絡は運営から手でお願いします。<br>
+    ・お申し出があると、運営アプリに「返金処理してください」の通知が届き、
+    スプレッドシートの <b>🧊 クーリングオフ</b> に1行できます。<br>
+    ・返金（Stripe）がすんだら、そのシートの「返金処理」を<b>【完了】</b>に切り替えてください。
+    ④の画面に変わります。
+  </p>
+  <div class="row">
+    <div class="col">
+      <p class="cap"><span class="n">1</span>いつもの画面</p>
+      <p class="desc">ふだんの完了画面です。いちばん下に、目立たせすぎない入口がひとつ増えます。</p>
+      <div class="phone"><iframe src="https://apps.l-mine.com/rion-3ki-app/index.html?mock=1&uid=SAMPLE&at=done&plan=3.5%E6%9C%9F%E7%94%9F&cool=1" title="① いつもの画面" loading="lazy"></iframe></div>
+    </div>
+    <div class="col">
+      <p class="cap"><span class="n">2</span>入口をタップしたところ</p>
+      <p class="desc">ご本人の「契約書のご署名」「お支払い」の日付が出ます。〔はい、お願いします〕を押すと、確認のあと承ります。</p>
+      <div class="phone"><iframe src="https://apps.l-mine.com/rion-3ki-app/index.html?mock=1&uid=SAMPLE&at=done&plan=3.5%E6%9C%9F%E7%94%9F&cool=1&open=cool" title="② 入口をタップしたところ" loading="lazy"></iframe></div>
+    </div>
+    <div class="col">
+      <p class="cap"><span class="n">3</span>お申し出のあと</p>
+      <p class="desc">承った日時が出ます。運営の返金処理まちの状態です。</p>
+      <div class="phone"><iframe src="https://apps.l-mine.com/rion-3ki-app/index.html?mock=1&uid=SAMPLE&at=done&plan=3.5%E6%9C%9F%E7%94%9F&cool=req&open=cool" title="③ お申し出のあと" loading="lazy"></iframe></div>
+    </div>
+    <div class="col">
+      <p class="cap"><span class="n">4</span>返金処理を「完了」にしたあと</p>
+      <p class="desc">シートの「返金処理」を【完了】に切り替えると、この画面に変わります。</p>
+      <div class="phone"><iframe src="https://apps.l-mine.com/rion-3ki-app/index.html?mock=1&uid=SAMPLE&at=done&plan=3.5%E6%9C%9F%E7%94%9F&cool=done&open=cool" title="④ 返金処理を「完了」にしたあと" loading="lazy"></iframe></div>
+    </div>
+  </div>
+  <p class="foot">
+    これは見本用の表示です。実際のお客様の情報は出していません。<br>
+    このページは関係者だけでご覧ください。
+  </p>
+</div>
+</body>
+</html>
