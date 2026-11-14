@@ -48,6 +48,14 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   STATE.uid = pickUid();
+
+  // 公式LINEのボタン以外から開かれたとき（?uid= が無いとき）は、ご案内だけ出します。
+  //   ?mock=1 のときは確認用なので通します。
+  if (CONFIG.REQUIRE_UID && !STATE.uid && Q.get('mock') !== '1') {
+    paintNoUid();
+    return showScreen('screen-nouid');
+  }
+
   load();
 });
 
@@ -59,6 +67,37 @@ function pickUid() {
     return q;
   }
   try { return s(localStorage.getItem(CONFIG.UID_KEY)); } catch (ignore) { return ''; }
+}
+
+/** 「公式LINEからお開きください」の画面。LINEのURLがあればボタンも出します */
+function paintNoUid() {
+  var box = byId('nouid-line');
+  if (!box) return;
+  if (CONFIG.LINE_URL) {
+    box.innerHTML = '<a class="btn" href="' + esc(CONFIG.LINE_URL) +
+      '" target="_blank" rel="noopener">凛穏塾の公式LINEをひらく</a>';
+    box.hidden = false;
+  } else {
+    box.hidden = true;
+  }
+}
+
+/* ============================================================
+ *  Googleマップ
+ * ========================================================== */
+
+/** config に map: があればそれを、無ければ会場名＋住所から作ります */
+function mapUrl(v) {
+  if (!v) return '';
+  if (v.map) return v.map;
+  var q = (s(v.name) + ' ' + s(v.address)).trim();
+  return q ? 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q) : '';
+}
+
+/** 「地図を見る」の小さなリンク */
+function mapLink(v) {
+  var u = mapUrl(v);
+  return u ? '<a class="maplink" href="' + esc(u) + '" target="_blank" rel="noopener">地図を見る</a>' : '';
 }
 
 async function load() {
@@ -149,7 +188,8 @@ function paintStatic() {
     var p = ps[k];
     byId('info-' + k).innerHTML =
       '<div><dt>会場</dt><dd>' + esc(p.venue.name) +
-        '<small>' + esc(p.venue.address) + (p.venue.note ? '　' + esc(p.venue.note) : '') + '</small></dd></div>' +
+        '<small>' + esc(p.venue.address) + (p.venue.note ? '　' + esc(p.venue.note) : '') +
+        '　' + mapLink(p.venue) + '</small></dd></div>' +
       '<div><dt>時間</dt><dd>' + esc(p.time || '—') +
         (p.reception ? '<small>' + esc(p.reception) + '</small>' : '') + '</dd></div>';
 
@@ -160,7 +200,7 @@ function paintStatic() {
 }
 
 function venueSmall(v) {
-  return v && v.name ? '<small>' + esc(v.name) + '</small>' : '';
+  return v && v.name ? '<small>' + esc(v.name) + '　' + mapLink(v) + '</small>' : '';
 }
 
 /** 通信のあとで決まるところ（残席・押せるボタン） */
@@ -273,14 +313,16 @@ function goForm(part) {
     d.push('<p class="note">' + esc(p.note || '') + '</p>');
     d.push('<dl class="info">' +
       '<div><dt>第1部</dt><dd>' + esc(CONFIG.PARTS.part1.time) +
-        '<small>' + esc(CONFIG.PARTS.part1.venue.name) + '</small></dd></div>' +
+        '<small>' + esc(CONFIG.PARTS.part1.venue.name) + '　' +
+        mapLink(CONFIG.PARTS.part1.venue) + '</small></dd></div>' +
       '<div><dt>第2部</dt><dd>' + esc(CONFIG.PARTS.part2.time) +
-        '<small>' + esc(CONFIG.PARTS.part2.venue.name) + '</small></dd></div></dl>');
+        '<small>' + esc(CONFIG.PARTS.part2.venue.name) + '　' +
+        mapLink(CONFIG.PARTS.part2.venue) + '</small></dd></div></dl>');
   } else {
     d.push('<dl class="info">' +
       '<div><dt>日時</dt><dd>' + esc(CONFIG.EVENT.date) + '　' + esc(p.time) + '</dd></div>' +
       '<div><dt>会場</dt><dd>' + esc(p.venue.name) +
-        '<small>' + esc(p.venue.address) + '</small></dd></div></dl>');
+        '<small>' + esc(p.venue.address) + '　' + mapLink(p.venue) + '</small></dd></div></dl>');
   }
   byId('form-detail').innerHTML = d.join('');
 

@@ -2000,3 +2000,84 @@ body.is-locked { overflow: hidden; }
   border-radius: 50%;
   background: var(--sky-400);
 }
+
+/* ============================================================
+   卒業式｜地図リンク・LINEボタン・カレンダー登録（2026-11-14 追記）
+   ============================================================ */
+
+/* 「地図を見る」 */
+.maplink {
+  display: inline-block;
+  margin-left: .1em;
+  padding: 1px 9px 2px;
+  border: 1px solid rgba(7, 23, 44, .22);
+  border-radius: 999px;
+  font-size: .86em;
+  line-height: 1.5;
+  letter-spacing: .04em;
+  color: #07172c;
+  text-decoration: none;
+  white-space: nowrap;
+  vertical-align: baseline;
+  transition: background .2s ease, border-color .2s ease;
+}
+.maplink::before {
+  content: "";
+  display: inline-block;
+  width: .72em;
+  height: .72em;
+  margin-right: .35em;
+  vertical-align: -.03em;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z'/%3E%3C/svg%3E") center/contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+.maplink:hover,
+.maplink:focus-visible {
+  background: rgba(7, 23, 44, .06);
+  border-color: rgba(7, 23, 44, .4);
+}
+
+/* 「公式LINEからお開きください」の画面のボタン */
+#nouid-line { margin-top: 4px; }
+
+/* カレンダー登録 */
+.calbox {
+  margin: 0 0 18px;
+  padding: 20px 20px 22px;
+  border: 1px solid rgba(7, 23, 44, .12);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .6);
+}
+.calbox + .calbox { margin-top: 16px; }
+.calbox__name {
+  font-family: var(--serif);
+  font-size: 1.06rem;
+  letter-spacing: .06em;
+  margin-bottom: 8px;
+}
+.calbox__when {
+  font-size: .95rem;
+  letter-spacing: .04em;
+  margin-bottom: 2px;
+}
+.calbox__where {
+  font-size: .86rem;
+  line-height: 1.7;
+  color: rgba(7, 23, 44, .62);
+  margin-bottom: 14px;
+}
+.calbox .btn { margin-bottom: 8px; }
+.calbox .btn:last-child { margin-bottom: 0; }
+
+.calall { margin-top: 2px; }
+.linkbtn {
+  border: 0;
+  padding: 0;
+  background: none;
+  font: inherit;
+  color: #07172c;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
