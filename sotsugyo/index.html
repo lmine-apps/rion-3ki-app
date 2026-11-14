@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>卒業式のご案内｜凛穏塾 3期生</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-title" content="凛穏塾 卒業式">
+<meta name="theme-color" content="#07172c">
+<link rel="stylesheet" href="css/style.css?v=1">
+</head>
+<body class="js-fade">
+
+<!-- 受付開始の前なのに、確認のために開けているときの帯 -->
+<div id="openbar" class="testbar testbar--gate" hidden>
+  <b>🚪 受付テスト中</b>　受付開始（<span data-open-at>—</span>）の前ですが、確認のために開いています。
+</div>
+
+<header class="head">
+  <div class="head__inner">
+    <p class="kicker" data-ev="kicker">RION JUKU / GRADUATION</p>
+    <h1 class="head__title" data-ev="name">凛穏塾 3期生 卒業式</h1>
+    <p class="head__sub" data-ev="date">—</p>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <div class="fontsize">
+    <span class="fontsize__label">文字サイズ</span>
+    <button type="button" data-fs="normal">中</button>
+    <button type="button" data-fs="large">大</button>
+  </div>
+
+  <div id="loading" class="loading">
+    <div class="loading__mark"></div>
+    <p>読み込んでいます…</p>
+  </div>
+
+  <!-- ============================================================
+       画面1｜ご案内と、参加される部を選ぶところ
+       ============================================================ -->
+  <section id="screen-lp" class="screen">
+
+    <!-- ごあいさつ（config.js の INTRO.lead が入ります） -->
+    <div class="card" id="box-intro" hidden data-fade>
+      <div id="intro-body"></div>
+    </div>
+
+    <!-- 開催概要 -->
+    <div class="card" data-fade>
+      <h2 class="card__title">開催のご案内</h2>
+      <p class="note" id="target-note"></p>
+      <dl class="info" id="info-main"></dl>
+    </div>
+
+    <!-- 第1部 -->
+    <div class="card" data-fade>
+      <h2 class="card__title">第1部</h2>
+      <div class="plan" id="plan-part1"></div>
+      <dl class="info" id="info-part1"></dl>
+      <div id="items-part1"></div>
+    </div>
+
+    <!-- 第2部 -->
+    <div class="card" data-fade>
+      <h2 class="card__title">第2部</h2>
+      <div class="plan" id="plan-part2"></div>
+      <dl class="info" id="info-part2"></dl>
+      <div id="items-part2"></div>
+    </div>
+
+    <!-- お申し込み -->
+    <div class="card" data-fade>
+      <h2 class="card__title">お申し込み</h2>
+
+      <!-- 募集前 -->
+      <div id="gate-before" hidden>
+        <p class="note" id="before-note"></p>
+        <div class="opencd" aria-hidden="true">
+          <span class="opencd__k">受付開始まで</span>
+          <div class="opencd__row">
+            <span class="opencd__u"><b data-oc="d">--</b><i>日</i></span>
+            <span class="opencd__s">:</span>
+            <span class="opencd__u"><b data-oc="h">--</b><i>時間</i></span>
+            <span class="opencd__s">:</span>
+            <span class="opencd__u"><b data-oc="m">--</b><i>分</i></span>
+            <span class="opencd__s">:</span>
+            <span class="opencd__u"><b data-oc="s">--</b><i>秒</i></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 受付中 -->
+      <div id="gate-open" hidden>
+        <p class="note" id="capacity-note"></p>
+        <div class="payopts" id="pick-options"></div>
+        <p class="pickhint">ご参加の部をお選びください。<b>この時点ではまだお支払いになりません。</b></p>
+      </div>
+
+      <!-- 満席 -->
+      <div id="gate-soldout" hidden>
+        <p class="alert" id="soldout-note"></p>
+      </div>
+
+      <!-- 締切後 -->
+      <div id="gate-closed" hidden>
+        <p class="alert" id="closed-note"></p>
+      </div>
+    </div>
+
+    <!-- キャンセル・返金 -->
+    <div class="card" id="box-cancel" hidden data-fade>
+      <h2 class="card__title">お取り消しについて</h2>
+      <ul class="lines" id="cancel-body"></ul>
+    </div>
+
+    <!-- 当日のご案内 -->
+    <div class="card" id="box-notice" hidden data-fade>
+      <h2 class="card__title" id="notice-title">当日のご案内</h2>
+      <ul class="lines" id="notice-body"></ul>
+    </div>
+
+    <!-- みこ先生からのお言葉 -->
+    <div class="card" id="box-message" hidden data-fade>
+      <div class="msg" id="message-body"></div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       画面2｜お名前をいただいて、決済ページへ
+       ============================================================ -->
+  <section id="screen-form" class="screen">
+    <div class="card">
+      <h2 class="card__title">お申し込みの確認</h2>
+
+      <div class="picked" id="form-picked"></div>
+      <div id="form-detail"></div>
+
+      <form class="form" id="form-apply" autocomplete="on" novalidate>
+        <div class="field">
+          <label class="field__label" for="f-name">お名前<em>必須</em></label>
+          <input type="text" id="f-name" name="name" maxlength="40"
+                 autocomplete="name" placeholder="例）山田 花子" inputmode="text">
+          <span class="field__hint" id="name-reason"></span>
+        </div>
+        <p class="alert" id="form-error" hidden></p>
+        <button type="submit" class="btn" id="btn-go">お支払いに進む</button>
+        <button type="button" class="btn btn--ghost" data-back>ひとつ前にもどる</button>
+      </form>
+
+      <!-- 銀行振込も出すとき（?bank=1 または show_bank: true） -->
+      <div id="form-payopts" hidden>
+        <h3 class="sub-title">お支払い方法</h3>
+        <div class="payopts" id="pay-options"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       画面3｜決済ページを開きました
+       ============================================================ -->
+  <section id="screen-go" class="screen">
+    <div class="card card--done">
+      <h2 class="card__title">決済ページを開きました</h2>
+      <p class="donelead">お手続きが終わりますと、凛穏塾の公式LINEにご連絡がまいります。</p>
+      <p class="note">画面が開かなかった場合は、下のボタンをもう一度お押しください。</p>
+      <div class="picked" id="go-picked"></div>
+      <a class="btn" id="btn-reopen" href="#" target="_blank" rel="noopener">決済ページをひらく</a>
+      <button type="button" class="btn btn--ghost" data-back>ご案内にもどる</button>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       画面4｜銀行振込のご案内
+       ============================================================ -->
+  <section id="screen-bank" class="screen">
+    <div class="card">
+      <h2 class="card__title">お振込先のご案内</h2>
+      <div class="picked" id="bank-picked"></div>
+      <p class="due">お振込の期限　<b id="bank-due">—</b></p>
+      <dl class="bank" id="bank-info"></dl>
+      <p class="note" id="bank-note"></p>
+
+      <h3 class="sub-title">お振り込みが済みましたら</h3>
+      <form class="form" id="form-bank">
+        <div class="field">
+          <label class="field__label" for="f-holder">お振込のお名義</label>
+          <input type="text" id="f-holder" maxlength="40" placeholder="例）ヤマダ ハナコ">
+        </div>
+        <div class="field">
+          <label class="field__label" for="f-paidon">お振込日</label>
+          <input type="date" id="f-paidon">
+        </div>
+        <p class="alert" id="bank-error" hidden></p>
+        <button type="submit" class="btn" id="btn-bank-report">振り込みましたとお知らせする</button>
+      </form>
+      <p class="note">ご入金を確認できましたら、公式LINEへご連絡をさしあげます。</p>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       画面5｜振込のご連絡をうけつけました
+       ============================================================ -->
+  <section id="screen-bank-done" class="screen">
+    <div class="card card--done">
+      <h2 class="card__title">お知らせをうけつけました</h2>
+      <p class="donelead">ご連絡ありがとうございます。<br>ご入金を確認できましたら、公式LINEへご連絡をさしあげます。</p>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       うまく開けなかったとき
+       ============================================================ -->
+  <section id="screen-nouid" class="screen">
+    <div class="card">
+      <h2 class="card__title">公式LINEからお開きください</h2>
+      <p class="note">このページは、凛穏塾の公式LINEのボタンからお開きいただく必要があります。<br>
+        お手数ですが、LINEのトーク画面にもどって、ご案内のボタンをもう一度お押しください。</p>
+    </div>
+  </section>
+
+  <section id="screen-maint" class="screen">
+    <div class="card">
+      <h2 class="card__title">ただいま準備中です</h2>
+      <p class="note" id="maint-note">少し経ってから、もう一度お開きください。</p>
+    </div>
+  </section>
+
+  <section id="screen-error" class="screen">
+    <div class="card">
+      <h2 class="card__title">うまく開けませんでした</h2>
+      <p class="note">通信の調子が悪いようです。少し経ってから、もう一度お開きください。</p>
+      <button type="button" class="btn" onclick="location.reload()">もう一度よみこむ</button>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <img class="foot__logo" src="assets/logo-light-320.png" alt="凛穏塾" width="54">
+  <p>凛穏塾</p>
+  <p class="foot__links">
+    <a id="link-tokusho" href="#" target="_blank" rel="noopener">特定商取引法に基づく表記</a>
+    <a id="link-privacy" href="#" target="_blank" rel="noopener">プライバシーポリシー</a>
+  </p>
+  <p id="foot-ver" style="opacity:.4"></p>
+</footer>
+
+<div class="waitbar" id="waitbar">お待ちください…</div>
+
+<script src="js/config.js?v=1"></script>
+<script src="js/app.js?v=1"></script>
+</body>
+</html>
