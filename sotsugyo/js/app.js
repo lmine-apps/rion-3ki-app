@@ -30,7 +30,8 @@ var STATE = {
   bank_days: 5,
   part: '',          // いま選ばれている部
   name: '',
-  pay_url: ''
+  pay_url: '',
+  mine: null          // この方のお申し込み状況（action=mine の答え）
 };
 
 /* ============================================================
@@ -41,6 +42,7 @@ document.addEventListener('DOMContentLoaded', function () {
   initFontSize();
   initFade();
   paintStatic();
+  bindDayButtons();
 
   if (CONFIG.MAINTENANCE) {
     byId('maint-note').textContent = CONFIG.MAINTENANCE_NOTE || byId('maint-note').textContent;
@@ -114,6 +116,22 @@ async function load() {
 
     byId('foot-ver').textContent = r.version || '';
     paintLp();
+
+    // お支払いが済んでいる方には、受付のご案内ではなく「当日のご案内」を出します
+    var mine = await loadMine();
+    if (mine && mine.paid) {
+      paintDay(mine);
+      return showScreen('screen-day');
+    }
+    // お振込をお待ちしている方には、振込先をもう一度お見せします
+    if (mine && mine.waiting) {
+      STATE.part = mine.waiting.part;
+      STATE.name = mine.name || '';
+      paintBank(mine.waiting);
+      paintBankReported(mine.waiting.reported);
+      return showScreen('screen-bank');
+    }
+
     showScreen('screen-lp');
 
     // 残席を黙って取り直します（ほかの方が申し込んだら数字が変わる）
@@ -452,6 +470,127 @@ function handleApiError(r) {
  *  画面4｜お振込先
  * ========================================================== */
 
+/* ============================================================
+ *  画面0｜当日のご案内（お支払いが済んだ方）
+ * ========================================================== */
+
+/** この方のお申し込み状況を聞きます。つながらなくても画面は止めません */
+async function loadMine() {
+  if (!STATE.uid) return null;
+  try {
+    var r = await api('mine', { uid: STATE.uid });
+    if (!r || !r.ok) return null;
+    STATE.mine = r;
+    return r;
+  } catch (ignore) {
+    return null;
+  }
+}
+
+function paintDay(m) {
+  var d = CONFIG.DAY || {};
+
+  byId('day-badge').textContent = d.badge || 'お申し込みを承っております';
+  byId('day-title').textContent = d.title || '当日のご案内';
+
+  // 冒頭の一文（お名前がわかっていれば、はじめに出します）
+  var lead = [];
+  if (m.name) lead.push(esc(m.name) + '　さま');
+  (d.lead || []).forEach(function (t) { lead.push(esc(t)); });
+  byId('day-lead').innerHTML = lead.length
+    ? lead.map(function (t) { return '<p class="donelead">' + t + '</p>'; }).join('')
+    : '';
+
+  // ご参加の部ごとに、日時と会場と地図
+  byId('day-parts').innerHTML = (m.parts || []).map(function (k) {
+    var p = CONFIG.PARTS[k];
+    if (!p) return '';
+    return '<div class="daypart">' +
+      '<div class="daypart__name">' + esc(p.label) + (p.title ? '　' + esc(p.title) : '') + '</div>' +
+      '<dl class="info">' +
+        '<div><dt>日時</dt><dd>' + esc(CONFIG.EVENT.date) + '　' + esc(p.time || '') +
+          (p.reception ? '<small>' + esc(p.reception) + '</small>' : '') + '</dd></div>' +
+        '<div><dt>会場</dt><dd>' + esc(p.venue.name) +
+          '<small>' + esc(p.venue.address) + (p.venue.note ? '　' + esc(p.venue.note) : '') +
+          '　' + mapLink(p.venue) + '</small></dd></div>' +
+      '</dl>' +
+      ((p.items && p.items.length)
+        ? '<ul class="lines">' + p.items.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>'
+        : '') +
+      '</div>';
+  }).join('');
+
+  // カレンダーに登録
+  var calBox = byId('day-cal');
+  if (d.show_calendar !== false && (m.parts || []).length) {
+    var q = (m.parts.length > 1) ? 'both' : m.parts[0];
+    calBox.innerHTML = '<a class="btn btn--ghost" href="calendar.html?part=' + esc(q) +
+      '" target="_blank" rel="noopener">カレンダーに登録する</a>';
+    calBox.hidden = false;
+  } else {
+    calBox.innerHTML = '';
+    calBox.hidden = true;
+  }
+
+  // 追加事項（かたまりごと）
+  var bc = byId('day-blocks-card');
+  var blocks = (d.blocks || []).filter(function (b) { return b && (b.title || (b.lines || []).length); });
+  if (blocks.length) {
+    bc.innerHTML = blocks.map(function (b) {
+      return (b.title ? '<h2 class="card__title">' + esc(b.title) + '</h2>' : '') +
+        '<ul class="lines">' + (b.lines || []).map(function (t) {
+          return '<li>' + esc(t) + '</li>';
+        }).join('') + '</ul>';
+    }).join('');
+    bc.hidden = false;
+  } else {
+    bc.hidden = true;
+  }
+
+  // 当日のご案内（持ち物・服装など）
+  paintLines('day-notice-card', 'day-notice-body', (CONFIG.NOTICE || {}).lines);
+  if (CONFIG.NOTICE && CONFIG.NOTICE.title) byId('day-notice-title').textContent = CONFIG.NOTICE.title;
+
+  // 片方だけお振込がまだのとき
+  var bk = byId('day-bank-card');
+  if (m.waiting) {
+    var wp = CONFIG.PARTS[m.waiting.part];
+    byId('day-bank-note').textContent =
+      (wp ? wp.label : '') + 'は、お振込の確認が取れておりません。お振込の期限は ' +
+      (m.waiting.deadline || '') + ' です。';
+    bk.hidden = false;
+  } else {
+    bk.hidden = true;
+  }
+
+  // 公式LINE
+  var lineBox = byId('day-line');
+  if (CONFIG.LINE_URL) {
+    lineBox.innerHTML = '<a class="btn btn--ghost" href="' + esc(CONFIG.LINE_URL) +
+      '" target="_blank" rel="noopener">凛穏塾の公式LINEをひらく</a>';
+    lineBox.hidden = false;
+  } else {
+    lineBox.innerHTML = '';
+    lineBox.hidden = true;
+  }
+
+  // 受付中で、まだ両部そろっていない方には、ご案内への戻り道を出します
+  byId('btn-day-lp').hidden = !(STATE.phase === 'open' && (m.parts || []).length < 2);
+}
+
+/** 「振り込みました」をもうお知らせいただいているとき */
+function paintBankReported(reported) {
+  var f = byId('form-bank');
+  if (!f) return;
+  if (reported) {
+    f.hidden = true;
+    var n = byId('bank-error');
+    if (n) { n.hidden = true; }
+  } else {
+    f.hidden = false;
+  }
+}
+
 function paintBank(r) {
   byId('bank-picked').innerHTML = pickedHtml(STATE.part);
   byId('bank-due').textContent = r.deadline || '';
@@ -465,6 +604,23 @@ function paintBank(r) {
     '<div><dt>口座番号</dt><dd>' + esc(b.number || '') + '</dd></div>' +
     '<div><dt>口座名義</dt><dd>' + esc(b.holder || '') + '</dd></div>';
   byId('bank-note').textContent = b.note || '';
+}
+
+/** 画面0のボタン */
+function bindDayButtons() {
+  var toLp = byId('btn-day-lp');
+  if (toLp) toLp.addEventListener('click', function () { showScreen('screen-lp'); });
+
+  var toBank = byId('btn-day-bank');
+  if (toBank) toBank.addEventListener('click', function () {
+    var m = STATE.mine;
+    if (!m || !m.waiting) return;
+    STATE.part = m.waiting.part;
+    STATE.name = m.name || '';
+    paintBank(m.waiting);
+    paintBankReported(m.waiting.reported);
+    showScreen('screen-bank');
+  });
 }
 
 async function sendBankReport() {
@@ -570,6 +726,22 @@ function mockApi(action, body) {
                both: CONFIG.PARTS.both.price },
       bank_days: 5
     });
+  }
+  if (action === 'mine') {
+    var w = (Q.get('mine') || '').toLowerCase();   // part1 / part2 / both / bank
+    if (!w) return Promise.resolve({ ok: true, paid: false, parts: [], rows: [], waiting: null });
+    if (w === 'bank') {
+      return Promise.resolve({
+        ok: true, name: '凛穏 花子', paid: false, parts: [], rows: [],
+        waiting: { part: 'part1', price: CONFIG.PARTS.part1.price, deadline: '（確認用の表示です）',
+                   reported: false,
+                   bank: { bank: '◯◯銀行', branch: '◯◯支店', type: '普通',
+                           number: '0000000', holder: 'カ）◯◯',
+                           note: '恐れ入りますが、振込手数料はご負担ください。' } }
+      });
+    }
+    var parts = (w === 'both') ? ['part1', 'part2'] : [w];
+    return Promise.resolve({ ok: true, name: '凛穏 花子', paid: true, parts: parts, rows: [], waiting: null });
   }
   if (action === 'hold') return Promise.resolve({ ok: true, part: body.part });
   if (action === 'bank') return Promise.resolve({

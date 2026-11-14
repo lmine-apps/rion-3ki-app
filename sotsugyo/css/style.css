@@ -2081,3 +2081,37 @@ body.is-locked { overflow: hidden; }
   text-underline-offset: 3px;
   cursor: pointer;
 }
+
+/* ---- 当日のご案内（画面0）------------------------------- */
+
+.daybadge {
+  display: inline-block;
+  margin: 0 auto 6px;
+  padding: 4px 14px 5px;
+  border-radius: 999px;
+  background: rgba(7, 23, 44, .07);
+  font-size: .78rem;
+  letter-spacing: .12em;
+  color: rgba(7, 23, 44, .72);
+}
+
+.daypart {
+  margin-top: 16px;
+  padding: 18px 18px 20px;
+  border: 1px solid rgba(7, 23, 44, .12);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .55);
+}
+.daypart + .daypart { margin-top: 14px; }
+.daypart__name {
+  font-family: var(--serif);
+  font-size: 1.04rem;
+  letter-spacing: .08em;
+  margin-bottom: 10px;
+}
+.daypart .info { margin: 0; }
+.daypart .lines { margin-top: 12px; }
+
+#day-cal { margin-top: 18px; }
+#day-line { margin-top: 10px; }
+#day-lead .donelead { margin-bottom: 6px; }

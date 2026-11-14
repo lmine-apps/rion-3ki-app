@@ -132,6 +132,40 @@
   </section>
 
   <!-- ============================================================
+       画面0｜当日のご案内（お支払いが済んだ方だけに出ます）
+       ============================================================ -->
+  <section id="screen-day" class="screen">
+
+    <div class="card">
+      <p class="daybadge" id="day-badge">お申し込みを承っております</p>
+      <h2 class="card__title" id="day-title">当日のご案内</h2>
+      <div id="day-lead"></div>
+      <div id="day-parts"></div>
+      <div id="day-cal"></div>
+    </div>
+
+    <div class="card" id="day-blocks-card" hidden data-fade></div>
+
+    <div class="card" id="day-notice-card" hidden data-fade>
+      <h2 class="card__title" id="day-notice-title">当日のご案内</h2>
+      <div id="day-notice-body"></div>
+    </div>
+
+    <div class="card" id="day-bank-card" hidden data-fade>
+      <h2 class="card__title">お振込をお待ちしております</h2>
+      <p class="note" id="day-bank-note"></p>
+      <button type="button" class="btn btn--ghost" id="btn-day-bank">お振込先をもう一度見る</button>
+    </div>
+
+    <div class="card" id="day-foot-card" data-fade>
+      <p class="note" id="day-contact">ご変更・お取り消し・ご不明な点は、凛穏塾の公式LINEへご連絡ください。</p>
+      <div id="day-line"></div>
+      <button type="button" class="btn btn--ghost" id="btn-day-lp" hidden>お申し込みのご案内を見る</button>
+    </div>
+
+  </section>
+
+  <!-- ============================================================
        画面2｜お名前をいただいて、決済ページへ
        ============================================================ -->
   <section id="screen-form" class="screen">
