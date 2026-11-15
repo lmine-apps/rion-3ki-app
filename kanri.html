@@ -191,7 +191,9 @@ var RECEPTIONS = [
       var s = r.summary || {};
       return [
         { l:'着金待ち', v:s.waiting || 0, cls:(s.waiting ? 'act' : '') },
-        { l:'未案内',   v:s.notInvited || 0, cls:(s.notInvited ? 'act' : '') },
+        /* 「未案内」は赤くしません。合格の方には運営が手でご連絡する流れに
+           なった（2026-08-23）ので、ここはずっと大きい数字のままです */
+        { l:'未案内',   v:s.notInvited || 0 },
         { l:'完了',     v:s.done || 0, cls:'done' },
         { l:'合計',     v:s.total || 0 }
       ];
@@ -204,8 +206,9 @@ var RECEPTIONS = [
       if (f.open_gate === false) return { t:'🚪 受付テスト中（期間外でも開いています）', cls:'warn' };
       return null;
     },
-    /* 対応が要るかどうか（カードの枠を赤くします） */
-    todo: function (r) { var s = r.summary || {}; return (s.waiting || 0) > 0 || (s.notInvited || 0) > 0; }
+    /* 対応が要るかどうか（カードの枠を赤くします）。
+       3期生でいま手を動かすのは「着金待ち」だけです */
+    todo: function (r) { var s = r.summary || {}; return (s.waiting || 0) > 0; }
   },
 
   {
