@@ -23,8 +23,11 @@
     https://apps.l-mine.com/rion-3ki-app/kanri.html
 
   管理キーは、ここで入れると受付ごとに（この端末が）覚えます。
-  2つの受付が同じキーなら、1回入れるだけで両方ひらきます。
-  キーが別々なら、2回入れてください。2回目以降は入力は要りません。
+  3期生と卒業式は同じ鍵にそろえました（2026-11-15）。
+  どちらか一方を開ける端末なら、何も入れずに両方ひらきます。
+  （鍵は 3期生GASの ADMIN_TOKEN ＝ 卒業式GASの ADMIN_KEY。
+    3期生の鍵はプロラインの外部プログラムの合言葉も兼ねているので、
+    そろえるときは卒業式のほうを3期生に合わせました。逆はできません）
 
   受付を足すときは、下の RECEPTIONS に1つ足すだけです。
 -->
@@ -266,18 +269,57 @@ function api(rc, key) {
   });
 }
 
-/* ---------- 読み込み ---------- */
+/* ---------- 読み込み ------------------------------------------------------
+   この端末が覚えている鍵を、ぜんぶ知っておきます。
+   ある受付の鍵がまだ無いときは、ほかの受付の鍵も試します。
+   3期生と卒業式は同じ鍵にそろえてあるので（2026-11-15）、
+   どちらか一方を開ける端末なら、何も入れずに両方ひらきます。
+------------------------------------------------------------------------- */
+function knownKeys() {
+  var out = [];
+  RECEPTIONS.forEach(function (rc) {
+    var v = localStorage.getItem(rc.store);
+    if (v && out.indexOf(v) < 0) out.push(v);
+  });
+  return out;
+}
+
+/* 「鍵がちがう」のお返事。受付ごとに言い方がちがいます
+   （3期生＝unauthorized ／ 卒業式＝admin_only） */
+var BADKEY = ['admin_only', 'unauthorized', 'forbidden', 'bad_token', 'ng_token'];
+
+/* 鍵を順に試します。通ったら { r, key }、ぜんぶ違ったら { err }（なければ null） */
+function tryKeys(rc, keys, i, last) {
+  i = i || 0;
+  if (i >= keys.length) return Promise.resolve(last ? { err: last } : null);
+  return api(rc, keys[i]).then(function (r) {
+    if (r && r.ok) return { r: r, key: keys[i] };
+    return tryKeys(rc, keys, i + 1, (r && r.error) || '読み込めませんでした');
+  }).catch(function (e) {
+    return tryKeys(rc, keys, i + 1, String(e.message || e));
+  });
+}
+
 function load(loud) {
+  var keys = MOCK ? ['MOCK'] : knownKeys();
   var jobs = RECEPTIONS.map(function (rc) {
-    var key = MOCK ? 'MOCK' : localStorage.getItem(rc.store);
-    if (!key) { ST[rc.id] = { status: 'nokey' }; return Promise.resolve(); }
+    var mine = MOCK ? 'MOCK' : localStorage.getItem(rc.store);
+    var tries = mine ? [mine] : keys;
+    if (!tries.length) { ST[rc.id] = { status: 'nokey' }; return Promise.resolve(); }
     if (!ST[rc.id] || ST[rc.id].status !== 'ok') ST[rc.id] = { status: 'loading' };
-    return api(rc, key).then(function (r) {
-      if (r && r.ok) ST[rc.id] = { status: 'ok', data: r };
-      else if (r && r.error === 'admin_only') ST[rc.id] = { status: 'badkey' };
-      else ST[rc.id] = { status: 'error', msg: (r && r.error) || '読み込めませんでした' };
-    }).catch(function (e) {
-      ST[rc.id] = { status: 'error', msg: String(e.message || e) };
+    return tryKeys(rc, tries).then(function (res) {
+      if (!res) {
+        ST[rc.id] = { status: (mine ? 'badkey' : 'nokey') };
+      } else if (res.err) {
+        /* 鍵がちがうだけなら「入れ直してください」、
+           それ以外（通信など）はそのまま見せます */
+        ST[rc.id] = (BADKEY.indexOf(res.err) >= 0)
+          ? { status: (mine ? 'badkey' : 'nokey') }
+          : { status: 'error', msg: res.err };
+      } else {
+        if (!MOCK) localStorage.setItem(rc.store, res.key);
+        ST[rc.id] = { status: 'ok', data: res.r };
+      }
     });
   });
   paint();
