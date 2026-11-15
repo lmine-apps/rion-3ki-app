@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>受付管理｜凛穏塾</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest-kanri.json">
+<meta name="theme-color" content="#12345a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="凛穏塾 受付管理">
+<!--
+  凛穏塾 受付管理 ― 入口
+  ------------------------------------------------------------------
+  2026-11-15 とーるさんご要望。
+  「管理ページのURLは1つにして、中で受付をえらべるように」
+
+  覚えていただくURLはここだけです。
+    https://apps.l-mine.com/rion-3ki-app/kanri.html
+
+  管理キーは、ここで入れると受付ごとに（この端末が）覚えます。
+  2つの受付が同じキーなら、1回入れるだけで両方ひらきます。
+  キーが別々なら、2回入れてください。2回目以降は入力は要りません。
+
+  受付を足すときは、下の RECEPTIONS に1つ足すだけです。
+-->
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  :root{
+    --ground:#eaf4fb; --card:#fff; --card-soft:#f4fafd;
+    --ink:#172b3d; --ink-soft:#5f7387; --ink-faint:#93a6b6;
+    --line:#d5e4ef; --navy:#12345a; --navy-dk:#0b203d; --sky:#62b7e7; --sky-soft:#e5f5fd;
+    --green:#1f7a5c; --green-soft:#e6f3ee; --warn:#c0503f; --warn-soft:#fdf0ed;
+    --amber:#a8722a; --amber-soft:#fdf3e3;
+    --shadow:0 10px 30px rgba(7,23,44,.13);
+    --serif:"Yu Mincho",YuMincho,"Hiragino Mincho ProN","Noto Serif JP",serif;
+    --sans:"Hiragino Kaku Gothic ProN","Yu Gothic UI","Yu Gothic",YuGothic,Meiryo,system-ui,sans-serif;
+    --num:Georgia,"Times New Roman",serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --ground:#07172a; --card:#0e2338; --card-soft:#142a41;
+      --ink:#e6eef5; --ink-soft:#9db1c3; --ink-faint:#6b8299;
+      --line:#22405c; --navy:#9fc9e8; --navy-dk:#cfe6f6; --sky:#62b7e7; --sky-soft:#10293d;
+      --green:#6cc39f; --green-soft:#102b23; --warn:#e0917f; --warn-soft:#33201c;
+      --amber:#d9a559; --amber-soft:#2e2314;
+      --shadow:0 10px 30px rgba(0,0,0,.5);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#07172a; --card:#0e2338; --card-soft:#142a41;
+    --ink:#e6eef5; --ink-soft:#9db1c3; --ink-faint:#6b8299;
+    --line:#22405c; --navy:#9fc9e8; --navy-dk:#cfe6f6; --sky:#62b7e7; --sky-soft:#10293d;
+    --green:#6cc39f; --green-soft:#102b23; --warn:#e0917f; --warn-soft:#33201c;
+    --amber:#d9a559; --amber-soft:#2e2314;
+    --shadow:0 10px 30px rgba(0,0,0,.5);
+  }
+
+  body{background:var(--ground);color:var(--ink);font-family:var(--sans);line-height:1.75;font-size:15px}
+  button,input{font-family:inherit;-webkit-tap-highlight-color:transparent}
+  [hidden]{display:none !important}
+
+  .head{background:linear-gradient(160deg,var(--navy-dk),var(--navy));color:#fff}
+  :root:not([data-theme="light"]) .head,:root[data-theme="dark"] .head{background:linear-gradient(160deg,#061626,#12385c)}
+  .head__in{max-width:760px;margin:0 auto;padding:.9rem 1rem 1rem;display:flex;align-items:center;gap:.8rem;flex-wrap:wrap}
+  .head__t{display:flex;flex-direction:column;margin-right:auto}
+  .head__k{font-size:.62rem;letter-spacing:.3em;color:var(--sky)}
+  .head__n{font-family:var(--serif);font-size:1.15rem;line-height:1.3}
+  .head button{
+    font-size:.8rem;font-weight:700;cursor:pointer;border:1.3px solid rgba(255,255,255,.45);
+    background:rgba(255,255,255,.1);color:#fff;border-radius:999px;padding:.35rem .95rem}
+  .head button:hover{background:rgba(255,255,255,.2)}
+
+  .wrap{max-width:760px;margin:0 auto;padding:1.1rem 1rem 3rem}
+  .lead{font-size:.86rem;color:var(--ink-soft);margin:0 0 .9rem}
+
+  /* ---------- 受付のカード ---------- */
+  .rc{
+    display:block;width:100%;text-align:left;cursor:pointer;
+    background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:1rem 1.05rem;margin:0 0 .85rem;box-shadow:var(--shadow);
+    color:inherit;transition:border-color .15s,transform .08s}
+  .rc:hover{border-color:var(--navy)}
+  .rc:active{transform:translateY(1px)}
+  .rc.todo{border-color:var(--warn);border-width:1.6px}
+  .rc__top{display:flex;align-items:flex-start;gap:.6rem}
+  .rc__ico{font-size:1.5rem;line-height:1.2}
+  .rc__name{font-family:var(--serif);font-size:1.08rem;font-weight:700;line-height:1.4;display:block}
+  .rc__sub{font-size:.76rem;color:var(--ink-faint);margin-top:.1rem;display:block;line-height:1.5}
+  .rc__go{margin-left:auto;font-size:.78rem;font-weight:700;color:var(--navy);white-space:nowrap;padding-top:.25rem}
+
+  .rc__band{margin-top:.7rem;font-size:.78rem;font-weight:700;padding:.3rem .7rem;border-radius:8px;
+    background:var(--amber-soft);color:var(--amber);display:inline-block}
+  .rc__band.warn{background:var(--warn-soft);color:var(--warn)}
+  .rc__band.ok{background:var(--green-soft);color:var(--green)}
+
+  .rc__nums{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.75rem}
+  .num{background:var(--card-soft);border:1px solid var(--line);border-radius:9px;
+    padding:.35rem .6rem;font-size:.74rem;color:var(--ink-soft);display:flex;align-items:baseline;gap:.35rem}
+  .num b{font-family:var(--num);font-size:1.02rem;color:var(--ink);font-weight:700}
+  .num.act{background:var(--warn-soft);border-color:var(--warn);color:var(--warn)}
+  .num.act b{color:var(--warn)}
+  .num.done{background:var(--green-soft);border-color:var(--green);color:var(--green)}
+  .num.done b{color:var(--green)}
+
+  .rc__msg{margin-top:.7rem;font-size:.8rem;color:var(--ink-soft)}
+  .rc__msg.bad{color:var(--warn)}
+  .skel{margin-top:.75rem;height:1.7rem;border-radius:9px;background:var(--card-soft);
+    animation:pulse 1.2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
+
+  /* ---------- 管理キー ---------- */
+  .keybox{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:1rem 1.05rem;margin-top:.4rem}
+  .keybox h2{font-family:var(--serif);font-size:.98rem;margin:0 0 .4rem}
+  .keybox p{font-size:.8rem;color:var(--ink-soft);margin:0 0 .7rem}
+  .keybox .row{display:flex;gap:.5rem;flex-wrap:wrap}
+  .keybox input{flex:1 1 13rem;min-width:0;padding:.6rem .7rem;font-size:1rem;
+    border:1.4px solid var(--line);border-radius:10px;background:var(--card-soft);color:var(--ink)}
+  .keybox input:focus{outline:none;border-color:var(--navy)}
+  .btn{cursor:pointer;border:none;border-radius:10px;padding:.6rem 1.2rem;
+    font-size:.88rem;font-weight:700;background:var(--navy);color:#fff}
+  .btn:hover{background:var(--navy-dk)}
+  .btn:disabled{opacity:.5;cursor:default}
+  .err{font-size:.8rem;color:var(--warn);margin:.6rem 0 0}
+
+  .foot{margin-top:1.6rem;font-size:.72rem;color:var(--ink-faint);text-align:center;line-height:2}
+  .foot button{background:none;border:none;color:var(--ink-faint);font-size:.72rem;
+    text-decoration:underline;cursor:pointer;padding:0;font-family:inherit}
+
+  .toast{position:fixed;left:50%;bottom:1.3rem;transform:translateX(-50%);
+    background:var(--navy-dk);color:#fff;font-size:.84rem;padding:.6rem 1.1rem;
+    border-radius:999px;box-shadow:var(--shadow);z-index:50;max-width:90vw;text-align:center}
+  .toast.bad{background:var(--warn);color:#fff}
+</style>
+</head>
+<body>
+
+<header class="head">
+  <div class="head__in">
+    <div class="head__t">
+      <span class="head__k">RIONJUKU</span>
+      <span class="head__n">受付管理</span>
+    </div>
+    <button type="button" id="btn-reload">最新にする</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <p class="lead">見たい受付をえらんでください。</p>
+  <div id="cards"></div>
+
+  <section class="keybox" id="keybox" hidden>
+    <h2>管理キー</h2>
+    <p id="key-note">管理キーを入れてください。</p>
+    <div class="row">
+      <input id="key" type="password" inputmode="text" autocomplete="off" spellcheck="false" placeholder="管理キー">
+      <button type="button" class="btn" id="btn-login">ひらく</button>
+    </div>
+    <p class="err" id="key-err" hidden></p>
+  </section>
+
+  <p class="foot" id="foot"></p>
+</main>
+
+<script>
+/* =======================================================================
+   受付の一覧
+   ここに1つ足すと、入口にカードが1枚増えます。
+   store … この端末が管理キーを覚えておく名前（各管理ページと同じ名前にします）
+   ===================================================================== */
+var RECEPTIONS = [
+  {
+    id:   '3ki',
+    icon: '📋',
+    name: '3期生 お申し込み',
+    sub:  '規約 → ご情報 → 署名 → お支払い',
+    page: './admin.html',
+    store:'rion3ki_admin_key',
+    gas:  'https://script.google.com/macros/s/AKfycbwxo1mNRBl5Gjp86XbNXZONgkNHAGHp86uqQYux0Lu3CnP11zH8is5MFrqik0VwvcXL/exec',
+
+    /* カードに出す数字 */
+    nums: function (r) {
+      var s = r.summary || {};
+      return [
+        { l:'着金待ち', v:s.waiting || 0, cls:(s.waiting ? 'act' : '') },
+        { l:'未案内',   v:s.notInvited || 0, cls:(s.notInvited ? 'act' : '') },
+        { l:'完了',     v:s.done || 0, cls:'done' },
+        { l:'合計',     v:s.total || 0 }
+      ];
+    },
+    /* 気をつけていただきたいことがあるときだけ、帯を出します */
+    band: function (r) {
+      var f = r.flags || {};
+      if (f.test_mode)   return { t:'🧪 テスト決済モードです', cls:'warn' };
+      if (f.maintenance) return { t:'🔧 メンテナンス中です', cls:'warn' };
+      if (f.open_gate === false) return { t:'🚪 受付テスト中（期間外でも開いています）', cls:'warn' };
+      return null;
+    },
+    /* 対応が要るかどうか（カードの枠を赤くします） */
+    todo: function (r) { var s = r.summary || {}; return (s.waiting || 0) > 0 || (s.notInvited || 0) > 0; }
+  },
+
+  {
+    id:   'sotsu',
+    icon: '🎓',
+    name: '卒業式 受付',
+    sub:  '11月27日（金）10:00 〜 12月4日（金）23:59',
+    page: './sotsugyo/admin.html',
+    store:'rionsotsu_admin_key',
+    gas:  'https://script.google.com/macros/s/AKfycbxwYDyLmLGSahHyc6vlV3Inq-Ch1GxJRVt0b0ATDRyETUJzl8YRLsVdJHlVASpRjI1m/exec',
+
+    nums: function (r) {
+      var s = r.summary || {}, rm = r.remain || {};
+      return [
+        { l:'要対応',       v:s.todo || 0, cls:(s.todo ? 'act' : '') },
+        { l:'お支払い済み', v:(s.paid || 0) + (s.bankok || 0), cls:'done' },
+        { l:'振込待ち',     v:s.bank || 0 },
+        { l:'第1部 残り',   v:(rm.part1 === undefined ? '—' : rm.part1) },
+        { l:'第2部 残り',   v:(rm.part2 === undefined ? '—' : rm.part2) }
+      ];
+    },
+    band: function (r) {
+      var f = r.flags || {};
+      if (f.stopped)  return { t:'⏸ 受付をいったん止めています', cls:'warn' };
+      if (f.gate_off) return { t:'🚪 期間前でも受付を開いています', cls:'warn' };
+      if (f.phase === 'before') return { t:'受付前（11月27日（金）10:00から）', cls:'' };
+      if (f.phase === 'closed') return { t:'受付は終了しました', cls:'' };
+      return { t:'受付中', cls:'ok' };
+    },
+    todo: function (r) { var s = r.summary || {}; return (s.todo || 0) > 0 || (s.overdue || 0) > 0; }
+  }
+];
+
+var MOCK = new URLSearchParams(location.search).get('mock') === '1';
+var ST = {};              /* 受付ごとの状態 */
+var $ = function (id) { return document.getElementById(id); };
+
+function esc(s) {
+  return String(s === null || s === undefined ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function toast(msg, bad) {
+  var el = document.createElement('div');
+  el.className = 'toast' + (bad ? ' bad' : '');
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(function () { el.remove(); }, bad ? 5000 : 2600);
+}
+
+/* ---------- GASに尋ねる ---------- */
+function api(rc, key) {
+  if (MOCK) return mockApi(rc);
+  return fetch(rc.gas, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action: 'admin_list', token: key })
+  }).then(function (res) {
+    if (!res.ok) throw new Error('通信に失敗しました（' + res.status + '）');
+    return res.json();
+  });
+}
+
+/* ---------- 読み込み ---------- */
+function load(loud) {
+  var jobs = RECEPTIONS.map(function (rc) {
+    var key = MOCK ? 'MOCK' : localStorage.getItem(rc.store);
+    if (!key) { ST[rc.id] = { status: 'nokey' }; return Promise.resolve(); }
+    if (!ST[rc.id] || ST[rc.id].status !== 'ok') ST[rc.id] = { status: 'loading' };
+    return api(rc, key).then(function (r) {
+      if (r && r.ok) ST[rc.id] = { status: 'ok', data: r };
+      else if (r && r.error === 'admin_only') ST[rc.id] = { status: 'badkey' };
+      else ST[rc.id] = { status: 'error', msg: (r && r.error) || '読み込めませんでした' };
+    }).catch(function (e) {
+      ST[rc.id] = { status: 'error', msg: String(e.message || e) };
+    });
+  });
+  paint();
+  return Promise.all(jobs).then(function () {
+    paint();
+    if (loud) toast('最新にしました');
+  });
+}
+
+/* ---------- 描く ---------- */
+function paint() {
+  var html = '';
+  var needKey = 0, todoAll = 0, vers = [];
+
+  RECEPTIONS.forEach(function (rc) {
+    var st = ST[rc.id] || { status: 'loading' };
+    var inner = '';
+    var klass = 'rc';
+
+    if (st.status === 'ok') {
+      var r = st.data;
+      var band = rc.band ? rc.band(r) : null;
+      if (band) inner += '<div class="rc__band ' + (band.cls || '') + '">' + esc(band.t) + '</div>';
+      inner += '<div class="rc__nums">' + rc.nums(r).map(function (n) {
+        return '<span class="num ' + (n.cls || '') + '"><span>' + esc(n.l) + '</span><b>' + esc(n.v) + '</b></span>';
+      }).join('') + '</div>';
+      if (rc.todo && rc.todo(r)) { klass += ' todo'; todoAll++; }
+      if (r.version) vers.push(rc.icon + ' ' + r.version);
+
+    } else if (st.status === 'loading') {
+      inner += '<div class="skel"></div>';
+
+    } else if (st.status === 'nokey') {
+      needKey++;
+      inner += '<p class="rc__msg">下で管理キーを入れると、ここに状況が出ます。</p>';
+
+    } else if (st.status === 'badkey') {
+      needKey++;
+      inner += '<p class="rc__msg bad">この端末のキーでは開けませんでした。下で入れ直してください。</p>';
+
+    } else {
+      inner += '<p class="rc__msg bad">' + esc(st.msg || '読み込めませんでした') + '</p>';
+    }
+
+    html +=
+      '<button type="button" class="' + klass + '" data-go="' + esc(rc.page) + '">'
+      + '<span class="rc__top">'
+      +   '<span class="rc__ico">' + rc.icon + '</span>'
+      +   '<span><span class="rc__name">' + esc(rc.name) + '</span>'
+      +   '<span class="rc__sub">' + esc(rc.sub) + '</span></span>'
+      +   '<span class="rc__go">ひらく →</span>'
+      + '</span>' + inner + '</button>';
+  });
+
+  $('cards').innerHTML = html;
+
+  $('keybox').hidden = (needKey === 0);
+  $('key-note').textContent = (needKey >= RECEPTIONS.length)
+    ? '管理キーを入れてください。ふたつの受付が同じキーなら、1回で両方ひらきます。'
+    : 'まだ開いていない受付があります。その受付の管理キーを入れてください。';
+
+  document.title = (todoAll ? '(' + todoAll + ') ' : '') + '受付管理｜凛穏塾';
+
+  $('foot').innerHTML = (vers.length ? 'GAS ' + esc(vers.join('　／　')) + '<br>' : '')
+    + '<button type="button" id="btn-forget">この端末の管理キーを消す</button>';
+  var f = $('btn-forget');
+  if (f) f.addEventListener('click', forget);
+}
+
+/* カードを押したら、その受付の管理ページへ */
+$('cards').addEventListener('click', function (e) {
+  var b = e.target.closest('[data-go]');
+  if (!b) return;
+  location.href = b.getAttribute('data-go') + (MOCK ? '?mock=1' : '');
+});
+
+/* ---------- 管理キーを入れる ----------------------------------------------
+   まだ開いていない受付に、順ぐりに試します。
+   同じキーで両方通れば、1回で両方ひらきます。
+------------------------------------------------------------------------- */
+function login() {
+  var v = $('key').value.trim();
+  if (!v) return;
+  $('btn-login').disabled = true;
+  $('key-err').hidden = true;
+
+  var targets = RECEPTIONS.filter(function (rc) {
+    return !ST[rc.id] || ST[rc.id].status !== 'ok';
+  });
+
+  var okNames = [];
+  var chain = Promise.resolve();
+  targets.forEach(function (rc) {
+    chain = chain.then(function () {
+      return api(rc, v).then(function (r) {
+        if (r && r.ok) {
+          localStorage.setItem(rc.store, v);
+          ST[rc.id] = { status: 'ok', data: r };
+          okNames.push(rc.name);
+        }
+      }).catch(function () { /* この受付は開けませんでした。次へ */ });
+    });
+  });
+
+  chain.then(function () {
+    $('btn-login').disabled = false;
+    paint();
+    if (okNames.length) {
+      $('key').value = '';
+      toast(okNames.join('と') + ' をひらきました');
+    } else {
+      $('key-err').textContent = 'このキーでは、どの受付も開けませんでした。';
+      $('key-err').hidden = false;
+    }
+  });
+}
+
+function forget() {
+  if (!confirm('この端末が覚えている管理キーを、すべて消します。\n\nつぎに開くときは、入れ直しになります。\n\nよろしいですか？')) return;
+  RECEPTIONS.forEach(function (rc) { localStorage.removeItem(rc.store); });
+  location.reload();
+}
+
+$('btn-login').addEventListener('click', login);
+$('key').addEventListener('keydown', function (e) { if (e.key === 'Enter') login(); });
+$('btn-reload').addEventListener('click', function () { load(true); });
+
+/* ---------- はじめに ---------- */
+load(false);
+setInterval(function () { load(false); }, 60000);
+
+/* ---------- 見本（?mock=1）----------------------------------------------
+   GASにつながず、画面だけ見るためのものです。押しても何も変わりません。
+---------------------------------------------------------------------- */
+function mockApi(rc) {
+  if (rc.id === '3ki') {
+    return Promise.resolve({
+      ok: true, version: 'v2.4.0',
+      summary: { ikigomi: 12, total: 36, notInvited: 0, terms: 36, signed: 35, waiting: 1, done: 34 },
+      flags: { open_gate: true, test_mode: false, maintenance: false }
+    });
+  }
+  return Promise.resolve({
+    ok: true, version: 'v1.3.0',
+    summary: { total: 5, paid: 1, bank: 2, bankok: 1, wait: 1, cancel: 0, expire: 0, todo: 1, overdue: 1, yen: 14000 },
+    remain: { part1: 37, part2: 38 },
+    flags: { gate_off: false, stopped: false, phase: 'before' }
+  });
+}
+</script>
+</body>
+</html>
