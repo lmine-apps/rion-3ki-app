@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>卒業式 受付管理｜凛穏塾</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest-admin.json">
+<meta name="theme-color" content="#12345a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="卒業式 受付管理">
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  :root{
+    --ground:#eaf4fb; --card:#fff; --card-soft:#f4fafd;
+    --ink:#172b3d; --ink-soft:#5f7387; --ink-faint:#93a6b6;
+    --line:#d5e4ef; --navy:#12345a; --navy-dk:#0b203d; --sky:#62b7e7; --sky-soft:#e5f5fd;
+    --green:#1f7a5c; --green-soft:#e6f3ee; --warn:#c0503f; --warn-soft:#fdf0ed;
+    --amber:#a8722a; --amber-soft:#fdf3e3; --gold:#a8823f;
+    --mark-bg:#12345a; --on-mark:#fff; --scrim:rgba(11,32,61,.45);
+    --shadow:0 10px 30px rgba(7,23,44,.13);
+    --serif:"Yu Mincho",YuMincho,"Hiragino Mincho ProN","Noto Serif JP",serif;
+    --sans:"Hiragino Kaku Gothic ProN","Yu Gothic UI","Yu Gothic",YuGothic,Meiryo,system-ui,sans-serif;
+    --num:Georgia,"Times New Roman",serif;
+    --mono:Consolas,"Cascadia Mono",ui-monospace,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --ground:#07172a; --card:#0e2338; --card-soft:#142a41;
+      --ink:#e6eef5; --ink-soft:#9db1c3; --ink-faint:#6b8299;
+      --line:#22405c; --navy:#9fc9e8; --navy-dk:#cfe6f6; --sky:#62b7e7; --sky-soft:#10293d;
+      --green:#6cc39f; --green-soft:#102b23; --warn:#e0917f; --warn-soft:#33201c;
+      --amber:#d9a559; --amber-soft:#2e2314; --gold:#d1a95f;
+      --mark-bg:#62b7e7; --on-mark:#06182a; --scrim:rgba(0,0,0,.6);
+      --shadow:0 10px 30px rgba(0,0,0,.5);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ground:#07172a; --card:#0e2338; --card-soft:#142a41;
+    --ink:#e6eef5; --ink-soft:#9db1c3; --ink-faint:#6b8299;
+    --line:#22405c; --navy:#9fc9e8; --navy-dk:#cfe6f6; --sky:#62b7e7; --sky-soft:#10293d;
+    --green:#6cc39f; --green-soft:#102b23; --warn:#e0917f; --warn-soft:#33201c;
+    --amber:#d9a559; --amber-soft:#2e2314; --gold:#d1a95f;
+    --mark-bg:#62b7e7; --on-mark:#06182a; --scrim:rgba(0,0,0,.6);
+    --shadow:0 10px 30px rgba(0,0,0,.5);
+  }
+
+  body{background:var(--ground);color:var(--ink);font-family:var(--sans);line-height:1.75;font-size:15px}
+  button{font-family:inherit;-webkit-tap-highlight-color:transparent}
+  [hidden]{display:none !important}
+
+  /* ---------- header ---------- */
+  .head{background:linear-gradient(160deg,var(--navy-dk),var(--navy));color:#fff}
+  :root:not([data-theme="light"]) .head,:root[data-theme="dark"] .head{background:linear-gradient(160deg,#061626,#12385c)}
+  .head__in{max-width:1000px;margin:0 auto;padding:.9rem 1rem 1rem;display:flex;align-items:center;gap:.8rem;flex-wrap:wrap}
+  .head__t{display:flex;flex-direction:column;gap:0;margin-right:auto}
+  .head__k{font-size:.62rem;letter-spacing:.3em;color:var(--sky)}
+  .head__n{font-family:var(--serif);font-size:1.15rem;line-height:1.3}
+  .head button{
+    font-size:.8rem;font-weight:700;cursor:pointer;border:1.3px solid rgba(255,255,255,.45);
+    background:rgba(255,255,255,.1);color:#fff;border-radius:999px;padding:.35rem .95rem;
+  }
+  .head button:hover{background:rgba(255,255,255,.2)}
+  .flag{font-size:.68rem;font-weight:700;padding:.15rem .6rem;border-radius:999px;background:#fbe9e7;color:#9c3a28}
+  .flag.open{background:#e4f3ea;color:#1c7a4b}
+  .flag.before{background:#fdf3dd;color:#8a6a1e}
+  .flag.gate{background:#1f6f8b;color:#fff}
+  .flag.stop{background:#b25c17;color:#fff}
+
+  /* ---------- スイッチ ---------- */
+  .switches__head{display:flex;align-items:center;gap:.5rem;cursor:pointer;list-style:none;
+    padding:.5rem .8rem;border-radius:10px;background:var(--card);border:1px solid var(--line);
+    font-size:.82rem;color:var(--ink-soft)}
+  .switches__head::-webkit-details-marker{display:none}
+  .switches__head:hover{border-color:var(--ink-faint)}
+  .switches__gear{font-size:.95rem}
+  .switches__now{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .switches__now b{color:#c0392b}
+  .switches__more{flex:none;font-size:0}
+  details[open] .switches__more::after{content:'（閉じる）';font-size:.74rem;color:var(--ink-faint)}
+  details:not([open]) .switches__more::after{content:'（開く）';font-size:.74rem;color:var(--ink-faint)}
+  .switches>.sws{display:flex;flex-direction:column;gap:.6rem;margin-top:.5rem;
+    background:var(--card);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem}
+  .sw{display:flex;align-items:flex-start;gap:1rem;justify-content:space-between}
+  .sw+.sw{border-top:1px dashed var(--line);padding-top:.7rem}
+  .sw__t{display:flex;flex-direction:column;gap:.15rem;min-width:0}
+  .sw__t>b{font-size:.9rem}
+  .sw__d{font-size:.76rem;color:var(--ink-soft);line-height:1.7}
+  .sw__d b{color:var(--ink)}
+  .swbtn{flex:none;min-width:5.4rem;padding:.42rem .9rem;border-radius:999px;cursor:pointer;
+    border:1.5px solid var(--line);background:var(--card-soft);color:var(--ink-soft);
+    font-size:.82rem;font-weight:700;transition:background .15s,color .15s,border-color .15s}
+  .swbtn:hover{border-color:var(--ink-faint)}
+  .swbtn[aria-pressed="true"]{background:#c0392b;border-color:#c0392b;color:#fff}
+  .swbtn:disabled{opacity:.5;cursor:progress}
+  .sw__warn{margin:.2rem 0 0;padding:.6rem .8rem;border-radius:8px;
+    background:#fdecea;border:1px solid #f0b8b0;color:#a33224;
+    font-size:.8rem;font-weight:700;line-height:1.75}
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]) .sw__warn{background:#3a1b17;border-color:#7a3529;color:#f0a99c}
+  }
+  :root[data-theme="dark"] .sw__warn{background:#3a1b17;border-color:#7a3529;color:#f0a99c}
+
+  .wrap{max-width:1000px;margin:0 auto;padding:1.2rem 1rem 4rem;display:flex;flex-direction:column;gap:1.2rem}
+
+  /* ---------- login ---------- */
+  .login{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:1.6rem 1.4rem;
+         display:flex;flex-direction:column;gap:.8rem;max-width:420px;margin:2rem auto;box-shadow:var(--shadow)}
+  .login h2{font-family:var(--serif);font-size:1.15rem;margin:0;font-weight:600}
+  .login p{margin:0;font-size:.86rem;color:var(--ink-soft)}
+  .login input{
+    font-family:var(--mono);font-size:1rem;padding:.6rem .7rem;
+    border:1.4px solid var(--line);border-radius:9px;background:var(--card-soft);color:var(--ink);width:100%;
+  }
+  .btn{
+    font-size:.92rem;font-weight:700;cursor:pointer;border:0;border-radius:999px;padding:.6rem 1.4rem;
+    background:linear-gradient(135deg,var(--navy),var(--navy-dk));color:#fff;
+  }
+  :root:not([data-theme="light"]) .btn,:root[data-theme="dark"] .btn{background:linear-gradient(135deg,#1d5f92,#0d3a63)}
+  .btn:disabled{background:var(--line);color:var(--ink-faint);cursor:not-allowed}
+  /* 「取り消す」などは、押し間違えないように薄いボタンに。
+     上の暗い画面用の指定より強く書かないと、紺に塗りつぶされてしまいます */
+  .btn.ghost,
+  :root:not([data-theme="light"]) .btn.ghost,
+  :root[data-theme="dark"] .btn.ghost{
+    background:transparent;color:var(--navy);border:1.4px solid var(--line)}
+  .btn.ghost:hover{border-color:var(--navy)}
+  .btn.danger{background:linear-gradient(135deg,#c0503f,#96382a)}
+  .btn.ok{background:linear-gradient(135deg,#1f7a5c,#155c45)}
+  .btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+  /* ---------- まとめ ---------- */
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:.6rem}
+  .kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:.7rem .85rem;
+       display:flex;flex-direction:column;gap:.1rem}
+  .kpi .l{font-size:.72rem;color:var(--ink-soft)}
+  .kpi .v{font-family:var(--num);font-size:1.55rem;font-weight:700;line-height:1.2;font-variant-numeric:tabular-nums}
+  .kpi .v small{font-size:.62rem;font-family:var(--sans);font-weight:400;color:var(--ink-faint);margin-left:.25rem}
+  .kpi.act{border-color:var(--warn);background:var(--warn-soft)}
+  .kpi.act .v{color:var(--warn)}
+  .kpi.done .v{color:var(--green)}
+  .kpi.seat .v{color:var(--navy)}
+  .kpi.seat.few{border-color:var(--amber);background:var(--amber-soft)}
+  .kpi.seat.few .v{color:var(--amber)}
+  .planline{font-size:.83rem;color:var(--ink-soft);display:flex;flex-wrap:wrap;gap:.2rem .9rem}
+  .planline b{color:var(--ink);font-family:var(--num)}
+
+  /* ---------- 道具箱 ---------- */
+  .bar{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
+  .tabs{display:flex;flex-wrap:wrap;gap:.35rem}
+  .tab{
+    font-size:.82rem;font-weight:700;cursor:pointer;border:1.3px solid var(--line);
+    background:var(--card);color:var(--ink-soft);border-radius:999px;padding:.32rem .9rem;
+  }
+  .tab b{margin-left:.3rem;font-variant-numeric:tabular-nums}
+  .tab[aria-pressed="true"]{background:var(--mark-bg);color:var(--on-mark);border-color:var(--mark-bg)}
+  .search{
+    font-family:inherit;font-size:.88rem;padding:.4rem .7rem;border:1.3px solid var(--line);
+    border-radius:9px;background:var(--card);color:var(--ink);min-width:150px;flex:1;max-width:260px;
+  }
+
+  /* ---------- 一覧 ---------- */
+  .list{display:flex;flex-direction:column;gap:.7rem}
+  .row{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:.85rem 1rem;
+       display:flex;flex-direction:column;gap:.5rem}
+  .row.act{border-left:4px solid var(--warn)}
+  .row.fin{opacity:.72}
+  .row__top{display:flex;flex-wrap:wrap;gap:.5rem;align-items:baseline}
+  .row__name{font-family:var(--serif);font-size:1.05rem;font-weight:600;margin-right:auto}
+  .row__name small{font-family:var(--sans);font-size:.74rem;color:var(--ink-faint);margin-left:.4rem;font-weight:400}
+  .tag{font-size:.71rem;font-weight:700;padding:.1rem .6rem;border-radius:999px;white-space:nowrap}
+  .tag.part{background:var(--sky-soft);color:var(--navy)}
+  .tag.st{background:var(--card-soft);color:var(--ink-soft);border:1px solid var(--line)}
+  .tag.st.wait{background:var(--amber-soft);color:var(--amber);border-color:transparent}
+  .tag.st.bank{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+  .tag.st.done{background:var(--green-soft);color:var(--green);border-color:transparent}
+  .tag.rep{background:#c0392b;color:#fff}
+  .tag.over{background:#96382a;color:#fff}
+  .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:.15rem .9rem;font-size:.83rem}
+  .facts div{display:flex;gap:.45rem}
+  .facts .k{color:var(--ink-faint);white-space:nowrap;min-width:5.2em}
+  .facts .v{color:var(--ink);min-width:0;overflow-wrap:anywhere}
+  .facts .v.n{font-family:var(--num);font-weight:700;font-variant-numeric:tabular-nums}
+  .facts .v.ng{color:var(--warn);font-weight:700}
+  .row__act{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+  .row__act .btn{font-size:.84rem;padding:.42rem 1.1rem}
+  .empty{text-align:center;color:var(--ink-faint);font-size:.9rem;padding:2.5rem 1rem}
+
+  .toast{position:fixed;left:50%;bottom:1.4rem;transform:translateX(-50%);z-index:60;
+         background:var(--navy-dk);color:#fff;border-radius:999px;padding:.6rem 1.3rem;font-size:.88rem;
+         box-shadow:var(--shadow);max-width:90vw}
+  :root:not([data-theme="light"]) .toast,:root[data-theme="dark"] .toast{background:#0d3a63}
+  .toast.bad{background:#96382a}
+
+  footer{max-width:1000px;margin:0 auto;padding:0 1rem 2rem;font-size:.78rem;color:var(--ink-faint)}
+  .foot-logo{display:block;width:44px;height:38px;margin:0 0 8px;opacity:.5;
+    background:center/contain no-repeat url("assets/logo-mark-160.png")}
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]) .foot-logo{background-image:url("assets/logo-mark-light-160.png")}
+  }
+  :root[data-theme="dark"] .foot-logo{background-image:url("assets/logo-mark-light-160.png")}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<header class="head">
+  <div class="head__in">
+    <div class="head__t">
+      <span class="head__k">RION JUKU / SOTSUGYO</span>
+      <span class="head__n">卒業式 受付管理</span>
+    </div>
+    <span id="flag" class="flag" hidden></span>
+    <button type="button" id="btn-reload" hidden>更新</button>
+    <button type="button" id="btn-logout" hidden>キーを消す</button>
+  </div>
+</header>
+
+<!-- ============ ログイン ============ -->
+<section id="screen-login" class="login">
+  <h2>管理キーを入れてください</h2>
+  <p>卒業式のお申し込み一覧です。運営の方だけがお使いください。</p>
+  <input type="password" id="key" autocomplete="off" spellcheck="false" placeholder="管理キー">
+  <button type="button" class="btn" id="btn-login">開く</button>
+  <p id="login-err" style="color:var(--warn);font-weight:700" hidden></p>
+</section>
+
+<!-- ============ 一覧 ============ -->
+<main id="screen-main" class="wrap" hidden>
+
+  <!-- ---- スイッチ（ふだんは畳んでおきます） ---- -->
+  <details class="switches" id="switches" hidden>
+    <summary class="switches__head">
+      <span class="switches__gear">⚙️</span>
+      <span class="switches__now" id="sw-now">設定</span>
+      <span class="switches__more"></span>
+    </summary>
+
+    <div class="sws">
+      <div class="sw">
+        <div class="sw__t">
+          <b>🚪 期間前でも受付を開く</b>
+          <span class="sw__d">
+            ふだんは <b id="sw-open-at">—</b> 〜 <b id="sw-close-at">—</b> のあいだだけ受付できます。<br>
+            オンにすると、期間の外でも受付ページが「受付中」になります。<br>
+            <b>動作確認のための設定です。</b>お客様をご案内する前に、必ずオフへ。
+          </span>
+        </div>
+        <button type="button" class="swbtn" data-flag="gate_off" aria-pressed="false">オフ</button>
+      </div>
+
+      <div class="sw">
+        <div class="sw__t">
+          <b>⏸ 受付をいったん止める</b>
+          <span class="sw__d">
+            オンにすると、期間中でも受付ページが「終了しました」になります。<br>
+            満席になったときや、いったん手を止めたいときに。
+          </span>
+        </div>
+        <button type="button" class="swbtn" data-flag="stopped" aria-pressed="false">オフ</button>
+      </div>
+
+      <div class="sw">
+        <div class="sw__t">
+          <b>⌛ 期限切れをまとめて処理する</b>
+          <span class="sw__d">
+            振込の期限を過ぎた「振込待ち」を「期限切れ」にして、<b>お席を空けます。</b><br>
+            入金が済んでいる方には触りません。期限のあとに押してください。
+          </span>
+        </div>
+        <button type="button" class="btn ghost" id="btn-expire" style="flex:none;font-size:.82rem;padding:.42rem 1rem">実行</button>
+      </div>
+
+      <p class="sw__warn" id="sw-warn" hidden></p>
+    </div>
+  </details>
+
+  <div class="cards" id="kpis"></div>
+  <div class="planline" id="sums"></div>
+
+  <div class="bar">
+    <div class="tabs" id="tabs">
+      <button type="button" class="tab" data-f="todo" aria-pressed="true">要対応 <b>0</b></button>
+      <button type="button" class="tab" data-f="all" aria-pressed="false">すべて <b>0</b></button>
+      <button type="button" class="tab" data-f="paid" aria-pressed="false">お支払い済み <b>0</b></button>
+      <button type="button" class="tab" data-f="bank" aria-pressed="false">振込待ち <b>0</b></button>
+      <button type="button" class="tab" data-f="wait" aria-pressed="false">決済待ち <b>0</b></button>
+      <button type="button" class="tab" data-f="off" aria-pressed="false">取り消し <b>0</b></button>
+    </div>
+    <input type="search" class="search" id="q" placeholder="お名前でさがす">
+  </div>
+
+  <div class="list" id="list"></div>
+</main>
+
+<footer>
+  <span class="foot-logo" aria-hidden="true"></span>
+  <p id="foot"></p>
+</footer>
+
+<script src="js/config.js"></script>
+<script>
+/* =========================================================================
+   凛穏塾 3期生 卒業式｜受付管理（運営用）
+
+   ・【卒業式】タブを読み出して並べる画面です。
+   ・書き換えるのは「状態」だけ。お名前や金額には触りません。
+   ・管理キーは、この端末にだけ覚えさせます（公開ファイルには書きません）。
+   ========================================================================= */
+
+const GAS_URL   = (typeof CONFIG !== 'undefined' && CONFIG.GAS_URL) ? CONFIG.GAS_URL : '';
+const KEY_STORE = 'rionsotsu_admin_key';
+const RELOAD_MS = 60000;
+
+let adminKey = null;
+let data     = null;
+let filter   = 'todo';
+let timer    = null;
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s == null ? '' : s)
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const yen = (n) => (n === '' || n == null) ? '' : Number(n).toLocaleString('ja-JP') + '円';
+
+/* ?mock=1 … GASにつながず、見本のデータで画面を確かめられます */
+const MOCK = new URLSearchParams(location.search).get('mock') === '1';
+
+/* ---------- 通信 ---------- */
+/* GASは text/plain で受けます（事前確認のリクエストを出させないため） */
+async function api(action, body) {
+  if (MOCK) return mockApi(action, body);
+  const payload = Object.assign({ action, token: adminKey }, body || {});
+  const res = await fetch(GAS_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+  });
+  if (!res.ok) throw new Error('通信に失敗しました（' + res.status + '）');
+  return res.json();
+}
+
+function toast(msg, bad) {
+  const el = document.createElement('div');
+  el.className = 'toast' + (bad ? ' bad' : '');
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), bad ? 5000 : 2800);
+}
+
+/** GASが返すエラーを、読める日本語にします */
+function errText(e) {
+  const map = {
+    admin_only: '管理キーが違います。',
+    bad_row:    'その行が見つかりませんでした。更新してからもう一度お試しください。',
+    row_moved:  'シートの行が動いています。更新してからもう一度お試しください。',
+    not_bank:   'お振込のお申し込みではありません。',
+    soldout:    'お席が埋まっているため、戻せませんでした。',
+    bad_state:  'その状態には変えられません。',
+    bad_part:   '参加部が読み取れませんでした。シートのE列をご確認ください。'
+  };
+  return map[e] || String(e || '');
+}
+
+/* ---------- ログイン ---------- */
+$('btn-login').addEventListener('click', login);
+$('key').addEventListener('keydown', (e) => { if (e.key === 'Enter') login(); });
+
+async function login() {
+  const v = $('key').value.trim();
+  if (!v) return;
+  adminKey = v;
+  $('btn-login').disabled = true;
+  $('login-err').hidden = true;
+  try {
+    const r = await api('admin_list');
+    if (!r.ok) throw new Error(errText(r.error));
+    localStorage.setItem(KEY_STORE, v);
+    show(r);
+  } catch (err) {
+    adminKey = null;
+    $('login-err').textContent = err.message || '開けませんでした。';
+    $('login-err').hidden = false;
+  } finally {
+    $('btn-login').disabled = false;
+  }
+}
+
+$('btn-logout').addEventListener('click', () => {
+  localStorage.removeItem(KEY_STORE);
+  location.reload();
+});
+$('btn-reload').addEventListener('click', () => load(true));
+
+/* ---------- 読み込み ---------- */
+async function load(loud) {
+  try {
+    const r = await api('admin_list');
+    if (!r.ok) throw new Error(errText(r.error));
+    show(r);
+    if (loud) toast('最新にしました');
+  } catch (err) {
+    toast(err.message || '読み込めませんでした', true);
+  }
+}
+
+function show(r) {
+  data = r;
+  $('screen-login').hidden = true;
+  $('screen-main').hidden = false;
+  $('btn-reload').hidden = false;
+  $('btn-logout').hidden = false;
+
+  paintFlags(r.flags || {});
+  paintKpis();
+  paintTabs();
+  paintList();
+
+  $('foot').textContent = 'GAS ' + (r.version || '') + '　／　お申し込み ' +
+    (r.summary ? r.summary.total : 0) + '件　／　' + (r.now || '');
+
+  if (timer) clearInterval(timer);
+  timer = setInterval(() => load(false), RELOAD_MS);
+}
+
+/* ---------- スイッチ ---------- */
+function paintFlags(f) {
+  $('switches').hidden = false;
+  $('sw-open-at').textContent  = f.open_at  || '—';
+  $('sw-close-at').textContent = f.close_at || '—';
+
+  setSwitch('gate_off', !!f.gate_off);
+  setSwitch('stopped',  !!f.stopped);
+
+  /* 畳んだままでも、いまの状態がひと目で分かるように。
+     ふつうのときは静かに、何かオンのときだけ赤で出します。 */
+  const on = [];
+  if (f.gate_off) on.push('🚪 期間前でも受付中');
+  if (f.stopped)  on.push('⏸ 受付を止めています');
+  $('sw-now').innerHTML = on.length
+    ? ('設定　<b>' + on.join('　') + '</b>')
+    : '設定　募集期間どおり／受付は通常';
+
+  const det = $('switches');
+  if (on.length && !det.dataset.touched) det.open = true;
+
+  // 右上の帯
+  const flag = $('flag');
+  flag.hidden = false;
+  if (f.stopped) {
+    flag.textContent = '⏸ 受付を止めています';
+    flag.className = 'flag stop';
+  } else if (f.gate_off) {
+    flag.textContent = '🚪 期間前でも受付中（確認用）';
+    flag.className = 'flag gate';
+  } else if (f.phase === 'before') {
+    flag.textContent = '受付前（' + (f.open_at || '') + 'から）';
+    flag.className = 'flag before';
+  } else if (f.phase === 'open') {
+    flag.textContent = '受付中（' + (f.close_at || '') + 'まで）';
+    flag.className = 'flag open';
+  } else {
+    flag.textContent = '受付は終了しています';
+    flag.className = 'flag';
+  }
+
+  // 赤い注意書き
+  const warn = $('sw-warn');
+  const msgs = [];
+  if (f.gate_off) msgs.push('🚪 募集期間（' + (f.open_at || '') + '〜）の外ですが、受付ページが開いています。');
+  if (f.stopped)  msgs.push('⏸ 受付ページは「終了しました」の表示になっています。');
+  if (msgs.length) {
+    warn.hidden = false;
+    warn.textContent = msgs.join(' ') + ' お客様をご案内する前に、必ず戻してください。';
+  } else {
+    warn.hidden = true;
+  }
+}
+
+function setSwitch(key, on) {
+  const b = document.querySelector('.swbtn[data-flag="' + key + '"]');
+  if (!b) return;
+  b.setAttribute('aria-pressed', on ? 'true' : 'false');
+  b.textContent = on ? 'オン' : 'オフ';
+  b.disabled = false;
+}
+
+$('switches').addEventListener('toggle', () => { $('switches').dataset.touched = '1'; });
+
+document.addEventListener('click', async (ev) => {
+  const b = ev.target.closest('.swbtn');
+  if (!b) return;
+
+  const key  = b.dataset.flag;
+  const next = b.getAttribute('aria-pressed') !== 'true';
+  const label = (key === 'gate_off') ? '🚪 期間前でも受付を開く' : '⏸ 受付をいったん止める';
+  const detail = (key === 'gate_off')
+    ? (next ? '募集期間の外でも、受付ページが「受付中」になります。' : '募集期間どおりの動きに戻します。')
+    : (next ? '受付ページが「終了しました」になります。' : '受付ページを通常に戻します。');
+
+  if (!confirm(label + ' を「' + (next ? 'オン' : 'オフ') + '」にします。\n\n' + detail + '\n\nよろしいですか？')) return;
+
+  b.disabled = true;
+  try {
+    const r = await api('admin_flag', { key: key, value: next ? 'true' : 'false' });
+    if (!r || r.ok === false) throw new Error(errText(r && r.error) || '切り替えられませんでした');
+    paintFlags(r.flags);
+    toast(label + ' を ' + (next ? 'オン' : 'オフ') + ' にしました');
+  } catch (err) {
+    b.disabled = false;
+    toast(String(err.message || err), true);
+  }
+});
+
+/* ---------- 期限切れをまとめて処理 ---------- */
+$('btn-expire').addEventListener('click', async () => {
+  if (!confirm('振込の期限を過ぎた「振込待ち」を「期限切れ」にします。\n\nお席はその分だけ空きます。入金が済んでいる方には触りません。\n\nよろしいですか？')) return;
+  const b = $('btn-expire');
+  b.disabled = true;
+  try {
+    const r = await api('admin_expire');
+    if (!r.ok) throw new Error(errText(r.error));
+    toast(r.msg || '処理しました');
+    await load(false);
+  } catch (err) {
+    toast(String(err.message || err), true);
+  } finally {
+    b.disabled = false;
+  }
+});
+
+/* ---------- まとめ ---------- */
+function paintKpis() {
+  const s = data.summary || {};
+  const rem = data.remain || {};
+  const cap = data.capacity || {};
+  const few = (n) => (Number(n) <= 5) ? ' few' : '';
+
+  const cards = [
+    { l: '第1部 残り', v: rem.part1, sub: '／' + (cap.part1 || 0) + '席', cls: 'seat' + few(rem.part1) },
+    { l: '第2部 残り', v: rem.part2, sub: '／' + (cap.part2 || 0) + '席', cls: 'seat' + few(rem.part2) },
+    { l: '要対応',     v: s.todo,    cls: (s.todo ? 'act' : '') },
+    { l: 'お支払い済み', v: (s.paid || 0) + (s.bankok || 0), cls: 'done' },
+    { l: '振込待ち',   v: s.bank },
+    { l: '決済待ち',   v: s.wait }
+  ];
+
+  $('kpis').innerHTML = cards.map(c =>
+    '<div class="kpi ' + (c.cls || '') + '">' +
+      '<span class="l">' + esc(c.l) + '</span>' +
+      '<span class="v">' + (c.v == null ? 0 : c.v) +
+        (c.sub ? '<small>' + esc(c.sub) + '</small>' : '') + '</span>' +
+    '</div>'
+  ).join('');
+
+  const bits = [];
+  bits.push('お支払いいただいた金額 <b>' + yen(s.yen || 0) + '</b>');
+  bits.push('第1部 <b>' + yen((data.price || {}).part1) + '</b>');
+  bits.push('第2部 <b>' + yen((data.price || {}).part2) + '</b>');
+  bits.push('両部 <b>' + yen((data.price || {}).both) + '</b>');
+  if (s.overdue) bits.push('<b style="color:var(--warn)">期限切れ待ち ' + s.overdue + '件</b>');
+  $('sums').innerHTML = bits.join('');
+}
+
+/* ---------- 絞り込み ---------- */
+const MATCH = {
+  todo: (p) => p.todo,
+  all:  () => true,
+  paid: (p) => p.state === '決済済み' || p.state === '入金確認済み',
+  bank: (p) => p.state === '振込待ち',
+  wait: (p) => p.state === '決済待ち',
+  off:  (p) => p.state === 'キャンセル' || p.state === '期限切れ'
+};
+
+function paintTabs() {
+  const rows = data.rows || [];
+  document.querySelectorAll('#tabs .tab').forEach(t => {
+    const n = rows.filter(MATCH[t.dataset.f] || (() => false)).length;
+    const b = t.querySelector('b');
+    if (b) b.textContent = n;
+  });
+}
+
+document.addEventListener('click', (ev) => {
+  const b = ev.target.closest('#tabs .tab');
+  if (!b) return;
+  filter = b.dataset.f;
+  document.querySelectorAll('#tabs .tab').forEach(x =>
+    x.setAttribute('aria-pressed', String(x === b)));
+  paintList();
+});
+
+$('q').addEventListener('input', paintList);
+
+/* ---------- 一覧 ---------- */
+function paintList() {
+  const q = $('q').value.trim().toLowerCase();
+  const hit = MATCH[filter] || (() => true);
+
+  let rows = (data.rows || []).filter(hit);
+  if (q) rows = rows.filter(p =>
+    (p.name || '').toLowerCase().includes(q) ||
+    (p.sns  || '').toLowerCase().includes(q) ||
+    (p.bname || '').toLowerCase().includes(q));
+
+  if (!rows.length) {
+    $('list').innerHTML = '<p class="empty">' +
+      (filter === 'todo' ? 'いま対応が必要な方はいらっしゃいません。' : '該当する方がいません。') + '</p>';
+    return;
+  }
+
+  $('list').innerHTML = rows.map(card).join('');
+}
+
+function stTag(state) {
+  const cls = (state === '決済済み' || state === '入金確認済み') ? 'done'
+            : (state === '振込待ち') ? 'bank'
+            : (state === '決済待ち') ? 'wait' : '';
+  return '<span class="tag st ' + cls + '">' + esc(state || '—') + '</span>';
+}
+
+function card(p) {
+  const fin = (p.state === 'キャンセル' || p.state === '期限切れ');
+  const facts = [];
+
+  facts.push(['お申し込み', esc(p.time), '']);
+  facts.push(['金額', yen(p.price), 'n']);
+  if (p.method)  facts.push(['お支払い', esc(p.method), '']);
+  if (p.paid_at) facts.push(['決済・入金', esc(p.paid_at), '']);
+  if (p.state === '振込待ち' && p.limit) {
+    facts.push(['お振込期限', esc(p.limit), p.overdue ? 'ng' : '']);
+  }
+  if (p.brep)  facts.push(['振込のご連絡', esc(p.brep), '']);
+  if (p.bname) facts.push(['お名義', esc(p.bname), '']);
+  if (p.bdate) facts.push(['お振込日', esc(p.bdate), '']);
+  if (p.sns)   facts.push(['LINE表示名', esc(p.sns), '']);
+  if (p.memo)  facts.push(['運営メモ', esc(p.memo), '']);
+
+  const acts = [];
+  const d = 'data-row="' + p.row + '" data-uid="' + esc(p.uid) + '" data-name="' + esc(p.name) + '"';
+  if (p.state === '振込待ち') {
+    acts.push('<button type="button" class="btn ok" data-do="bank_ok" ' + d + '>入金を確認しました</button>');
+  }
+  if (p.state === '入金確認済み') {
+    acts.push('<button type="button" class="btn ghost" data-do="bank" ' + d + '>振込待ちに戻す</button>');
+  }
+  if (p.state === '決済待ち' || p.state === '期限切れ') {
+    acts.push('<button type="button" class="btn ghost" data-do="paid" ' + d + '>決済済みにする</button>');
+  }
+  if (!fin) {
+    acts.push('<button type="button" class="btn ghost" data-do="cancel" ' + d + '>取り消す</button>');
+  }
+
+  return '<div class="row' + (p.todo ? ' act' : '') + (fin ? ' fin' : '') + '">' +
+    '<div class="row__top">' +
+      '<span class="row__name">' + esc(p.name || '（お名前なし）') +
+        '<small>' + esc(String(p.row)) + '行目</small></span>' +
+      '<span class="tag part">' + esc(p.part_disp || p.part_label) + '</span>' +
+      stTag(p.state) +
+      (p.todo    ? '<span class="tag rep">振込のご連絡あり</span>' : '') +
+      (p.overdue ? '<span class="tag over">期限切れ</span>' : '') +
+    '</div>' +
+    '<div class="facts">' + facts.map(f =>
+      '<div><span class="k">' + f[0] + '</span><span class="v ' + f[2] + '">' + f[1] + '</span></div>'
+    ).join('') + '</div>' +
+    (acts.length ? '<div class="row__act">' + acts.join('') + '</div>' : '') +
+  '</div>';
+}
+
+/* ---------- 状態を変える ---------- */
+const ASK = {
+  bank_ok: (n) => n + ' さまのお入金を確認しました。\n\n状態を「入金確認済み」にします。お席はそのままです。\n\nよろしいですか？',
+  bank:    (n) => n + ' さまを「振込待ち」に戻します。\n\n入金の確認を取り消すときに使います。\nご本人の「振り込みました」も消えて、もう一度押せるようになります。\n\nよろしいですか？',
+  paid:    (n) => n + ' さまを「決済済み」にします。\n\n決済は済んでいるのに、プロラインからの通知が届かなかったときに使います。\nお席を1つ使います。\n\nよろしいですか？',
+  cancel:  (n) => n + ' さまのお申し込みを取り消します。\n\nお席が1つ空きます。この方は、また申し込めるようになります。\n\nよろしいですか？'
+};
+
+document.addEventListener('click', async (ev) => {
+  const b = ev.target.closest('[data-do]');
+  if (!b) return;
+
+  const act  = b.dataset.do;
+  const name = b.dataset.name || 'この方';
+  if (!confirm((ASK[act] || (() => 'よろしいですか？'))(name))) return;
+
+  b.disabled = true;
+  try {
+    const body = { row: b.dataset.row, uid: b.dataset.uid };
+    const r = (act === 'bank_ok')
+      ? await api('admin_bank_ok', body)
+      : await api('admin_state', Object.assign({ to: act }, body));
+
+    if (!r.ok) throw new Error(errText(r.error));
+    toast(r.dup ? 'すでにその状態でした' : '変えました');
+    await load(false);
+  } catch (err) {
+    b.disabled = false;
+    toast(String(err.message || err), true);
+  }
+});
+
+/* =========================================================================
+   見本のデータ（?mock=1 のときだけ）
+   ・GASにつながず、画面の見え方だけを確かめるためのものです
+   ・押しても本物のシートは変わりません
+   ========================================================================= */
+const MOCK_FLAGS = { gate_off: false, stopped: false, phase: 'open',
+  open_at: '11月27日（金）10:00', close_at: '12月4日（金）23:59', bank_days: 5 };
+
+function mockApi(action, body) {
+  if (action === 'admin_flag') {
+    MOCK_FLAGS[body.key] = (body.value === 'true');
+    MOCK_FLAGS.phase = MOCK_FLAGS.stopped ? 'closed' : 'open';
+    return Promise.resolve({ ok: true, flags: MOCK_FLAGS });
+  }
+  if (action === 'admin_expire') {
+    return Promise.resolve({ ok: true, msg: '1件を「期限切れ」にしました：（確認用の表示です）' });
+  }
+  if (action === 'admin_bank_ok' || action === 'admin_state') {
+    return Promise.resolve({ ok: true });
+  }
+
+  const rows = [
+    { row: 5, time: '2026/11/27 10:04', uid: 'U-mock-0005', sns: 'はなこ', name: '凛穏 花子',
+      part: 'both', part_label: '両方参加', part_disp: '両部', price: 14000,
+      state: '振込待ち', paid_at: '', method: '銀行振込', limit: '12月2日（水）23:59',
+      overdue: false, order: 'Bmock5', memo: '', bname: 'リオン ハナコ', bdate: '2026-11-28',
+      brep: '2026/11/28 09:12', todo: true },
+    { row: 4, time: '2026/11/27 10:03', uid: 'U-mock-0004', sns: 'たろう', name: '凛穏 太郎',
+      part: 'part1', part_label: '1部参加', part_disp: '第1部', price: 6000,
+      state: '振込待ち', paid_at: '', method: '銀行振込', limit: '11月30日（月）23:59',
+      overdue: true, order: 'Bmock4', memo: '', bname: '', bdate: '', brep: '', todo: false },
+    { row: 3, time: '2026/11/27 10:02', uid: 'U-mock-0003', sns: 'みこ', name: '凛穏 美子',
+      part: 'part2', part_label: '2部参加', part_disp: '第2部', price: 8000,
+      state: '入金確認済み', paid_at: '2026/11/29 11:00', method: '銀行振込', limit: '12月1日（火）23:59',
+      overdue: false, order: 'Bmock3', memo: '', bname: 'リオン ミコ', bdate: '2026-11-29',
+      brep: '2026/11/29 08:40', todo: false },
+    { row: 2, time: '2026/11/27 10:01', uid: 'U-mock-0002', sns: 'じろう', name: '凛穏 次郎',
+      part: 'part1', part_label: '1部参加', part_disp: '第1部', price: 6000,
+      state: '決済済み', paid_at: '2026/11/27 10:02', method: 'カード', limit: '',
+      overdue: false, order: 'Pmock2', memo: '', bname: '', bdate: '', brep: '', todo: false },
+    { row: 6, time: '2026/11/27 10:06', uid: 'U-mock-0006', sns: 'さぶろう', name: '凛穏 三郎',
+      part: 'part2', part_label: '2部参加', part_disp: '第2部', price: 8000,
+      state: '決済待ち', paid_at: '', method: '', limit: '',
+      overdue: false, order: 'Pmock6', memo: '', bname: '', bdate: '', brep: '', todo: false }
+  ];
+
+  return Promise.resolve({
+    ok: true, version: 'v1.3.0（見本）', now: '2026/11/29 12:00:00',
+    flags: MOCK_FLAGS,
+    capacity: { part1: 40, part2: 40 },
+    remain: { part1: 37, part2: 38 },
+    price: { part1: 6000, part2: 8000, both: 14000 },
+    summary: { total: rows.length, paid: 1, bank: 2, bankok: 1, wait: 1, cancel: 0,
+               expire: 0, todo: 1, overdue: 1, yen: 14000 },
+    rows: rows
+  });
+}
+
+/* ---------- 起動 ---------- */
+(function boot() {
+  if (MOCK) {
+    adminKey = 'MOCK';
+    load(false);
+    return;
+  }
+  if (!GAS_URL) {
+    $('login-err').textContent = 'js/config.js が読み込めていません。';
+    $('login-err').hidden = false;
+    return;
+  }
+  const saved = localStorage.getItem(KEY_STORE);
+  if (saved) {
+    adminKey = saved;
+    load(false).catch(() => {});
+  }
+})();
+</script>
+</body>
+</html>
