@@ -1980,6 +1980,25 @@ body.is-locked { overflow: hidden; }
   line-height: 1.8;
 }
 
+/* 🧪 テストモードの帯（2026-11-17） */
+.test-band {
+  position: sticky;
+  top: 0;
+  z-index: 99;
+  padding: 9px 14px;
+  background: #b45309;
+  color: #fff;
+  font-size: calc(12.5px * var(--fs-scale));
+  text-align: center;
+  letter-spacing: .02em;
+}
+
+/* 🧪 テスト決済のボタン。本物の決済と見分けられるように */
+.payopt--test {
+  border-style: dashed !important;
+  background: #fffbeb !important;
+}
+
 /* 「未確定」の札。会場・時間とおなじ行に、控えめに並びます（2026-11-16） */
 .tbd-chip {
   display: inline-block;

@@ -11,9 +11,14 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="凛穏塾 卒業式">
 <meta name="theme-color" content="#07172c">
-<link rel="stylesheet" href="css/style.css?v=2">
+<link rel="stylesheet" href="css/style.css?v=4">
 </head>
 <body class="js-fade">
+
+<!-- 🧪 テストモードの帯（2026-11-17）。オフに戻し忘れたときに気づけるように -->
+<div id="test-band" class="test-band" hidden>
+  🧪 テストモードです。お客様をご案内する前に、管理ページでオフにしてください。
+</div>
 
 <!-- 受付開始の前なのに、確認のために開けているときの帯 -->
 <div id="openbar" class="testbar testbar--gate" hidden>
@@ -182,6 +187,14 @@
                  autocomplete="name" placeholder="例）山田 花子" inputmode="text">
           <span class="field__hint" id="name-reason"></span>
         </div>
+        <!-- メールアドレス（2026-11-17 とーるさんご要望）。
+             LINEのお名前とUIDだけでは、当日のご連絡手段が限られるためです。 -->
+        <div class="field">
+          <label class="field__label" for="f-mail">メールアドレス<em>必須</em></label>
+          <input type="email" id="f-mail" name="email" maxlength="120"
+                 autocomplete="email" inputmode="email" placeholder="例）hanako@example.com">
+          <span class="field__hint">当日のご連絡と、お申し込み内容の控えにお使いします。</span>
+        </div>
         <p class="alert" id="form-error" hidden></p>
         <button type="submit" class="btn" id="btn-go">お支払いに進む</button>
         <button type="button" class="btn btn--ghost" data-back>ひとつ前にもどる</button>
@@ -205,6 +218,8 @@
       <p class="note">画面が開かなかった場合は、下のボタンをもう一度お押しください。</p>
       <div class="picked" id="go-picked"></div>
       <a class="btn" id="btn-reopen" href="#" target="_blank" rel="noopener">決済ページをひらく</a>
+      <!-- お支払い方法の選び直し（2026-11-16）。カードはまだお席を押さえていないので、そのまま戻せます -->
+      <button type="button" class="btn btn--ghost" id="btn-repick-card">お支払い方法を変える</button>
       <button type="button" class="btn btn--ghost" data-back>ご案内にもどる</button>
     </div>
   </section>
@@ -234,6 +249,9 @@
         <button type="submit" class="btn" id="btn-bank-report">振り込みましたとお知らせする</button>
       </form>
       <p class="note">ご入金を確認できましたら、公式LINEへご連絡をさしあげます。</p>
+      <!-- お支払い方法の選び直し（2026-11-16）。
+           押すとお席をいったんお返しして、選び直しの画面にもどります。 -->
+      <button type="button" class="btn btn--ghost" id="btn-repick-bank">お支払い方法を変える</button>
     </div>
   </section>
 
@@ -288,7 +306,7 @@
 
 <div class="waitbar" id="waitbar">お待ちください…</div>
 
-<script src="js/config.js?v=2"></script>
-<script src="js/app.js?v=2"></script>
+<script src="js/config.js?v=4"></script>
+<script src="js/app.js?v=4"></script>
 </body>
 </html>

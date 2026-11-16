@@ -269,6 +269,19 @@
 
       <div class="sw">
         <div class="sw__t">
+          <b>🧪 テストモード</b>
+          <span class="sw__d">
+            受付ページのお支払い方法に<b>「テスト決済」</b>が増えます。<br>
+            Stripeを通さずに決済済みにして、そのあとの画面（当日のご案内）を確かめられます。<br>
+            <b>お客様をご案内する前に、必ずオフへ。</b>オンのあいだは誰でも押せます。<br>
+            確かめ終わった行は、下の一覧から「キャンセル」にしてお席をお戻しください。
+          </span>
+        </div>
+        <button type="button" class="swbtn" data-flag="test_mode" aria-pressed="false">オフ</button>
+      </div>
+
+      <div class="sw">
+        <div class="sw__t">
           <b>⌛ 期限切れをまとめて処理する</b>
           <span class="sw__d">
             振込の期限を過ぎた「振込待ち」を「期限切れ」にして、<b>お席を空けます。</b><br>
@@ -437,12 +450,14 @@ function paintFlags(f) {
 
   setSwitch('gate_off', !!f.gate_off);
   setSwitch('stopped',  !!f.stopped);
+  setSwitch('test_mode', !!f.test_mode);
 
   /* 畳んだままでも、いまの状態がひと目で分かるように。
      ふつうのときは静かに、何かオンのときだけ赤で出します。 */
   const on = [];
-  if (f.gate_off) on.push('🚪 期間前でも受付中');
-  if (f.stopped)  on.push('⏸ 受付を止めています');
+  if (f.gate_off)  on.push('🚪 期間前でも受付中');
+  if (f.stopped)   on.push('⏸ 受付を止めています');
+  if (f.test_mode) on.push('🧪 テストモード');
   $('sw-now').innerHTML = on.length
     ? ('設定　<b>' + on.join('　') + '</b>')
     : '設定　募集期間どおり／受付は通常';
@@ -453,7 +468,10 @@ function paintFlags(f) {
   // 右上の帯
   const flag = $('flag');
   flag.hidden = false;
-  if (f.stopped) {
+  if (f.test_mode) {
+    flag.textContent = '🧪 テストモード';
+    flag.className = 'flag stop';
+  } else if (f.stopped) {
     flag.textContent = '⏸ 受付を止めています';
     flag.className = 'flag stop';
   } else if (f.gate_off) {
@@ -475,6 +493,7 @@ function paintFlags(f) {
   const msgs = [];
   if (f.gate_off) msgs.push('🚪 募集期間（' + (f.open_at || '') + '〜）の外ですが、受付ページが開いています。');
   if (f.stopped)  msgs.push('⏸ 受付ページは「終了しました」の表示になっています。');
+  if (f.test_mode) msgs.push('🧪 受付ページに「テスト決済」のボタンが出ています。');
   if (msgs.length) {
     warn.hidden = false;
     warn.textContent = msgs.join(' ') + ' お客様をご案内する前に、必ず戻してください。';
@@ -499,10 +518,21 @@ document.addEventListener('click', async (ev) => {
 
   const key  = b.dataset.flag;
   const next = b.getAttribute('aria-pressed') !== 'true';
-  const label = (key === 'gate_off') ? '🚪 期間前でも受付を開く' : '⏸ 受付をいったん止める';
-  const detail = (key === 'gate_off')
-    ? (next ? '募集期間の外でも、受付ページが「受付中」になります。' : '募集期間どおりの動きに戻します。')
-    : (next ? '受付ページが「終了しました」になります。' : '受付ページを通常に戻します。');
+  const LABELS = {
+    gate_off:  '🚪 期間前でも受付を開く',
+    stopped:   '⏸ 受付をいったん止める',
+    test_mode: '🧪 テストモード'
+  };
+  const DETAILS = {
+    gate_off:  [ '募集期間どおりの動きに戻します。',
+                 '募集期間の外でも、受付ページが「受付中」になります。' ],
+    stopped:   [ '受付ページを通常に戻します。',
+                 '受付ページが「終了しました」になります。' ],
+    test_mode: [ '「テスト決済」のボタンを消します。',
+                 '受付ページに「テスト決済」のボタンが出ます。Stripeは通りません。' ]
+  };
+  const label  = LABELS[key] || key;
+  const detail = (DETAILS[key] || ['', ''])[next ? 1 : 0];
 
   if (!confirm(label + ' を「' + (next ? 'オン' : 'オフ') + '」にします。\n\n' + detail + '\n\nよろしいですか？')) return;
 
@@ -607,6 +637,7 @@ function paintList() {
   if (q) rows = rows.filter(p =>
     (p.name || '').toLowerCase().includes(q) ||
     (p.sns  || '').toLowerCase().includes(q) ||
+    (p.mail || '').toLowerCase().includes(q) ||
     (p.bname || '').toLowerCase().includes(q));
 
   if (!rows.length) {
@@ -639,6 +670,7 @@ function card(p) {
   if (p.brep)  facts.push(['振込のご連絡', esc(p.brep), '']);
   if (p.bname) facts.push(['お名義', esc(p.bname), '']);
   if (p.bdate) facts.push(['お振込日', esc(p.bdate), '']);
+  if (p.mail)  facts.push(['メールアドレス', esc(p.mail), '']);
   if (p.sns)   facts.push(['LINE表示名', esc(p.sns), '']);
   if (p.memo)  facts.push(['運営メモ', esc(p.memo), '']);
 

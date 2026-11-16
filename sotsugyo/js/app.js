@@ -113,6 +113,8 @@ async function load() {
     STATE.avail     = r.avail;
     STATE.price     = r.price || {};
     STATE.bank_days = r.bank_days || 5;
+    STATE.test_mode = !!r.test_mode;      // 🧪 テスト決済のボタンを出すか
+    paintTestBand();
 
     byId('foot-ver').textContent = r.version || '';
     paintLp();
@@ -360,6 +362,7 @@ function goForm(part) {
 
   byId('form-error').hidden = true;
   byId('f-name').value = STATE.name || '';
+  byId('f-mail').value = STATE.mail || '';
 
   // 銀行振込もお選びいただくとき
   var showBank = CONFIG.PAYMENT.show_bank || Q.get(CONFIG.PAYMENT.bank_query) === '1';
@@ -386,7 +389,15 @@ function paintPayOptions() {
       '<span class="payopt__title">銀行振込</span>' +
       '<span class="payopt__desc">お申し込みから' + STATE.bank_days +
         '日以内にお振り込みください（選ぶと振込先が出ます）</span>' +
-    '</button>';
+    '</button>' +
+    // 🧪 テストモードのあいだだけ出ます（2026-11-17）
+    (STATE.test_mode
+      ? '<button type="button" class="payopt payopt--test" data-method="test">' +
+          '<span class="payopt__title">🧪 テスト決済</span>' +
+          '<span class="payopt__desc">Stripeを通さずに決済済みにします。' +
+            'そのあとの画面を確かめるためのものです</span>' +
+        '</button>'
+      : '');
 
   byId('pay-options').querySelectorAll('[data-method]').forEach(function (btn) {
     btn.addEventListener('click', function () { submitForm(btn.getAttribute('data-method')); });
@@ -416,7 +427,17 @@ function checkName() {
   var name = s(byId('f-name').value);
   if (name.length < 1) return formError('お名前をご入力ください。');
   if (name.length > 40) return formError('お名前が長すぎるようです。');
+
+  // メールアドレス（2026-11-17）。かたちだけ確かめます
+  var mail = s(byId('f-mail').value);
+  if (mail.length < 1) return formError('メールアドレスをご入力ください。');
+  if (mail.length > 120) return formError('メールアドレスが長すぎるようです。');
+  if (!/^[^@\s]+@[^@\s.]+(\.[^@\s.]+)+$/.test(mail)) {
+    return formError('メールアドレスのかたちをご確認ください。');
+  }
+
   STATE.name = name;
+  STATE.mail = mail;
   byId('form-error').hidden = true;
   return true;
 }
@@ -438,13 +459,25 @@ async function submitForm(method) {
 
   try {
     if (method === 'bank') {
-      var rb = await api('bank', { uid: STATE.uid, name: STATE.name, part: STATE.part });
+      var rb = await api('bank',
+        { uid: STATE.uid, name: STATE.name, mail: STATE.mail, part: STATE.part });
       if (!rb || !rb.ok) return handleApiError(rb);
       paintBank(rb);
       return showScreen('screen-bank');
     }
 
-    var r = await api('hold', { uid: STATE.uid, name: STATE.name, part: STATE.part });
+    // 🧪 テスト決済。Stripeを通さずに決済済みにして、そのあとの画面を確かめます
+    if (method === 'test') {
+      var rt = await api('test_paid',
+        { uid: STATE.uid, name: STATE.name, mail: STATE.mail, part: STATE.part });
+      if (!rt || !rt.ok) return handleApiError(rt);
+      var mine = await loadMine();
+      if (mine && mine.paid) { paintDay(mine); return showScreen('screen-day'); }
+      return showScreen('screen-lp');
+    }
+
+    var r = await api('hold',
+      { uid: STATE.uid, name: STATE.name, mail: STATE.mail, part: STATE.part });
     if (!r || !r.ok) return handleApiError(r);
 
     // 決済ページへ。?uid= は【このページが】足します
@@ -734,6 +767,7 @@ function mockApi(action, body) {
   if (action === 'state') {
     return Promise.resolve({
       ok: true, version: 'mock', phase: Q.get('phase') || 'open',
+      test_mode: Q.get('test') === '1',
       remain: remain,
       avail: { part1: remain.part1 > 0, part2: remain.part2 > 0,
                both: remain.part1 > 0 && remain.part2 > 0 },
@@ -765,6 +799,14 @@ function mockApi(action, body) {
             number: '0000000', holder: 'カ）◯◯', note: '恐れ入りますが、振込手数料はご負担ください。' }
   });
   if (action === 'bank_report') return Promise.resolve({ ok: true });
+  if (action === 'test_paid')   return Promise.resolve({ ok: true, test: true });
+  // お支払い方法を変える。?unbank=reported を付けると「ご連絡ずみで変えられない」を確認できます
+  if (action === 'unbank') {
+    var u = (Q.get('unbank') || '').toLowerCase();
+    if (u === 'reported') return Promise.resolve({ ok: false, error: 'reported' });
+    if (u === 'already')  return Promise.resolve({ ok: false, error: 'already' });
+    return Promise.resolve({ ok: true, remain: remain });
+  }
   return Promise.resolve({ ok: false, error: 'mock' });
 }
 
@@ -860,3 +902,69 @@ document.addEventListener('click', function (e) {
   showScreen('screen-lp');
   paintLp();
 });
+
+/* ============================================================
+ *  お支払い方法を変える（2026-11-16 とーるさんご要望）
+ *
+ *  カード … この時点ではまだお席を押さえていません（GASは「決済待ち」の
+ *           行を作るだけ）。ですからそのまま選び直しの画面へ戻せます。
+ *  振込   … お選びになった時点でお席を押さえています。GASに unbank を
+ *           頼んで「決済待ち」に戻し、お席をお返ししてから画面を戻します。
+ *
+ *  ★「振り込みました」のご連絡をいただいたあとは変えられません。
+ *    行き違いでご入金が済んでいることがあるためです。運営へご案内します。
+ * ========================================================== */
+document.addEventListener('click', function (e) {
+  var t = e.target.closest
+    ? e.target.closest('#btn-repick-bank, #btn-repick-card') : null;
+  if (!t) return;
+  e.preventDefault();
+  repick(t.id === 'btn-repick-bank');
+});
+
+async function repick(fromBank) {
+  if (fromBank) {
+    var btn = byId('btn-repick-bank');
+    busy(btn, true);
+    try {
+      var r = await api('unbank', { uid: STATE.uid, part: STATE.part });
+      if (!r || !r.ok) {
+        if (r && r.error === 'reported') {
+          return bankError('お振込のご連絡をいただいております。'
+            + 'お支払い方法を変えたい場合は、凛穏塾の公式LINEへご連絡ください。');
+        }
+        if (r && r.error === 'already') {
+          return bankError('すでにお支払いが済んでおります。');
+        }
+        return handleApiError(r);
+      }
+    } catch (err) {
+      console.error(err);
+      return bankError('通信がうまくいきませんでした。少し経ってから、もう一度お押しください。');
+    } finally {
+      busy(btn, false);
+    }
+  }
+
+  goForm(STATE.part);
+  var opts = byId('pay-options');
+  if (opts) opts.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+/* 🧪 テストモードのあいだ、画面の上に帯を出します（2026-11-17）。
+ *   オフに戻し忘れると、お客様にも「テスト決済」が見えてしまうためです。 */
+function paintTestBand() {
+  var el = byId('test-band');
+  if (!el) return;
+  el.hidden = !STATE.test_mode;
+}
+
+/** 振込画面でのお知らせ（既にある bank-error の欄を使います） */
+function bankError(msg) {
+  var el = byId('bank-error');
+  if (!el) return false;
+  el.textContent = msg;
+  el.hidden = false;
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  return false;
+}
