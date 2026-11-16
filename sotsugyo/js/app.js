@@ -209,16 +209,30 @@ function paintStatic() {
         '<small>' + esc(p.venue.address) + (p.venue.note ? '　' + esc(p.venue.note) : '') +
         '　' + mapLink(p.venue) + '</small></dd></div>' +
       '<div><dt>時間</dt><dd>' + esc(p.time || '—') +
-        (p.reception ? '<small>' + esc(p.reception) + '</small>' : '') + '</dd></div>';
+        (p.reception ? '<small>' + esc(p.reception) + '</small>' : '') + '</dd></div>' +
+      tbdRow(p.items);
 
     byId('items-' + k).innerHTML = (p.items && p.items.length)
       ? '<ul class="lines">' + p.items.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>'
-      : '<p class="tbd">当日の内容は、決まりしだいこのページでご案内します。</p>';
+      : '';
   });
 }
 
 function venueSmall(v) {
   return v && v.name ? '<small>' + esc(v.name) + '　' + mapLink(v) + '</small>' : '';
+}
+
+/* まだ決まっていないところは「未確定」とだけ出します
+ *   （2026-11-16 とーるさん「詳細未確定部分は『未確定』とするだけでいいです」）
+ *   言い回しを変えたくなったら config.js の TEXT.tbd だけ直してください。
+ *   中身（items）が入った時点で、この行は自動で消えて箇条書きに変わります。 */
+function tbdLabel() {
+  return (CONFIG.TEXT && CONFIG.TEXT.tbd) || '未確定';
+}
+function tbdRow(list, label) {
+  if (list && list.length) return '';
+  return '<div><dt>' + esc(label || '内容') + '</dt>' +
+         '<dd><span class="tbd-chip">' + esc(tbdLabel()) + '</span></dd></div>';
 }
 
 /** 通信のあとで決まるところ（残席・押せるボタン） */
@@ -513,6 +527,7 @@ function paintDay(m) {
         '<div><dt>会場</dt><dd>' + esc(p.venue.name) +
           '<small>' + esc(p.venue.address) + (p.venue.note ? '　' + esc(p.venue.note) : '') +
           '　' + mapLink(p.venue) + '</small></dd></div>' +
+        tbdRow(p.items) +
       '</dl>' +
       ((p.items && p.items.length)
         ? '<ul class="lines">' + p.items.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>'
