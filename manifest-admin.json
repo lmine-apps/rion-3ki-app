@@ -1,7 +1,7 @@
 {
-  "name": "受付管理｜凛穏塾 3期生",
-  "short_name": "3期 受付管理",
-  "description": "凛穏塾 3期生 お申し込みの受付状況を見る、運営の方だけの画面です",
+  "name": "受付管理｜凛穏塾",
+  "short_name": "受付管理",
+  "description": "凛穏塾の受付をえらんで開く、運営の方だけの入口です",
   "start_url": "./admin.html",
   "scope": "./",
   "display": "standalone",

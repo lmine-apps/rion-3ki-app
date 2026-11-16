@@ -9,6 +9,16 @@
  *   ここに置くことで、同じサーバーの他のアプリ（動画視聴アプリなど）の
  *   通知とぶつからないようになります。
  */
+/* 通知をタップしたときの行き先を直します（2026-11-17）。
+ *   運営の入口を admin.html にしたので、3期生のページは 3ki.html に移りました。
+ *   3期生GASは古いURL（.../admin.html）を送ってきますが、
+ *   そのままだと入口に着いてしまい、ひと手間増えます。
+ *   3期生GASは3.5期生が現役で動いているため触りません。ここで読み替えます。 */
+function fixUrl_(u) {
+  u = u || './3ki.html';
+  return String(u).replace(/rion-3ki-app\/admin\.html/, 'rion-3ki-app/3ki.html');
+}
+
 importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js');
 
@@ -33,14 +43,14 @@ if (cfg.projectId) {
       icon: 'icon-192.png',
       badge: 'icon-192.png',
       tag: d.tag || 'rion3ki-ops',
-      data: { url: d.url || './admin.html' }
+      data: { url: fixUrl_(d.url) }
     });
   });
 }
 
 self.addEventListener('notificationclick', function (event) {
   event.notification.close();
-  var url = (event.notification.data && event.notification.data.url) || './admin.html';
+  var url = fixUrl_(event.notification.data && event.notification.data.url);
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (list) {
       for (var i = 0; i < list.length; i++) {

@@ -1,8 +1,8 @@
 {
-  "name": "受付管理｜凛穏塾",
-  "short_name": "凛穏塾 受付管理",
-  "description": "凛穏塾の受付の状況を見る、運営の方だけの入口です",
-  "start_url": "./kanri.html",
+  "name": "3期生 受付管理｜凛穏塾",
+  "short_name": "3期 受付管理",
+  "description": "凛穏塾 3期生 お申し込みの受付状況を見る、運営の方だけの画面です",
+  "start_url": "./3ki.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
@@ -11,13 +11,13 @@
   "lang": "ja",
   "icons": [
     {
-      "src": "./icon-192.png",
+      "src": "icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icon-512.png",
+      "src": "icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"

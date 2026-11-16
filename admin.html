@@ -5,14 +5,32 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex,nofollow">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<title>受付管理｜凛穏塾 3期生</title>
+<title>受付管理｜凛穏塾</title>
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="manifest-admin.json">
 <meta name="theme-color" content="#12345a">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="3期 受付管理">
+<meta name="apple-mobile-web-app-title" content="凛穏塾 受付管理">
+<!--
+  凛穏塾 受付管理 ― 入口
+  ------------------------------------------------------------------
+  2026-11-15 とーるさんご要望。
+  「管理ページのURLは1つにして、中で受付をえらべるように」
+
+  覚えていただくURLはここだけです。
+    https://apps.l-mine.com/rion-3ki-app/admin.html
+
+  管理キーは、ここで入れると受付ごとに（この端末が）覚えます。
+  3期生と卒業式は同じ鍵にそろえました（2026-11-15）。
+  どちらか一方を開ける端末なら、何も入れずに両方ひらきます。
+  （鍵は 3期生GASの ADMIN_TOKEN ＝ 卒業式GASの ADMIN_KEY。
+    3期生の鍵はプロラインの外部プログラムの合言葉も兼ねているので、
+    そろえるときは卒業式のほうを3期生に合わせました。逆はできません）
+
+  受付を足すときは、下の RECEPTIONS に1つ足すだけです。
+-->
 <style>
   *,*::before,*::after{box-sizing:border-box}
   html,body{margin:0;padding:0}
@@ -21,13 +39,11 @@
     --ink:#172b3d; --ink-soft:#5f7387; --ink-faint:#93a6b6;
     --line:#d5e4ef; --navy:#12345a; --navy-dk:#0b203d; --sky:#62b7e7; --sky-soft:#e5f5fd;
     --green:#1f7a5c; --green-soft:#e6f3ee; --warn:#c0503f; --warn-soft:#fdf0ed;
-    --amber:#a8722a; --amber-soft:#fdf3e3; --gold:#a8823f;
-    --mark-bg:#12345a; --on-mark:#fff; --scrim:rgba(11,32,61,.45);
+    --amber:#a8722a; --amber-soft:#fdf3e3;
     --shadow:0 10px 30px rgba(7,23,44,.13);
     --serif:"Yu Mincho",YuMincho,"Hiragino Mincho ProN","Noto Serif JP",serif;
     --sans:"Hiragino Kaku Gothic ProN","Yu Gothic UI","Yu Gothic",YuGothic,Meiryo,system-ui,sans-serif;
     --num:Georgia,"Times New Roman",serif;
-    --mono:Consolas,"Cascadia Mono",ui-monospace,monospace;
   }
   @media (prefers-color-scheme:dark){
     :root:not([data-theme="light"]){
@@ -35,8 +51,7 @@
       --ink:#e6eef5; --ink-soft:#9db1c3; --ink-faint:#6b8299;
       --line:#22405c; --navy:#9fc9e8; --navy-dk:#cfe6f6; --sky:#62b7e7; --sky-soft:#10293d;
       --green:#6cc39f; --green-soft:#102b23; --warn:#e0917f; --warn-soft:#33201c;
-      --amber:#d9a559; --amber-soft:#2e2314; --gold:#d1a95f;
-      --mark-bg:#62b7e7; --on-mark:#06182a; --scrim:rgba(0,0,0,.6);
+      --amber:#d9a559; --amber-soft:#2e2314;
       --shadow:0 10px 30px rgba(0,0,0,.5);
     }
   }
@@ -45,280 +60,85 @@
     --ink:#e6eef5; --ink-soft:#9db1c3; --ink-faint:#6b8299;
     --line:#22405c; --navy:#9fc9e8; --navy-dk:#cfe6f6; --sky:#62b7e7; --sky-soft:#10293d;
     --green:#6cc39f; --green-soft:#102b23; --warn:#e0917f; --warn-soft:#33201c;
-    --amber:#d9a559; --amber-soft:#2e2314; --gold:#d1a95f;
-    --mark-bg:#62b7e7; --on-mark:#06182a; --scrim:rgba(0,0,0,.6);
+    --amber:#d9a559; --amber-soft:#2e2314;
     --shadow:0 10px 30px rgba(0,0,0,.5);
   }
 
   body{background:var(--ground);color:var(--ink);font-family:var(--sans);line-height:1.75;font-size:15px}
-  button{font-family:inherit;-webkit-tap-highlight-color:transparent}
+  button,input{font-family:inherit;-webkit-tap-highlight-color:transparent}
   [hidden]{display:none !important}
 
-  /* ---------- header ---------- */
   .head{background:linear-gradient(160deg,var(--navy-dk),var(--navy));color:#fff}
   :root:not([data-theme="light"]) .head,:root[data-theme="dark"] .head{background:linear-gradient(160deg,#061626,#12385c)}
-  .head__in{max-width:1000px;margin:0 auto;padding:.9rem 1rem 1rem;display:flex;align-items:center;gap:.8rem;flex-wrap:wrap}
-  .head__t{display:flex;flex-direction:column;gap:0;margin-right:auto}
+  .head__in{max-width:760px;margin:0 auto;padding:.9rem 1rem 1rem;display:flex;align-items:center;gap:.8rem;flex-wrap:wrap}
+  .head__t{display:flex;flex-direction:column;margin-right:auto}
   .head__k{font-size:.62rem;letter-spacing:.3em;color:var(--sky)}
   .head__n{font-family:var(--serif);font-size:1.15rem;line-height:1.3}
   .head button{
     font-size:.8rem;font-weight:700;cursor:pointer;border:1.3px solid rgba(255,255,255,.45);
-    background:rgba(255,255,255,.1);color:#fff;border-radius:999px;padding:.35rem .95rem;
-  }
+    background:rgba(255,255,255,.1);color:#fff;border-radius:999px;padding:.35rem .95rem}
   .head button:hover{background:rgba(255,255,255,.2)}
-  #btn-push{position:relative;padding:.35rem .7rem;font-size:.95rem;line-height:1}
-  #btn-push.on::after{content:'';position:absolute;top:.25rem;right:.35rem;width:.45rem;height:.45rem;
-    border-radius:50%;background:#6ee7a8;box-shadow:0 0 0 2px var(--navy-dk)}
-  .pushlist{display:flex;flex-direction:column;gap:.15rem;margin:.6rem 0 0}
-  .pushrow{display:flex;align-items:flex-start;gap:.6rem;padding:.55rem .2rem;
-    border-bottom:1px solid var(--line);cursor:pointer}
-  .pushrow:last-child{border-bottom:0}
-  .pushrow input{margin:.15rem 0 0;width:1.1rem;height:1.1rem;flex:none;accent-color:var(--navy)}
-  .pushrow b{display:block;font-size:.9rem;font-weight:700;color:var(--ink)}
-  .pushrow em{display:block;font-style:normal;font-size:.76rem;color:var(--ink-soft);margin-top:.1rem}
-  .lnk{background:none;border:0;padding:0;font:inherit;color:var(--navy);
-    font-weight:700;text-decoration:underline;cursor:pointer}
-  .pushdiag{border:1px solid var(--line);border-radius:10px;overflow:hidden}
-  .pushdiag__r{display:flex;justify-content:space-between;gap:1rem;align-items:center;
-    padding:.5rem .7rem;font-size:.82rem;border-bottom:1px solid var(--line)}
-  .pushdiag__r:last-child{border-bottom:0}
-  .pushdiag__r b{font-size:.78rem;white-space:nowrap}
-  .pushdiag__r b.ok{color:var(--green)}
-  .pushdiag__r b.ng{color:var(--warn)}
-  .flag{font-size:.68rem;font-weight:700;padding:.15rem .6rem;border-radius:999px;background:#fbe9e7;color:#9c3a28}
-  .flag.dry{background:#fdf3dd;color:#8a6a1e}
-  .flag.test{background:#b25c17;color:#fff}
-  .flag.gate{background:#1f6f8b;color:#fff}
 
-  /* ---------- スイッチ（テスト決済／受付の開け閉め） ---------- */
-  /* 畳んだときの1行。ふだんはこれだけが見えます */
-  /* 3期／3.5期の切り替え。ふつうのタブより少し小さく */
-  /* 3.5期のときだけ出る、無料特別講義の絞り込み（2026-09-13） */
-  .bar35{margin:.1rem 0 .5rem;padding:.5rem .6rem;border-radius:10px;
-    background:var(--sky-soft);border:1px solid var(--line);
-    display:flex;flex-direction:column;gap:.4rem}
-  .bar35__row{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
-  .bar35__t{font-size:.78rem;font-weight:700;color:var(--navy);white-space:nowrap;
-    min-width:6.6rem}
-  .bar35 .tab{font-size:.78rem;padding:.28rem .7rem}
-  .bar35 .tab b{margin-left:.3rem;font-variant-numeric:tabular-nums}
-  .bar35 .tab[aria-pressed="true"]{background:var(--navy);color:#fff;border-color:var(--navy)}
-  .bar35 .ngbtn{font-size:.78rem;padding:.28rem .7rem;border-radius:99px;cursor:pointer;
-    border:1px solid #e0b4b4;background:#fdf1f1;color:#8c3a3a}
-  .bar35 .ngbtn b{margin-left:.3rem;font-variant-numeric:tabular-nums}
-  .bar35 .ngbtn:hover{border-color:#c98c8c}
+  .wrap{max-width:760px;margin:0 auto;padding:1.1rem 1rem 3rem}
+  .lead{font-size:.86rem;color:var(--ink-soft);margin:0 0 .9rem}
 
-  .terms{margin-bottom:.4rem}
-  .terms .tab{font-size:.78rem;padding:.28rem .8rem}
-  .terms .tab[aria-pressed="true"]{background:var(--navy);color:#fff;border-color:var(--navy)}
+  /* ---------- 受付のカード ---------- */
+  .rc{
+    display:block;width:100%;text-align:left;cursor:pointer;
+    background:var(--card);border:1px solid var(--line);border-radius:14px;
+    padding:1rem 1.05rem;margin:0 0 .85rem;box-shadow:var(--shadow);
+    color:inherit;transition:border-color .15s,transform .08s}
+  .rc:hover{border-color:var(--navy)}
+  .rc:active{transform:translateY(1px)}
+  .rc.todo{border-color:var(--warn);border-width:1.6px}
+  .rc__top{display:flex;align-items:flex-start;gap:.6rem}
+  .rc__ico{font-size:1.5rem;line-height:1.2}
+  .rc__name{font-family:var(--serif);font-size:1.08rem;font-weight:700;line-height:1.4;display:block}
+  .rc__sub{font-size:.76rem;color:var(--ink-faint);margin-top:.1rem;display:block;line-height:1.5}
+  .rc__go{margin-left:auto;font-size:.78rem;font-weight:700;color:var(--navy);white-space:nowrap;padding-top:.25rem}
 
-  .switches__head{display:flex;align-items:center;gap:.5rem;cursor:pointer;list-style:none;
-    padding:.5rem .8rem;border-radius:10px;background:var(--card);border:1px solid var(--line);
-    font-size:.82rem;color:var(--ink-soft)}
-  .switches__head::-webkit-details-marker{display:none}
-  .switches__head:hover{border-color:var(--ink-faint)}
-  .switches__gear{font-size:.95rem}
-  .switches__now{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .switches__now b{color:#c0392b}
-  .switches__more{flex:none;font-size:.74rem;color:var(--ink-faint)}
-  details[open] .switches__more::after{content:'（閉じる）'}
-  details:not([open]) .switches__more::after{content:'（開く）'}
-  .switches__more{font-size:0}
-  .switches__more::after{font-size:.74rem}
-  .switches{display:flex;flex-direction:column;gap:.6rem;
-    background:var(--card);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem}
-  .sw{display:flex;align-items:flex-start;gap:1rem;justify-content:space-between}
-  .sw+.sw{border-top:1px dashed var(--line);padding-top:.7rem}
-  .sw__t{display:flex;flex-direction:column;gap:.15rem;min-width:0}
-  .sw__t>b{font-size:.9rem}
-  .sw__d{font-size:.76rem;color:var(--ink-soft);line-height:1.7}
-  .sw__d b{color:var(--ink)}
-  .swbtn{flex:none;min-width:5.4rem;padding:.42rem .9rem;border-radius:999px;cursor:pointer;
-    border:1.5px solid var(--line);background:var(--card-soft);color:var(--ink-soft);
-    font-size:.82rem;font-weight:700;transition:background .15s,color .15s,border-color .15s}
-  .swbtn:hover{border-color:var(--ink-faint)}
-  /* オンのあいだは赤。ひと目で「ふだんと違う」と分かるように */
-  .swbtn[aria-pressed="true"]{background:#c0392b;border-color:#c0392b;color:#fff}
-  .swbtn:disabled{opacity:.5;cursor:progress}
-  /* ---------- コース選び ---------- */
-  .plancho{display:flex;flex-direction:column;gap:.5rem}
-  .planopt{display:flex;align-items:center;justify-content:space-between;gap:1rem;
-    width:100%;padding:.75rem .9rem;border:1.5px solid var(--line);border-radius:10px;
-    background:var(--card-soft);color:var(--ink);cursor:pointer;text-align:left;
-    font:inherit;transition:border-color .15s,background .15s}
-  .planopt:hover{border-color:var(--sky)}
-  .planopt[aria-pressed="true"]{border-color:var(--navy);background:var(--sky-soft)}
-  .planopt__t{font-weight:700;font-size:.92rem}
-  .planopt__n{font-family:var(--num);font-size:1rem;font-variant-numeric:tabular-nums;
-    color:var(--navy);white-space:nowrap}
+  .rc__band{margin-top:.7rem;font-size:.78rem;font-weight:700;padding:.3rem .7rem;border-radius:8px;
+    background:var(--amber-soft);color:var(--amber);display:inline-block}
+  .rc__band.warn{background:var(--warn-soft);color:var(--warn)}
+  .rc__band.ok{background:var(--green-soft);color:var(--green)}
 
-  .sw__warn{margin:.2rem 0 0;padding:.6rem .8rem;border-radius:8px;
-    background:#fdecea;border:1px solid #f0b8b0;color:#a33224;
-    font-size:.8rem;font-weight:700;line-height:1.75}
-  @media (prefers-color-scheme:dark){
-    :root:not([data-theme="light"]) .sw__warn{background:#3a1b17;border-color:#7a3529;color:#f0a99c}
-  }
-  :root[data-theme="dark"] .sw__warn{background:#3a1b17;border-color:#7a3529;color:#f0a99c}
+  .rc__nums{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.75rem}
+  .num{background:var(--card-soft);border:1px solid var(--line);border-radius:9px;
+    padding:.35rem .6rem;font-size:.74rem;color:var(--ink-soft);display:flex;align-items:baseline;gap:.35rem}
+  .num b{font-family:var(--num);font-size:1.02rem;color:var(--ink);font-weight:700}
+  .num.act{background:var(--warn-soft);border-color:var(--warn);color:var(--warn)}
+  .num.act b{color:var(--warn)}
+  .num.done{background:var(--green-soft);border-color:var(--green);color:var(--green)}
+  .num.done b{color:var(--green)}
 
-  .wrap{max-width:1000px;margin:0 auto;padding:1.2rem 1rem 4rem;display:flex;flex-direction:column;gap:1.2rem}
+  .rc__msg{margin-top:.7rem;font-size:.8rem;color:var(--ink-soft)}
+  .rc__msg.bad{color:var(--warn)}
+  .skel{margin-top:.75rem;height:1.7rem;border-radius:9px;background:var(--card-soft);
+    animation:pulse 1.2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
 
-  /* ---------- login ---------- */
-  .login{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:1.6rem 1.4rem;
-         display:flex;flex-direction:column;gap:.8rem;max-width:420px;margin:2rem auto;box-shadow:var(--shadow)}
-  .login h2{font-family:var(--serif);font-size:1.15rem;margin:0;font-weight:600}
-  .login p{margin:0;font-size:.86rem;color:var(--ink-soft)}
-  .login input{
-    font-family:var(--mono);font-size:1rem;padding:.6rem .7rem;
-    border:1.4px solid var(--line);border-radius:9px;background:var(--card-soft);color:var(--ink);width:100%;
-  }
-  .btn{
-    font-size:.92rem;font-weight:700;cursor:pointer;border:0;border-radius:999px;padding:.6rem 1.4rem;
-    background:linear-gradient(135deg,var(--navy),var(--navy-dk));color:#fff;
-  }
-  :root:not([data-theme="light"]) .btn,:root[data-theme="dark"] .btn{background:linear-gradient(135deg,#1d5f92,#0d3a63)}
-  .btn:disabled{background:var(--line);color:var(--ink-faint);cursor:not-allowed}
-  .btn.ghost{background:transparent;color:var(--navy);border:1.4px solid var(--line)}
-  .btn.danger{background:linear-gradient(135deg,#c0503f,#96382a)}
-  .btn.ok{background:linear-gradient(135deg,#1f7a5c,#155c45)}
-  .btn:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+  /* ---------- 管理キー ---------- */
+  .keybox{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:1rem 1.05rem;margin-top:.4rem}
+  .keybox h2{font-family:var(--serif);font-size:.98rem;margin:0 0 .4rem}
+  .keybox p{font-size:.8rem;color:var(--ink-soft);margin:0 0 .7rem}
+  .keybox .row{display:flex;gap:.5rem;flex-wrap:wrap}
+  .keybox input{flex:1 1 13rem;min-width:0;padding:.6rem .7rem;font-size:1rem;
+    border:1.4px solid var(--line);border-radius:10px;background:var(--card-soft);color:var(--ink)}
+  .keybox input:focus{outline:none;border-color:var(--navy)}
+  .btn{cursor:pointer;border:none;border-radius:10px;padding:.6rem 1.2rem;
+    font-size:.88rem;font-weight:700;background:var(--navy);color:#fff}
+  .btn:hover{background:var(--navy-dk)}
+  .btn:disabled{opacity:.5;cursor:default}
+  .err{font-size:.8rem;color:var(--warn);margin:.6rem 0 0}
 
-  /* ---------- summary ---------- */
-  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:.6rem}
-  .kpi{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:.7rem .85rem;
-       display:flex;flex-direction:column;gap:.1rem}
-  .kpi .l{font-size:.72rem;color:var(--ink-soft)}
-  .kpi .v{font-family:var(--num);font-size:1.55rem;font-weight:700;line-height:1.2;font-variant-numeric:tabular-nums}
-  .kpi.act{border-color:var(--warn);background:var(--warn-soft)}
-  .kpi.act .v{color:var(--warn)}
-  .kpi.done .v{color:var(--green)}
-  /* 押せるKPI（意気込み）。見た目は他のカードと揃える */
-  button.kpi{font:inherit;color:inherit;text-align:left;cursor:pointer;
-             font-family:inherit;-webkit-appearance:none;appearance:none}
-  button.kpi:hover{border-color:var(--navy)}
-  button.kpi:focus-visible{outline:2px solid var(--navy);outline-offset:2px}
-  .kpi .tapmark{display:inline-block;margin-left:.3rem;padding:0 .35rem;border-radius:4px;
-                background:var(--line);color:var(--ink-soft);font-size:.62rem;vertical-align:1px}
+  .foot{margin-top:1.6rem;font-size:.72rem;color:var(--ink-faint);text-align:center;line-height:2}
+  .foot button{background:none;border:none;color:var(--ink-faint);font-size:.72rem;
+    text-decoration:underline;cursor:pointer;padding:0;font-family:inherit}
 
-  /* 意気込みの一覧（見るだけ） */
-  .fmnote{margin:0 0 .6rem;font-size:.85rem;color:var(--ink-soft)}
-  .fmnote b{color:var(--ink);font-family:var(--num)}
-  .fmwrap{max-height:56vh;overflow:auto;border:1px solid var(--line);border-radius:10px}
-  table.fm{border-collapse:collapse;width:100%;font-size:.84rem}
-  table.fm th,table.fm td{padding:.45rem .6rem;border-bottom:1px solid var(--line);
-                          text-align:left;vertical-align:top;white-space:nowrap}
-  table.fm th{position:sticky;top:0;background:var(--card);color:var(--ink-soft);
-              font-size:.74rem;font-weight:700;z-index:1}
-  table.fm td.when{font-family:var(--num);font-variant-numeric:tabular-nums;color:var(--ink-soft)}
-  table.fm td.nm{white-space:normal}
-  table.fm td.ig{max-width:15em;overflow:hidden;text-overflow:ellipsis}
-  /* Instagram はURLのときだけ押せる。指で押しやすいよう縦に余白をとる */
-  a.fmlink{display:inline-block;padding:.2rem 0;color:var(--navy);font-weight:700;
-           text-decoration:underline;text-underline-offset:2px}
-  a.fmlink:hover{color:var(--sky)}
-  .fmplain{color:var(--ink-soft)}
-  table.fm tr:last-child td{border-bottom:0}
-  .fmin{display:inline-block;padding:0 .45rem;border-radius:999px;
-        background:var(--green-soft);color:var(--green);font-size:.7rem;font-weight:700}
-  .planline{font-size:.83rem;color:var(--ink-soft);display:flex;flex-wrap:wrap;gap:.2rem .9rem}
-  .planline b{color:var(--ink);font-family:var(--num)}
-
-  /* ---------- toolbar ---------- */
-  .bar{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center}
-  .tabs{display:flex;flex-wrap:wrap;gap:.35rem}
-  .tab{
-    font-size:.82rem;font-weight:700;cursor:pointer;border:1.3px solid var(--line);
-    background:var(--card);color:var(--ink-soft);border-radius:999px;padding:.32rem .9rem;
-  }
-  .tab[aria-pressed="true"]{background:var(--mark-bg);color:var(--on-mark);border-color:var(--mark-bg)}
-  .search{
-    font-family:inherit;font-size:.88rem;padding:.4rem .7rem;border:1.3px solid var(--line);
-    border-radius:9px;background:var(--card);color:var(--ink);min-width:150px;flex:1;max-width:260px;
-  }
-
-  /* ---------- list ---------- */
-  .list{display:flex;flex-direction:column;gap:.7rem}
-  .row{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:.85rem 1rem;
-       display:flex;flex-direction:column;gap:.5rem}
-  .row.act{border-left:4px solid var(--warn)}
-  .row.fin{opacity:.72}
-  .row__top{display:flex;flex-wrap:wrap;gap:.5rem;align-items:baseline}
-  .row__name{font-family:var(--serif);font-size:1.05rem;font-weight:600;margin-right:auto}
-  .tag{font-size:.71rem;font-weight:700;padding:.1rem .6rem;border-radius:999px;white-space:nowrap}
-  .tag.plan{background:var(--sky-soft);color:var(--navy)}
-  .tag.stage{background:var(--card-soft);color:var(--ink-soft);border:1px solid var(--line)}
-  .tag.stage.wait{background:var(--warn-soft);color:var(--warn);border-color:transparent}
-  .tag.stage.done{background:var(--green-soft);color:var(--green);border-color:transparent}
-  .tag.stage.new{background:var(--amber-soft);color:var(--amber);border-color:transparent}
-  .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:.15rem .9rem;font-size:.83rem}
-  .facts div{display:flex;gap:.45rem}
-  .facts .k{color:var(--ink-faint);white-space:nowrap;min-width:5.6em}
-  .facts .v{color:var(--ink)}
-  .facts .v.n{font-family:var(--num);font-weight:700;font-variant-numeric:tabular-nums}
-  .row__act{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
-  .row__act .btn{font-size:.84rem;padding:.42rem 1.1rem}
-  .empty{text-align:center;color:var(--ink-faint);font-size:.9rem;padding:2.5rem 1rem}
-
-  /* ---------- modal ---------- */
-  .scrim{position:fixed;inset:0;background:var(--scrim);display:flex;align-items:center;justify-content:center;
-         padding:1rem;z-index:50}
-  .modal{background:var(--card);border-radius:14px;box-shadow:var(--shadow);max-width:460px;width:100%;
-         max-height:88vh;overflow:auto;padding:1.3rem 1.3rem 1.1rem;display:flex;flex-direction:column;gap:.8rem}
-  .modal h2{font-family:var(--serif);font-size:1.15rem;margin:0;font-weight:600}
-  .modal p{margin:0;font-size:.88rem;color:var(--ink-soft)}
-  .modal .check{background:var(--card-soft);border:1px solid var(--line);border-radius:10px;padding:.8rem .9rem;
-                display:flex;flex-direction:column;gap:.25rem;font-size:.9rem}
-  .modal .check .r{display:flex;gap:.6rem}
-  .modal .check .r .k{color:var(--ink-faint);min-width:6.2em}
-  .modal .check .r .v{color:var(--ink);font-weight:600}
-  .modal .check .r .v.n{font-family:var(--num);font-size:1.15rem}
-  .modal .foot{display:flex;gap:.6rem;justify-content:flex-end;flex-wrap:wrap}
-  .warnbox{background:var(--warn-soft);color:var(--warn);border-radius:9px;padding:.6rem .8rem;font-size:.83rem;font-weight:700}
-  .picklist{max-height:250px;overflow:auto;border:1px solid var(--line);border-radius:10px;padding:.5rem .6rem}
-  .picklist label{display:flex;gap:.5rem;align-items:flex-start;padding:.35rem .1rem;border-bottom:1px solid var(--line);font-size:.88rem}
-  .picklist label:last-child{border-bottom:0}
-  .picklist .who{margin-right:auto}
-  .picklist .sub{font-size:.76rem;color:var(--ink-faint)}
-  .sumbox{background:var(--sky-soft);color:var(--navy);border-radius:9px;padding:.55rem .8rem;font-weight:700;font-size:.9rem}
-
-  .toast{position:fixed;left:50%;bottom:1.4rem;transform:translateX(-50%);z-index:60;
-         background:var(--navy-dk);color:#fff;border-radius:999px;padding:.6rem 1.3rem;font-size:.88rem;
-         box-shadow:var(--shadow);max-width:90vw}
-  :root:not([data-theme="light"]) .toast,:root[data-theme="dark"] .toast{background:#0d3a63}
-  .toast.bad{background:#96382a}
-
-  footer{max-width:1000px;margin:0 auto;padding:0 1rem 2rem;font-size:.78rem;color:var(--ink-faint)}
-  /* 凛穏ロゴ。明るい画面と暗い画面で絵柄を差し替える（紺の字が沈まないように） */
-  .foot-logo{display:block;width:44px;height:38px;margin:0 0 8px;opacity:.5;
-    background:center/contain no-repeat url("assets/logo-mark-160.png")}
-  @media (prefers-color-scheme:dark){
-    :root:not([data-theme="light"]) .foot-logo{background-image:url("assets/logo-mark-light-160.png")}
-  }
-  :root[data-theme="dark"] .foot-logo{background-image:url("assets/logo-mark-light-160.png")}
-  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
-  /* ===== 🧊 クーリングオフ ===== */
-  .coolwrap{max-height:62vh;overflow:auto;margin:.2rem 0 .6rem}
-  .coolrow{padding:.6rem .7rem;border:1px solid var(--line);border-radius:10px;
-           margin-bottom:.5rem;background:#fff}
-  .coolrow.done{background:#eaf7ef;border-color:#bfe0cb}
-  .coolrow__top{display:flex;align-items:center;gap:.4rem;flex-wrap:wrap;margin-bottom:.25rem}
-  .coolrow__name{font-weight:700}
-  .coolrow__facts{display:flex;flex-wrap:wrap;gap:.1rem .9rem;
-                  font-size:.78rem;color:var(--ink-faint);margin-bottom:.4rem}
-  .coolrow__acts{display:flex;flex-wrap:wrap;gap:.4rem}
-  .pill{font-size:.71rem;font-weight:700;padding:.1rem .6rem;border-radius:999px;white-space:nowrap}
-  .pill.wait{background:#fdf0e3;color:#8a5a20}
-  .pill.req{background:#fdecea;color:#8f3028}
-  .pill.fin{background:#e4f3ea;color:#1c7a4b}
-  .coolempty{padding:1rem;text-align:center;color:var(--ink-faint);font-size:.85rem}
-  .coolpick{margin-top:.4rem;padding-top:.7rem;border-top:1px solid var(--line)}
-  .coolpick input[type=search]{width:100%;padding:.5rem .7rem;border:1px solid var(--line);
-    border-radius:8px;font:inherit;margin-bottom:.4rem}
-  .coolcand{max-height:34vh;overflow:auto}
-  .coolcand button{display:block;width:100%;text-align:left;padding:.45rem .6rem;
-    border:1px solid var(--line);border-radius:8px;background:#fff;margin-bottom:.3rem;
-    font:inherit;cursor:pointer}
-  .coolcand button:hover{background:#eef6fb}
-  .coolcand .sub{font-size:.76rem;color:var(--ink-faint)}
+  .toast{position:fixed;left:50%;bottom:1.3rem;transform:translateX(-50%);
+    background:var(--navy-dk);color:#fff;font-size:.84rem;padding:.6rem 1.1rem;
+    border-radius:999px;box-shadow:var(--shadow);z-index:50;max-width:90vw;text-align:center}
+  .toast.bad{background:var(--warn);color:#fff}
 </style>
 </head>
 <body>
@@ -326,1330 +146,332 @@
 <header class="head">
   <div class="head__in">
     <div class="head__t">
-      <span class="head__k">RION JUKU / 3rd</span>
+      <span class="head__k">RIONJUKU</span>
       <span class="head__n">受付管理</span>
     </div>
-    <span id="flag" class="flag" hidden></span>
-    <button type="button" id="btn-push" hidden title="スマホ通知の設定">🔔</button>
-    <button type="button" id="btn-reload" hidden>更新</button>
-    <button type="button" id="btn-logout" hidden>キーを消す</button>
-    <!-- 受付の入口へ（2026-11-15／URLをひとつにまとめたので、行き来できるように） -->
-    <button type="button" onclick="location.href='./kanri.html'">← 受付をえらぶ</button>
+    <button type="button" id="btn-reload">最新にする</button>
   </div>
 </header>
 
-<!-- ============ ログイン ============ -->
-<section id="screen-login" class="login">
-  <h2>管理キーを入れてください</h2>
-  <p>この画面はスプレッドシートの写しです。運営の方だけがお使いください。</p>
-  <input type="password" id="key" autocomplete="off" spellcheck="false" placeholder="管理キー">
-  <button type="button" class="btn" id="btn-login">開く</button>
-  <p id="login-err" style="color:var(--warn);font-weight:700" hidden></p>
-</section>
+<main class="wrap">
+  <p class="lead">見たい受付をえらんでください。</p>
+  <div id="cards"></div>
 
-<!-- ============ 一覧 ============ -->
-<main id="screen-main" class="wrap" hidden>
-
-  <!-- ============ スイッチ（ふだんは畳んでおく・2026-09-07）============ -->
-  <details class="switches" id="switches" hidden>
-    <summary class="switches__head">
-      <span class="switches__gear">⚙</span>
-      <span class="switches__now" id="sw-now">設定</span>
-      <span class="switches__more">開く</span>
-    </summary>
-
-    <div class="sw" id="sw-test">
-      <div class="sw__t">
-        <b>🧪 テスト決済モード</b>
-        <span class="sw__d">オンのあいだは、カード決済が <b>1回目100円／2回目150円</b> のページに切り替わります。
-          コースの金額では請求されません。</span>
-      </div>
-      <button type="button" class="swbtn" data-flag="test_mode" aria-pressed="false">オフ</button>
+  <section class="keybox" id="keybox" hidden>
+    <h2>管理キー</h2>
+    <p id="key-note">管理キーを入れてください。</p>
+    <div class="row">
+      <input id="key" type="password" inputmode="text" autocomplete="off" spellcheck="false" placeholder="管理キー">
+      <button type="button" class="btn" id="btn-login">ひらく</button>
     </div>
+    <p class="err" id="key-err" hidden></p>
+  </section>
 
-    <div class="sw" id="sw-gate">
-      <div class="sw__t">
-        <b>🚪 受付をテスト用に開く</b>
-        <span class="sw__d">オンのあいだは、受付開始（<span data-open-at>—</span>）を待たずに手続きできます。
-          オフが本番です。</span>
-      </div>
-      <button type="button" class="swbtn" data-flag="open_gate_off" aria-pressed="false">オフ</button>
-    </div>
-
-    <div class="sw" id="sw-maint">
-      <div class="sw__t">
-        <b>🔧 メンテナンス中の表示</b>
-        <span class="sw__d">オンのあいだ、お客様の画面が「ただいまメンテナンス中です」に切り替わります。
-          この運営用アプリと、署名・決済の通知は、これまでどおり動きます。</span>
-      </div>
-      <button type="button" class="swbtn" data-flag="maintenance" aria-pressed="false">オフ</button>
-    </div>
-
-    <p class="sw__warn" id="sw-warn" hidden></p>
-  </details>
-
-  <div class="cards" id="kpis"></div>
-  <div class="planline" id="plans"></div>
-
-  <div class="bar">
-    <div class="tabs terms" id="terms">
-      <button type="button" class="tab" data-t="3" aria-pressed="true">3期</button>
-      <button type="button" class="tab" data-t="3.5" aria-pressed="false">3.5期</button>
-      <button type="button" class="tab" data-t="all" aria-pressed="false">すべて</button>
-    </div>
-    <div class="tabs" id="tabs">
-      <button type="button" class="tab" data-f="act" aria-pressed="true">要対応</button>
-      <button type="button" class="tab" data-f="all" aria-pressed="false">すべて</button>
-      <button type="button" class="tab" data-f="new" aria-pressed="false">未案内</button>
-      <button type="button" class="tab" data-f="prog" aria-pressed="false">進行中</button>
-      <button type="button" class="tab" data-f="done" aria-pressed="false">完了</button>
-      <!-- ★2026-09-22 講義アーカイブ視聴用のメールアドレスを、まだご本人に
-           確かめていただけていない方。お支払いが決まった方だけを出します。 -->
-      <button type="button" class="tab" data-f="mail" aria-pressed="false">アドレス未確認</button>
-    </div>
-    <input type="search" class="search" id="q" placeholder="お名前でさがす">
-    <button type="button" class="btn ghost" id="btn-invite">ご案内を送る</button>
-    <button type="button" class="btn ghost" id="btn-cool">🧊 クーリングオフ</button>
-  </div>
-
-  <!-- 3.5期のときだけ出る、無料特別講義の絞り込み（2026-09-13 とーるさんご要望） -->
-  <div class="bar35" id="bar35" hidden>
-    <div class="bar35__row">
-      <span class="bar35__t">🎧 無料特別講義</span>
-      <div class="tabs" id="tabs35">
-        <button type="button" class="tab" data-s="all"     aria-pressed="true">すべて <b>0</b></button>
-        <button type="button" class="tab" data-s="opened"  aria-pressed="false">ページを開いた <b>0</b></button>
-        <button type="button" class="tab" data-s="join"    aria-pressed="false">参加します <b>0</b></button>
-        <button type="button" class="tab" data-s="keyword" aria-pressed="false">合言葉ずみ <b>0</b></button>
-      </div>
-      <button type="button" class="ngbtn" id="btn-ng35">🚫 3.5案内NG <b>0</b></button>
-    </div>
-    <div class="bar35__row">
-      <span class="bar35__t">📄 契約の進み具合</span>
-      <div class="tabs" id="tabs35c">
-        <button type="button" class="tab" data-c="terms" aria-pressed="false">規約同意 <b>0</b></button>
-        <button type="button" class="tab" data-c="sign"  aria-pressed="false">ご署名 <b>0</b></button>
-        <button type="button" class="tab" data-c="pay"   aria-pressed="false">お支払い <b>0</b></button>
-        <button type="button" class="tab" data-c="done"  aria-pressed="false">完了 <b>0</b></button>
-      </div>
-    </div>
-  </div>
-
-  <div class="list" id="list"></div>
+  <p class="foot" id="foot"></p>
 </main>
 
-<footer>
-  <span class="foot-logo" aria-hidden="true"></span>
-  <p id="foot"></p>
-</footer>
-
 <script>
-/* =========================================================================
-   凛穏塾 3期生 受付管理（運営用）
-   ・スプレッドシートの「管理」タブを読み出して並べるだけの画面です。
-   ・書き換えるのは「入金確認」だけ。ほかは見るだけにしてあります。
-   ========================================================================= */
+/* =======================================================================
+   受付の一覧
+   ここに1つ足すと、入口にカードが1枚増えます。
+   store … この端末が管理キーを覚えておく名前（各管理ページと同じ名前にします）
+   ===================================================================== */
+var RECEPTIONS = [
+  {
+    id:   '3ki',
+    icon: '📋',
+    name: '3期生 お申し込み',
+    sub:  '規約 → ご情報 → 署名 → お支払い',
+    page: './3ki.html',
+    store:'rion3ki_admin_key',
+    gas:  'https://script.google.com/macros/s/AKfycbwxo1mNRBl5Gjp86XbNXZONgkNHAGHp86uqQYux0Lu3CnP11zH8is5MFrqik0VwvcXL/exec',
 
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbwxo1mNRBl5Gjp86XbNXZONgkNHAGHp86uqQYux0Lu3CnP11zH8is5MFrqik0VwvcXL/exec';
-const KEY_STORE = 'rion3ki_admin_key';
-const RELOAD_MS = 60000;
+    /* カードに出す数字 */
+    nums: function (r) {
+      var s = r.summary || {};
+      return [
+        { l:'着金待ち', v:s.waiting || 0, cls:(s.waiting ? 'act' : '') },
+        /* 「未案内」は赤くしません。合格の方には運営が手でご連絡する流れに
+           なった（2026-08-23）ので、ここはずっと大きい数字のままです */
+        { l:'未案内',   v:s.notInvited || 0 },
+        { l:'完了',     v:s.done || 0, cls:'done' },
+        { l:'合計',     v:s.total || 0 }
+      ];
+    },
+    /* 気をつけていただきたいことがあるときだけ、帯を出します */
+    band: function (r) {
+      var f = r.flags || {};
+      if (f.test_mode)   return { t:'🧪 テスト決済モードです', cls:'warn' };
+      if (f.maintenance) return { t:'🔧 メンテナンス中です', cls:'warn' };
+      if (f.open_gate === false) return { t:'🚪 受付テスト中（期間外でも開いています）', cls:'warn' };
+      return null;
+    },
+    /* 対応が要るかどうか（カードの枠を赤くします）。
+       3期生でいま手を動かすのは「着金待ち」だけです */
+    todo: function (r) { var s = r.summary || {}; return (s.waiting || 0) > 0; }
+  },
 
-let adminKey = null;
-let data = null;
-let filter = 'act';
-let timer = null;
+  {
+    id:   'sotsu',
+    icon: '🎓',
+    name: '卒業式 受付',
+    sub:  '11月27日（金）10:00 〜 12月4日（金）23:59',
+    page: './sotsugyo/admin.html',
+    store:'rionsotsu_admin_key',
+    gas:  'https://script.google.com/macros/s/AKfycbxwYDyLmLGSahHyc6vlV3Inq-Ch1GxJRVt0b0ATDRyETUJzl8YRLsVdJHlVASpRjI1m/exec',
 
-const $ = (id) => document.getElementById(id);
-const esc = (s) => String(s == null ? '' : s)
-  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-const yen = (n) => (n === '' || n == null) ? '' : Number(n).toLocaleString('ja-JP') + '円';
-
-/* ---------- 通信 ---------- */
-/* =========================================================================
-   スイッチ（🧪 テスト決済モード ／ 🚪 受付をテスト用に開く）
-
-   ★どちらも「オン＝ふだんと違う状態」です。オンのあいだはボタンが赤くなり、
-     下に赤い注意書きが出ます。本番のお客様をご案内する前に、両方オフに。
-   ★受付のほうは、GAS側では OPEN_GATE（true＝開始日を守る）で持っています。
-     画面では分かりやすさを優先して「テスト用に開く」の向きで出すので、
-     送るときに反転させています。
-   ========================================================================= */
-let FLAGS = {};
-
-function paintFlags(f) {
-  FLAGS = f || {};
-
-  const gateOff = (FLAGS.open_gate === false);      // 受付をテスト用に開けている
-  const testOn = !!FLAGS.test_mode;
-
-  const sw = $('switches');
-  if (sw) sw.hidden = false;
-
-  setSwitch('test_mode', testOn);
-  setSwitch('open_gate_off', gateOff);
-  setSwitch('maintenance', !!FLAGS.maintenance);
-
-  /* 畳んだままでも、いまの状態がひと目で分かるように（2026-09-07）。
-     ふつうのときは静かに、何かオンのときだけ赤で出します。 */
-  const swOn = [];
-  if (testOn) swOn.push('🧪 テスト決済');
-  if (gateOff) swOn.push('🚪 受付テスト中');
-  if (FLAGS.maintenance) swOn.push('🔧 メンテナンス中');
-  const nowEl = $('sw-now');
-  if (nowEl) {
-    nowEl.innerHTML = swOn.length
-      ? ('設定　<b>' + swOn.join('　') + '</b>')
-      : '設定　テスト決済オフ／受付は本番／通常営業';
+    nums: function (r) {
+      var s = r.summary || {}, rm = r.remain || {};
+      return [
+        { l:'要対応',       v:s.todo || 0, cls:(s.todo ? 'act' : '') },
+        { l:'お支払い済み', v:(s.paid || 0) + (s.bankok || 0), cls:'done' },
+        { l:'振込待ち',     v:s.bank || 0 },
+        { l:'第1部 残り',   v:(rm.part1 === undefined ? '—' : rm.part1) },
+        { l:'第2部 残り',   v:(rm.part2 === undefined ? '—' : rm.part2) }
+      ];
+    },
+    band: function (r) {
+      var f = r.flags || {};
+      if (f.stopped)  return { t:'⏸ 受付をいったん止めています', cls:'warn' };
+      if (f.gate_off) return { t:'🚪 期間前でも受付を開いています', cls:'warn' };
+      if (f.phase === 'before') return { t:'受付前（11月27日（金）10:00から）', cls:'' };
+      if (f.phase === 'closed') return { t:'受付は終了しました', cls:'' };
+      return { t:'受付中', cls:'ok' };
+    },
+    todo: function (r) { var s = r.summary || {}; return (s.todo || 0) > 0 || (s.overdue || 0) > 0; }
   }
-  // 何かオンのときだけ、気づけるように最初から開いておく
-  const det = $('switches');
-  if (det && swOn.length && !det.dataset.touched) det.open = true;
+];
 
-  document.querySelectorAll('[data-open-at]').forEach(el => {
-    el.textContent = FLAGS.open_at_text || '—';
-  });
+var MOCK = new URLSearchParams(location.search).get('mock') === '1';
+var ST = {};              /* 受付ごとの状態 */
+var $ = function (id) { return document.getElementById(id); };
 
-  // 帯（右上）
-  const flag = $('flag');
-  flag.hidden = false;
-  if (testOn) {
-    flag.textContent = '🧪 テスト決済モード（100円／150円）';
-    flag.className = 'flag test';
-  } else if (gateOff) {
-    flag.textContent = '🚪 受付をテスト用に開いています';
-    flag.className = 'flag gate';
-  } else if (FLAGS.before_open) {
-    flag.textContent = '受付前（' + (FLAGS.open_at_text || '') + 'から）';
-    flag.className = 'flag dry';
-  } else {
-    flag.textContent = FLAGS.dry_run ? 'お試し中（LINEは飛びません）' : '本番運転';
-    flag.className = 'flag' + (FLAGS.dry_run ? ' dry' : '');
-  }
-
-  // 赤い注意書き
-  const warn = $('sw-warn');
-  const msgs = [];
-  if (testOn) msgs.push('🧪 決済がテスト用（1回目100円／2回目150円）になっています。');
-  if (gateOff) msgs.push('🚪 受付開始（' + (FLAGS.open_at_text || '') + '）の前ですが、開いています。');
-  if (msgs.length) {
-    warn.hidden = false;
-    warn.textContent = msgs.join(' ') + ' お客様をご案内する前に、必ずオフに戻してください。';
-  } else {
-    warn.hidden = true;
-  }
-}
-
-function setSwitch(key, on) {
-  const b = document.querySelector('.swbtn[data-flag="' + key + '"]');
-  if (!b) return;
-  b.setAttribute('aria-pressed', on ? 'true' : 'false');
-  b.textContent = on ? 'オン' : 'オフ';
-  b.disabled = false;
-}
-
-/* 3期／3.5期の切り替え（2026-09-07） */
-document.addEventListener('click', (ev) => {
-  const b = ev.target.closest('#terms .tab');
-  if (!b) return;
-  term = b.dataset.t;
-  document.querySelectorAll('#terms .tab').forEach(x => {
-    x.setAttribute('aria-pressed', x === b ? 'true' : 'false');
-  });
-  paint35Bar();
-  paintList();
-});
-
-/* 無料特別講義の絞り込み（2026-09-13 とーるさんご要望）。
-   押すと、上の「要対応」などは「すべて」に戻します。
-   そうしないと、せっかく絞ったのに要対応で隠れてしまうためです。 */
-document.addEventListener('click', (ev) => {
-  const b = ev.target.closest('#tabs35 .tab');
-  if (!b) return;
-  f35 = b.dataset.s;
-  document.querySelectorAll('#tabs35 .tab').forEach(x => {
-    x.setAttribute('aria-pressed', x === b ? 'true' : 'false');
-  });
-  if (f35 !== 'all') openAllFilter();
-  paintList();
-});
-
-/* 契約の進み具合（2026-09-13 とーるさんご要望）。
-   同じボタンをもう一度押すと、絞り込みを解きます */
-document.addEventListener('click', (ev) => {
-  const b = ev.target.closest('#tabs35c .tab');
-  if (!b) return;
-  c35 = (c35 === b.dataset.c) ? '' : b.dataset.c;
-  document.querySelectorAll('#tabs35c .tab').forEach(x => {
-    x.setAttribute('aria-pressed', x.dataset.c === c35 ? 'true' : 'false');
-  });
-  if (c35) openAllFilter();
-  paintList();
-});
-
-/* 上の「要対応」などを「すべて」に戻す。
-   絞ったのに要対応で隠れてしまうと分かりづらいためです */
-function openAllFilter() {
-  filter = 'all';
-  [].forEach.call($('tabs').children, (x) =>
-    x.setAttribute('aria-pressed', String(x.dataset.f === 'all')));
-}
-
-/* 3.5期タブのときだけ、無料特別講義のバーを出します。人数もここで数えます */
-function paint35Bar() {
-  const bar = $('bar35');
-  if (!bar) return;
-  if (term !== '3.5') { bar.hidden = true; return; }
-  bar.hidden = false;
-
-  const rows = (data.people || []).filter(p => p.term === '3.5');
-  const n = {
-    all:     rows.length,
-    opened:  rows.filter(p => p.smOpened).length,
-    join:    rows.filter(p => p.smJoin === '参加').length,
-    keyword: rows.filter(p => p.smKeyword).length
-  };
-  document.querySelectorAll('#tabs35 .tab').forEach(x => {
-    const v = n[x.dataset.s];
-    const b2 = x.querySelector('b');
-    if (b2) b2.textContent = (v == null ? 0 : v);
-  });
-
-  // 契約の進み具合
-  const c = {
-    terms: rows.filter(p => p.terms).length,
-    sign:  rows.filter(p => p.sign).length,
-    pay:   rows.filter(p => p.pay1 || p.pay2 || p.bankOk).length,
-    done:  rows.filter(p => p.stage === '完了').length
-  };
-  document.querySelectorAll('#tabs35c .tab').forEach(x => {
-    const v = c[x.dataset.c];
-    const b2 = x.querySelector('b');
-    if (b2) b2.textContent = (v == null ? 0 : v);
-  });
-
-  // 3.5案内NGの人数（📋面談シートより。GASが ng35 で返してきます）
-  const ng = (data.ng35 || []).length;
-  const nb = document.querySelector('#btn-ng35 b');
-  if (nb) nb.textContent = ng;
-}
-
-/* 🚫 3.5案内NGの方の一覧（見るだけ・2026-09-13 とーるさんご要望）。
-   この方たちにはご案内をお送りしません。誰に送らないかを確かめるための一覧です。 */
-document.addEventListener('click', (ev) => {
-  if (!ev.target.closest('#btn-ng35')) return;
-  const list = data.ng35 || [];
-  const body = list.length
-    ? '<table class="fm"><thead><tr><th>お名前</th><th>LINE表示名</th><th>メモ</th></tr></thead><tbody>'
-      + list.map(x =>
-          '<tr><td>' + esc(x.name || '（お名前なし）') + '</td>'
-        + '<td>' + esc(x.line || '—') + '</td>'
-        + '<td>' + esc(x.memo || '') + '</td></tr>').join('')
-      + '</tbody></table>'
-    : '<p style="font-size:.86rem;color:var(--ink-soft)">3.5案内NGの方はいません。</p>';
-
-  modal('<h2>🚫 3.5案内NGの方　' + list.length + '名</h2>'
-    + '<p style="margin:.2rem 0 .7rem;font-size:.8rem;color:var(--ink-soft)">'
-    + '📋面談シートで「結果」を<b>3.5案内NG</b>にした方です。'
-    + 'この方たちには、特別講義のご案内をお送りしません。<br>'
-    + '変えるときは、スプレッドシートの📋面談シートで直してください。</p>'
-    + '<div style="max-height:56vh;overflow:auto">' + body + '</div>'
-    + '<div class="foot"><button type="button" class="btn ghost" data-close>閉じる</button></div>');
-});
-
-/* 運営の方がいちど開閉したら、そのあとは自動で開かない（操作を尊重） */
-document.addEventListener('toggle', (ev) => {
-  if (ev.target && ev.target.id === 'switches') ev.target.dataset.touched = '1';
-}, true);
-
-document.addEventListener('click', async (e) => {
-  const b = e.target.closest('.swbtn');
-  if (!b) return;
-
-  const key = b.dataset.flag;
-  const nowOn = b.getAttribute('aria-pressed') === 'true';
-  const next = !nowOn;
-
-  const LABELS = { test_mode: '🧪 テスト決済モード',
-                   open_gate_off: '🚪 受付をテスト用に開く',
-                   maintenance: '🔧 メンテナンス中の表示' };
-  const label = LABELS[key] || key;
-  const detail = key === 'test_mode'
-    ? (next ? 'カード決済が 1回目100円／2回目150円 のページに変わります。\n'
-              + 'いま手続き中のお客様も、この金額の画面になります。'
-            : '本物の金額（VIP 990,000円 など）に戻します。')
-    : key === 'maintenance'
-    ? (next ? 'お客様がアプリを開くと「ただいまメンテナンス中です」と出ます。\n'
-              + 'いま手続きの途中の方も、この画面に切り替わります。\n'
-              + '（入力ずみの内容は保存されているので、解除すれば続きから進めます）'
-            : 'お客様の画面を、元どおりに戻します。')
-    : (next ? '受付開始（' + (FLAGS.open_at_text || '') + '）を待たずに手続きできるようになります。'
-            : '受付開始（' + (FLAGS.open_at_text || '') + '）まで、受付を閉じます。');
-
-  // メンテナンス中にするときは、画面に添える一言を聞く
-  let note = null;
-  if (key === 'maintenance' && next) {
-    note = prompt('お客様の画面に添える一言があれば入れてください。\n（例：23時ごろに再開いたします）\n\n空のままでも大丈夫です。',
-                  FLAGS.maintenance_note || '');
-    if (note === null) return;          // キャンセルされた
-  }
-
-  if (!confirm(label + ' を「' + (next ? 'オン' : 'オフ') + '」にします。\n\n' + detail + '\n\nよろしいですか？')) return;
-
-  b.disabled = true;
-  try {
-    // 画面は「テスト用に開く」、GASは「開始日を守る」。向きが逆なので反転させる
-    const sendKey = (key === 'open_gate_off') ? 'open_gate' : key;
-    const sendVal = (key === 'open_gate_off') ? !next : next;
-    const body = { key: sendKey, value: sendVal ? 'true' : 'false' };
-    if (note !== null) body.note = note;
-    const r = await api('admin_set_flag', body);
-    if (!r || r.ok === false) throw new Error((r && r.error) || '切り替えられませんでした');
-    paintFlags(r);
-    toast(label + ' を ' + (next ? 'オン' : 'オフ') + ' にしました');
-  } catch (err) {
-    b.disabled = false;
-    toast(String(err.message || err), true);
-  }
-});
-
-async function api(action, body) {
-  const payload = Object.assign({ action, token: adminKey }, body || {});
-  const res = await fetch(GAS_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify(payload)
-  });
-  if (!res.ok) throw new Error('通信に失敗しました（' + res.status + '）');
-  return res.json();
+function esc(s) {
+  return String(s === null || s === undefined ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
 function toast(msg, bad) {
-  const el = document.createElement('div');
+  var el = document.createElement('div');
   el.className = 'toast' + (bad ? ' bad' : '');
   el.textContent = msg;
   document.body.appendChild(el);
-  setTimeout(() => el.remove(), bad ? 5000 : 2800);
+  setTimeout(function () { el.remove(); }, bad ? 5000 : 2600);
 }
 
-/* ---------- ログイン ---------- */
-$('btn-login').addEventListener('click', login);
-$('key').addEventListener('keydown', (e) => { if (e.key === 'Enter') login(); });
-
-async function login() {
-  const v = $('key').value.trim();
-  if (!v) return;
-  adminKey = v;
-  $('btn-login').disabled = true;
-  $('login-err').hidden = true;
-  try {
-    const r = await api('admin_list');
-    if (!r.ok) throw new Error(r.error === 'admin_only' ? '管理キーが違います。' : r.error);
-    localStorage.setItem(KEY_STORE, v);
-    show(r);
-  } catch (err) {
-    adminKey = null;
-    $('login-err').textContent = err.message || '開けませんでした。';
-    $('login-err').hidden = false;
-  } finally {
-    $('btn-login').disabled = false;
-  }
+/* ---------- GASに尋ねる ---------- */
+function api(rc, key) {
+  if (MOCK) return mockApi(rc);
+  return fetch(rc.gas, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ action: 'admin_list', token: key })
+  }).then(function (res) {
+    if (!res.ok) throw new Error('通信に失敗しました（' + res.status + '）');
+    return res.json();
+  });
 }
 
-$('btn-logout').addEventListener('click', () => {
-  localStorage.removeItem(KEY_STORE);
-  location.reload();
-});
-$('btn-reload').addEventListener('click', () => load(true));
+/* ---------- 読み込み ------------------------------------------------------
+   この端末が覚えている鍵を、ぜんぶ知っておきます。
+   ある受付の鍵がまだ無いときは、ほかの受付の鍵も試します。
+   3期生と卒業式は同じ鍵にそろえてあるので（2026-11-15）、
+   どちらか一方を開ける端末なら、何も入れずに両方ひらきます。
+------------------------------------------------------------------------- */
+function knownKeys() {
+  var out = [];
+  RECEPTIONS.forEach(function (rc) {
+    var v = localStorage.getItem(rc.store);
+    if (v && out.indexOf(v) < 0) out.push(v);
+  });
+  return out;
+}
 
-/* ---------- 読み込み ---------- */
-async function load(loud) {
-  try {
-    const r = await api('admin_list');
-    if (!r.ok) throw new Error(r.error);
-    show(r);
+/* 「鍵がちがう」のお返事。受付ごとに言い方がちがいます
+   （3期生＝unauthorized ／ 卒業式＝admin_only） */
+var BADKEY = ['admin_only', 'unauthorized', 'forbidden', 'bad_token', 'ng_token'];
+
+/* 鍵を順に試します。通ったら { r, key }、ぜんぶ違ったら { err }（なければ null） */
+function tryKeys(rc, keys, i, last) {
+  i = i || 0;
+  if (i >= keys.length) return Promise.resolve(last ? { err: last } : null);
+  return api(rc, keys[i]).then(function (r) {
+    if (r && r.ok) return { r: r, key: keys[i] };
+    return tryKeys(rc, keys, i + 1, (r && r.error) || '読み込めませんでした');
+  }).catch(function (e) {
+    return tryKeys(rc, keys, i + 1, String(e.message || e));
+  });
+}
+
+function load(loud) {
+  var keys = MOCK ? ['MOCK'] : knownKeys();
+  var jobs = RECEPTIONS.map(function (rc) {
+    var mine = MOCK ? 'MOCK' : localStorage.getItem(rc.store);
+    var tries = mine ? [mine] : keys;
+    if (!tries.length) { ST[rc.id] = { status: 'nokey' }; return Promise.resolve(); }
+    if (!ST[rc.id] || ST[rc.id].status !== 'ok') ST[rc.id] = { status: 'loading' };
+    return tryKeys(rc, tries).then(function (res) {
+      if (!res) {
+        ST[rc.id] = { status: (mine ? 'badkey' : 'nokey') };
+      } else if (res.err) {
+        /* 鍵がちがうだけなら「入れ直してください」、
+           それ以外（通信など）はそのまま見せます */
+        ST[rc.id] = (BADKEY.indexOf(res.err) >= 0)
+          ? { status: (mine ? 'badkey' : 'nokey') }
+          : { status: 'error', msg: res.err };
+      } else {
+        if (!MOCK) localStorage.setItem(rc.store, res.key);
+        ST[rc.id] = { status: 'ok', data: res.r };
+      }
+    });
+  });
+  paint();
+  return Promise.all(jobs).then(function () {
+    paint();
     if (loud) toast('最新にしました');
-  } catch (err) {
-    toast(err.message || '読み込めませんでした', true);
-  }
+  });
 }
 
-function show(r) {
-  data = r;
-  $('screen-login').hidden = true;
-  $('screen-main').hidden = false;
-  $('btn-reload').hidden = false;
-  $('btn-logout').hidden = false;
-  paintPushBadge();
-  pushRefresh();
+/* ---------- 描く ---------- */
+function paint() {
+  var html = '';
+  var needKey = 0, todoAll = 0, vers = [];
 
-  paintFlags(r.flags || { test_mode: r.test_mode, dry_run: r.dry_run });
+  RECEPTIONS.forEach(function (rc) {
+    var st = ST[rc.id] || { status: 'loading' };
+    var inner = '';
+    var klass = 'rc';
 
-  $('foot').textContent = 'GAS ' + (r.version || '') + ' ／ ' + r.people.length + '名';
-  paintKpis();
-  paint35Bar();
-  paintList();
+    if (st.status === 'ok') {
+      var r = st.data;
+      var band = rc.band ? rc.band(r) : null;
+      if (band) inner += '<div class="rc__band ' + (band.cls || '') + '">' + esc(band.t) + '</div>';
+      inner += '<div class="rc__nums">' + rc.nums(r).map(function (n) {
+        return '<span class="num ' + (n.cls || '') + '"><span>' + esc(n.l) + '</span><b>' + esc(n.v) + '</b></span>';
+      }).join('') + '</div>';
+      if (rc.todo && rc.todo(r)) { klass += ' todo'; todoAll++; }
+      if (r.version) vers.push(rc.icon + ' ' + r.version);
 
-  if (timer) clearInterval(timer);
-  timer = setInterval(() => load(false), RELOAD_MS);
+    } else if (st.status === 'loading') {
+      inner += '<div class="skel"></div>';
+
+    } else if (st.status === 'nokey') {
+      needKey++;
+      inner += '<p class="rc__msg">下で管理キーを入れると、ここに状況が出ます。</p>';
+
+    } else if (st.status === 'badkey') {
+      needKey++;
+      inner += '<p class="rc__msg bad">この端末のキーでは開けませんでした。下で入れ直してください。</p>';
+
+    } else {
+      inner += '<p class="rc__msg bad">' + esc(st.msg || '読み込めませんでした') + '</p>';
+    }
+
+    html +=
+      '<button type="button" class="' + klass + '" data-go="' + esc(rc.page) + '">'
+      + '<span class="rc__top">'
+      +   '<span class="rc__ico">' + rc.icon + '</span>'
+      +   '<span><span class="rc__name">' + esc(rc.name) + '</span>'
+      +   '<span class="rc__sub">' + esc(rc.sub) + '</span></span>'
+      +   '<span class="rc__go">ひらく →</span>'
+      + '</span>' + inner + '</button>';
+  });
+
+  $('cards').innerHTML = html;
+
+  $('keybox').hidden = (needKey === 0);
+  $('key-note').textContent = (needKey >= RECEPTIONS.length)
+    ? '管理キーを入れてください。ふたつの受付が同じキーなら、1回で両方ひらきます。'
+    : 'まだ開いていない受付があります。その受付の管理キーを入れてください。';
+
+  document.title = (todoAll ? '(' + todoAll + ') ' : '') + '受付管理｜凛穏塾';
+
+  $('foot').innerHTML = (vers.length ? 'GAS ' + esc(vers.join('　／　')) + '<br>' : '')
+    + '<button type="button" id="btn-forget">この端末の管理キーを消す</button>';
+  var f = $('btn-forget');
+  if (f) f.addEventListener('click', forget);
 }
 
-/* ---------- 集計 ---------- */
-function paintKpis() {
-  const s = data.summary;
-  const cards = [
-    { l: '意気込み', v: s.ikigomi || 0, cls: 'tap', act: 'forms' },
-    { l: '合計', v: s.total },
-    { l: '未案内', v: s.notInvited },
-    { l: '規約同意', v: s.terms },
-    { l: '署名', v: s.signed },
-    { l: '着金待ち', v: s.waiting, cls: 'act' },
-    { l: '完了', v: s.done, cls: 'done' }
-  ];
-  // 「意気込み」だけは押せます（中身は見るだけ・下の showForms）
-  $('kpis').innerHTML = cards.map((c) => {
-    const inner = '<span class="l">' + c.l + (c.act ? ' <span class="tapmark">見る</span>' : '')
-                + '</span><span class="v">' + c.v + '</span>';
-    return c.act
-      ? '<button type="button" class="kpi ' + (c.cls || '') + '" data-act="' + c.act + '">'
-        + inner + '</button>'
-      : '<div class="kpi ' + (c.cls || '') + '">' + inner + '</div>';
-  }).join('');
-
-  $('plans').innerHTML = data.planOrder.map((p) =>
-    '<span>' + esc(p) + '　<b>' + data.byPlan[p] + '</b> 名</span>').join('');
-}
-
-/* ---------- 意気込みシート（見るだけ）----------------------------------
-   2026-09-01 とーるさんご要望。
-   「誰が出したか」と「何件か」だけを見ます。ご記入の中身はここには出しません
-   （中身はスプレッドシートの「📖 意気込み」「📝 審査」で読みます）。
------------------------------------------------------------------------- */
-$('kpis').addEventListener('click', (e) => {
-  const b = e.target.closest('[data-act="forms"]');
-  if (b) showForms();
-});
-
-async function showForms() {
-  const el = modal(
-    '<h2>📖 意気込みシート</h2>'
-    + '<div id="fm-body" style="font-size:.88rem;color:var(--ink-soft)">読み込んでいます…</div>'
-    + '<div class="foot"><button type="button" class="btn ghost" data-close>閉じる</button></div>');
-
-  const body = el.querySelector('#fm-body');
-
-  let r;
-  try {
-    r = await api('admin_forms');
-  } catch (err) {
-    body.innerHTML = '<div class="warnbox">読み込めませんでした。'
-      + esc(String(err && err.message || err)) + '</div>';
-    return;
-  }
-  if (!r || !r.ok) {
-    body.innerHTML = '<div class="warnbox">読み込めませんでした（'
-      + esc(String(r && r.error || 'error')) + '）</div>';
-    return;
-  }
-
-  const c = r.count || {};
-  let note = '届いている意気込み <b>' + (c.second || 0) + '</b> 件';
-  if (c.inApp)     note += '　／　うちアプリに入っている方 <b>' + c.inApp + '</b> 名';
-  if (c.firstOnly) note += '<br>「希望されますか」だけで、意気込みがまだの方 <b>'
-                         + c.firstOnly + '</b> 名';
-
-  if (!r.rows.length) {
-    body.innerHTML = '<p class="fmnote">' + note + '</p>'
-      + '<p style="margin:0">まだ1件も届いていません。</p>';
-    return;
-  }
-
-  // Instagram は、URLのときだけ押せるようにする（アカウント名の直書きもあるため）
-  const insta = (v) => {
-    const s = String(v || '').trim();
-    if (!s) return '—';
-    if (!/^https?:\/\//i.test(s)) return '<span class="fmplain">' + esc(s) + '</span>';
-    return '<a class="fmlink" href="' + esc(s) + '" target="_blank" rel="noopener noreferrer">'
-         + esc(s.replace(/^https?:\/\/(www\.)?/i, '').replace(/\/+$/, '')) + '</a>';
-  };
-
-  const tr = r.rows.map((x) =>
-    '<tr><td class="nm">' + esc(x.name)
-    + (x.inApp ? ' <span class="fmin">入場ずみ</span>' : '') + '</td>'
-    + '<td class="ig">' + insta(x.insta) + '</td>'
-    + '<td class="when">' + esc(x.second || '') + '</td></tr>').join('');
-
-  body.innerHTML = '<p class="fmnote">' + note + '</p>'
-    + '<div class="fmwrap"><table class="fm">'
-    + '<thead><tr><th>お名前</th><th>Instagram</th><th>送信日</th></tr></thead>'
-    + '<tbody>' + tr + '</tbody></table></div>'
-    + '<p style="margin:.6rem 0 0;font-size:.78rem">'
-    + 'ご記入の中身は、スプレッドシートの「📖 意気込み」「📝 審査」でご覧ください。</p>';
-}
-
-/* ---------- 一覧 ---------- */
-$('tabs').addEventListener('click', (e) => {
-  const b = e.target.closest('.tab');
+/* カードを押したら、その受付の管理ページへ */
+$('cards').addEventListener('click', function (e) {
+  var b = e.target.closest('[data-go]');
   if (!b) return;
-  filter = b.dataset.f;
-  [].forEach.call($('tabs').children, (x) => x.setAttribute('aria-pressed', String(x === b)));
-  paintList();
-});
-$('q').addEventListener('input', paintList);
-
-/* 運営の出番が来ている方。
-   ・着金待ち … 入金を確認する
-   ・プラン未設定 … コースを決める（決めるまで、その方は先へ進めません） */
-function needsAction(p) {
-  if (p.stage === '着金待ち') return true;
-  if (!p.plan || p.plan === '未') return true;
-  return false;
-}
-
-let term = '3';        // 3期／3.5期／すべて（2026-09-07）
-let f35  = 'all';      // 無料特別講義の絞り込み（3.5期タブのときだけ・2026-09-13）
-let c35  = '';         // 契約の進み具合の絞り込み（空なら絞りません・2026-09-13）
-
-function match(p) {
-  const q = $('q').value.trim();
-  if (q && p.name.indexOf(q) === -1) return false;
-  if (term !== 'all' && (p.term || '3') !== term) return false;
-  /* ★無料特別講義の絞り込み（3.5期タブのときだけ効きます・2026-09-13） */
-  if (term === '3.5' && f35 !== 'all') {
-    if (f35 === 'opened'  && !p.smOpened) return false;
-    if (f35 === 'join'    && p.smJoin !== '参加') return false;
-    if (f35 === 'keyword' && !p.smKeyword) return false;
-  }
-  /* ★契約の進み具合（3.5期タブのときだけ・2026-09-13） */
-  if (term === '3.5' && c35) {
-    if (c35 === 'terms' && !p.terms) return false;
-    if (c35 === 'sign'  && !p.sign)  return false;
-    if (c35 === 'pay'   && !(p.pay1 || p.pay2 || p.bankOk)) return false;
-    if (c35 === 'done'  && p.stage !== '完了') return false;
-  }
-  if (filter === 'all') return true;
-  if (filter === 'act') return needsAction(p);
-  if (filter === 'new') return !p.invite;
-  if (filter === 'done') return p.stage === '完了';
-  if (filter === 'prog') return !!p.invite && p.stage !== '完了';
-  /* 完了した方のうち、アドレスの確認がまだの方（空アドレスもここに入ります） */
-  if (filter === 'mail') return p.stage === '完了' && !p.mailOk;
-  return true;
-}
-
-function stageClass(p) {
-  if (p.stage === '完了') return 'done';
-  if (p.stage === '着金待ち') return 'wait';
-  if (!p.invite) return 'new';
-  return '';
-}
-
-function paintList() {
-  const rows = data.people.filter(match);
-  if (!rows.length) {
-    $('list').innerHTML = '<p class="empty">この条件に当てはまる方はいません。</p>';
-    return;
-  }
-  $('list').innerHTML = rows.map(card).join('');
-}
-
-function card(p) {
-  const facts = [];
-  const put = (k, v, num) => {
-    if (!v && v !== 0) return;
-    facts.push('<div><span class="k">' + k + '</span><span class="v' + (num ? ' n' : '') + '">'
-               + esc(v) + '</span></div>');
-  };
-  if (p.term === '3.5') {
-    put('特別講義ひらいた', p.smOpened);
-    put('特別講義', p.smJoin);
-    put('合言葉', p.smKeyword);
-  } else {
-    put('ご案内', p.invite || '—');
-  }
-  put('規約同意', p.terms);
-  put('ご署名', p.sign);
-  put('お支払い', p.method);
-  if (p.method === 'カード2回') {
-    put('1回目', p.pay1);
-    put('2回目の方法', p.second);
-    put('2回目', p.pay2);
-  } else {
-    put('ご決済', p.pay1);
-  }
-  put('お振込期限', p.bankDue);
-  put('振込ご連絡', p.report);
-  put('お名義', p.holder);
-  put('お振込日', p.paidOn);
-  if (p.due !== '' && p.due != null) put('ご確認金額', yen(p.due), true);
-  put('入金確認', p.bankOk);
-  put('メモ', p.memo);
-
-  const act = needsAction(p);
-  let buttons = '';
-  /* ★2026-09-13 「入金を確認する」は、着金待ちの方にだけ出します。
-     以前はコース未設定の方にも出ていて、押し間違えると
-     まだ入っていない入金を確認ずみにしてしまうおそれがありました。 */
-  if (p.stage === '着金待ち') {
-    buttons = '<button type="button" class="btn danger" data-confirm="' + esc(p.uid) + '">'
-            + '入金を確認する</button>';
-  } else if (!p.invite && p.term !== '3.5') {
-    // 3.5期の方は「ご案内」の欄を使わないので、この文は出しません
-    buttons = '<span style="font-size:.82rem;color:var(--ink-faint)">'
-            + 'まだご案内をお送りしていません</span>';
-  }
-
-  // コースがまだ決まっていない方は、ここから決められる（決まっている方には出さない）
-  if (!p.plan || p.plan === '未') {
-    buttons = '<button type="button" class="btn" data-setplan="' + esc(p.uid) + '">'
-            + 'コースを決める</button>'
-            + (buttons ? ' ' + buttons : '');
-  }
-
-  /* ★2026-09-22 お手続きが終わった方には、講義アーカイブ視聴用のアドレスと、
-     ご本人に確かめていただけたかを出します。空欄＝まだ回収できていない方です。 */
-  if (p.stage === '完了') {
-    put('視聴アドレス', p.email || '（未回収）');
-    put('アドレス確認', p.mailOk || '（まだ）');
-  }
-
-  return '<div class="row ' + (act ? 'act' : (p.stage === '完了' ? 'fin' : '')) + '">'
-    + '<div class="row__top">'
-    +   '<span class="row__name">' + esc(p.name) + '</span>'
-    +   '<span class="tag plan">' + esc(p.plan) + '</span>'
-    +   '<span class="tag stage ' + stageClass(p) + '">' + esc(p.stage) + '</span>'
-    + '</div>'
-    + '<div class="facts">' + facts.join('') + '</div>'
-    + (buttons ? '<div class="row__act">' + buttons + '</div>' : '')
-    + '</div>';
-}
-
-/* ---------- 🧊 クーリングオフ ----------
-   ★2026-09-27 とーるさんご要望。対象者を選び、申し出・返金処理をここで見ます。 */
-let coolData = null;
-
-async function openCool() {
-  const el = modal(
-    '<h3>🧊 クーリングオフ</h3>'
-    + '<p class="lead">対象にした方のアプリに、いつもの画面の下へ'
-    + '「クーリングオフをご希望の場合はこちら」の入口が出ます。</p>'
-    + '<div id="cool-body" class="coolempty">読み込んでいます…</div>'
-    + '<div class="row end"><button type="button" class="btn ghost" data-close>とじる</button></div>');
-  await loadCool();
-}
-
-async function loadCool() {
-  const box = document.getElementById('cool-body');
-  if (!box) return;
-  try {
-    const r = await api('admin_cool_list');
-    if (!r || !r.ok) { box.innerHTML = '<div class="coolempty">読み込めませんでした</div>'; return; }
-    coolData = r;
-    paintCool();
-  } catch (e) {
-    box.innerHTML = '<div class="coolempty">通信できませんでした</div>';
-  }
-}
-
-function paintCool() {
-  const box = document.getElementById('cool-body');
-  if (!box || !coolData) return;
-  const targets = coolData.targets || [];
-  const rows = (coolData.rows || []).filter((x) => targets.indexOf(x.uid) > -1);
-
-  const list = rows.length ? rows.map((x) => {
-    const done = !!x.done;
-    const tag = done ? '<span class="pill fin">返金ずみ</span>'
-              : x.req ? '<span class="pill req">申し出あり</span>'
-                      : '<span class="pill wait">お待ち中</span>';
-    const facts = [
-      x.sign ? '署名 ' + esc(x.sign) : '',
-      x.pay1 ? '決済1 ' + esc(x.pay1) : '',
-      x.pay2 ? '決済2 ' + esc(x.pay2) : '',
-      x.req  ? 'お申し出 ' + esc(x.req) : '',
-      x.done ? '返金 ' + esc(x.done) : ''
-    ].filter(Boolean).map((t) => '<span>' + t + '</span>').join('');
-    const acts = (done
-        ? '<button type="button" class="btn ghost" data-cool-undo="' + esc(x.uid) + '">返金を未に戻す</button>'
-        : '<button type="button" class="btn" data-cool-done="' + esc(x.uid) + '">返金処理した</button>')
-      + '<button type="button" class="btn ghost" data-cool-off="' + esc(x.uid) + '">対象から外す</button>';
-    return '<div class="coolrow' + (done ? ' done' : '') + '">'
-      + '<div class="coolrow__top"><span class="coolrow__name">' + esc(x.name || x.sns || x.uid)
-      + '</span><span class="tag plan">' + esc(x.plan || '—') + '</span>' + tag + '</div>'
-      + '<div class="coolrow__facts">' + facts + '</div>'
-      + '<div class="coolrow__acts">' + acts + '</div></div>';
-  }).join('') : '<div class="coolempty">いまは対象の方がいません</div>';
-
-  box.className = '';
-  box.innerHTML =
-    '<div class="coolwrap">' + list + '</div>'
-    + '<div class="coolpick">'
-    + '<p class="lead">対象にする方をさがす</p>'
-    + '<input type="search" id="cool-q" placeholder="お名前・LINE表示名でさがす" autocomplete="off">'
-    + '<div class="coolcand" id="cool-cand"></div></div>';
-
-  const q = document.getElementById('cool-q');
-  if (q) { q.oninput = paintCoolCand; }
-  paintCoolCand();
-}
-
-function paintCoolCand() {
-  const box = document.getElementById('cool-cand');
-  if (!box) return;
-  const q = (document.getElementById('cool-q') || {}).value || '';
-  const key = q.trim().toLowerCase();
-  const targets = (coolData && coolData.targets) || [];
-  let people = (data && data.people) || [];
-  people = people.filter((p) => targets.indexOf(p.uid) === -1);
-  if (key) {
-    people = people.filter((p) =>
-      (p.name || '').toLowerCase().indexOf(key) > -1 || (p.uid || '').indexOf(key) > -1);
-  } else {
-    people = people.filter((p) => p.stage === '完了');
-  }
-  if (!people.length) {
-    box.innerHTML = '<div class="coolempty">見つかりません</div>';
-    return;
-  }
-  box.innerHTML = people.slice(0, 30).map((p) =>
-    '<button type="button" data-cool-add="' + esc(p.uid) + '">' + esc(p.name)
-    + '<br><span class="sub">' + esc(p.plan) + '／' + esc(p.stage) + '</span></button>').join('');
-}
-
-async function coolCall(action, body, label) {
-  const box = document.getElementById('cool-body');
-  if (box) { box.className = 'coolempty'; box.innerHTML = label + '…'; }
-  try {
-    const r = await api(action, body);
-    if (r && r.ok) { coolData = r; paintCool(); toast(label + 'ました'); return; }
-    toast('うまくいきませんでした', true);
-    paintCool();
-  } catch (e) {
-    toast('通信できませんでした', true);
-    paintCool();
-  }
-}
-
-document.addEventListener('click', (e) => {
-  const add  = e.target.closest('[data-cool-add]');
-  const off  = e.target.closest('[data-cool-off]');
-  const done = e.target.closest('[data-cool-done]');
-  const undo = e.target.closest('[data-cool-undo]');
-  if (add)  coolCall('admin_cool_add',    { uid: add.dataset.coolAdd },  '対象にし');
-  if (off)  coolCall('admin_cool_remove', { uid: off.dataset.coolOff },  '対象から外し');
-  if (done) coolCall('admin_cool_refund', { uid: done.dataset.coolDone, done: 'true' },  '返金処理を完了にし');
-  if (undo) coolCall('admin_cool_refund', { uid: undo.dataset.coolUndo, done: 'false' }, '未に戻し');
+  location.href = b.getAttribute('data-go') + (MOCK ? '?mock=1' : '');
 });
 
-/* ---------- 入金確認（誤タップ防止つき） ---------- */
-document.getElementById('btn-cool').addEventListener('click', openCool);
+/* ---------- 管理キーを入れる ----------------------------------------------
+   まだ開いていない受付に、順ぐりに試します。
+   同じキーで両方通れば、1回で両方ひらきます。
+------------------------------------------------------------------------- */
+function login() {
+  var v = $('key').value.trim();
+  if (!v) return;
+  $('btn-login').disabled = true;
+  $('key-err').hidden = true;
 
-document.addEventListener('click', (e) => {
-  const b = e.target.closest('[data-confirm]');
-  if (b) askConfirm(b.dataset.confirm);
-  const s = e.target.closest('[data-setplan]');
-  if (s) askSetPlan(s.dataset.setplan);
-});
+  var targets = RECEPTIONS.filter(function (rc) {
+    return !ST[rc.id] || ST[rc.id].status !== 'ok';
+  });
 
-/* ---------- コースを決める（選ぶ → 確かめる → 決める） ----------
-   ★決められるのは「まだ決まっていない方」だけ。決まっている方には
-     ボタンが出ませんし、GAS側でも弾いています。
-     決めた瞬間に、その方のアプリが規約同意の画面に変わります。LINEは飛びません。 */
-function askSetPlan(uid) {
-  const p = data.people.filter((x) => x.uid === uid)[0];
-  if (!p) return;
-
-  const plans = (FLAGS.plans && FLAGS.plans.length) ? FLAGS.plans : [];
-  if (!plans.length) { toast('コースの一覧を読めませんでした。更新してからお試しください', true); return; }
-
-  const el = modal(
-    '<h2>コースを決める</h2>'
-    + '<div class="r"><span class="k">お名前</span><span class="v">' + esc(p.name) + '</span></div>'
-    + '<p style="margin:.9rem 0 .5rem;font-size:.86rem">どのコースでご案内しますか？</p>'
-    + '<div class="plancho">'
-    +   plans.map((x) =>
-          '<button type="button" class="planopt" data-pick="' + esc(x.key) + '">'
-          + '<span class="planopt__t">' + esc(x.label) + '</span>'
-          + '<span class="planopt__n">' + esc(yen(x.total)) + '</span></button>').join('')
-    + '</div>'
-    + '<div class="warnbox" id="sp-warn" hidden></div>'
-    + '<div class="foot">'
-    +   '<button type="button" class="btn ghost" data-close>やめる</button>'
-    +   '<button type="button" class="btn ok" id="do-setplan" disabled>コースを選んでください</button>'
-    + '</div>');
-
-  const btn = el.querySelector('#do-setplan');
-  const warn = el.querySelector('#sp-warn');
-  let picked = null;
-  let tick = null;
-
-  el.querySelectorAll('[data-pick]').forEach((b) => {
-    b.addEventListener('click', () => {
-      el.querySelectorAll('[data-pick]').forEach((x) => x.setAttribute('aria-pressed', 'false'));
-      b.setAttribute('aria-pressed', 'true');
-      picked = plans.filter((x) => x.key === b.dataset.pick)[0];
-
-      warn.hidden = false;
-      warn.innerHTML = '<b>' + esc(p.name) + '</b> 様を <b>' + esc(picked.label) + '（'
-        + esc(yen(picked.total)) + '）</b> でご案内します。<br>'
-        + '決めると、この方のアプリが規約同意の画面に変わります。'
-        + 'あとから変えるときは、管理シートのD列で直してください。';
-
-      // 押し間違い防止に、3秒たってからボタンを有効にする
-      if (tick) clearInterval(tick);
-      btn.disabled = true;
-      let left = 3;
-      btn.textContent = String(left);
-      tick = setInterval(() => {
-        left--;
-        if (left > 0) { btn.textContent = String(left); return; }
-        clearInterval(tick); tick = null;
-        btn.disabled = false;
-        btn.textContent = 'このコースで決める';
-      }, 1000);
+  var okNames = [];
+  var chain = Promise.resolve();
+  targets.forEach(function (rc) {
+    chain = chain.then(function () {
+      return api(rc, v).then(function (r) {
+        if (r && r.ok) {
+          localStorage.setItem(rc.store, v);
+          ST[rc.id] = { status: 'ok', data: r };
+          okNames.push(rc.name);
+        }
+      }).catch(function () { /* この受付は開けませんでした。次へ */ });
     });
   });
 
-  btn.addEventListener('click', async () => {
-    if (!picked) return;
-    btn.disabled = true;
-    btn.textContent = '送信中…';
-    try {
-      const r = await api('admin_set_plan', { uid: p.uid, plan: picked.key });
-      if (!r || r.ok === false) {
-        if (r && r.error === 'already_set') {
-          throw new Error('この方は、すでに「' + r.now + '」で決まっています。更新してご確認ください。');
-        }
-        throw new Error((r && r.error) || 'うまくいきませんでした');
-      }
-      close();
-      toast(r.name + ' 様を ' + picked.label + ' にしました');
-      load(false);
-    } catch (err) {
-      btn.disabled = false;
-      btn.textContent = 'このコースで決める';
-      toast(String(err.message || err), true);
+  chain.then(function () {
+    $('btn-login').disabled = false;
+    paint();
+    if (okNames.length) {
+      $('key').value = '';
+      toast(okNames.join('と') + ' をひらきました');
+    } else {
+      $('key-err').textContent = 'このキーでは、どの受付も開けませんでした。';
+      $('key-err').hidden = false;
     }
   });
 }
 
-function askConfirm(uid) {
-  const p = data.people.filter((x) => x.uid === uid)[0];
-  if (!p) return;
-
-  const rows = [
-    ['お名前', esc(p.name), false],
-    ['コース', esc(p.plan), false],
-    ['お名義', esc(p.holder || '（お伺いできていません）'), false],
-    ['お振込日', esc(p.paidOn || '—'), false],
-    ['ご確認金額', esc(yen(p.due)), true]
-  ].map((r) => '<div class="r"><span class="k">' + r[0] + '</span>'
-             + '<span class="v' + (r[2] ? ' n' : '') + '">' + r[1] + '</span></div>').join('');
-
-  const el = modal(
-    '<h2>ご入金を確認しますか</h2>'
-    + '<p>通帳と、下の内容が合っているかをお確かめください。</p>'
-    + '<div class="check">' + rows + '</div>'
-    + '<div class="warnbox">確認済みにすると、この方に完了のご連絡が自動で届きます。あとから取り消せません。</div>'
-    + '<div class="foot">'
-    +   '<button type="button" class="btn ghost" data-close>やめる</button>'
-    +   '<button type="button" class="btn ok" id="do-confirm" disabled>3</button>'
-    + '</div>');
-
-  // 押し間違い防止に、3秒たってからボタンを有効にする
-  const btn = el.querySelector('#do-confirm');
-  let left = 3;
-  const tick = setInterval(() => {
-    left--;
-    if (left > 0) { btn.textContent = String(left); return; }
-    clearInterval(tick);
-    btn.disabled = false;
-    btn.textContent = '確認済みにする';
-  }, 1000);
-
-  btn.addEventListener('click', async () => {
-    btn.disabled = true;
-    btn.textContent = '送信中…';
-    try {
-      const r = await api('admin_confirm', { uid: p.uid, amount: p.due });
-      if (!r.ok) {
-        if (r.error === 'amount_changed') {
-          throw new Error('金額が変わっています（いまは ' + yen(r.due) + '）。更新してからもう一度お願いします。');
-        }
-        if (r.error === 'already') throw new Error('この方は、すでに確認済みです。');
-        throw new Error(r.error || 'うまくいきませんでした');
-      }
-      close();
-      toast(r.name + ' 様を確認済みにしました');
-      load(false);
-    } catch (err) {
-      btn.disabled = false;
-      btn.textContent = '確認済みにする';
-      toast(err.message, true);
-    }
-  });
+function forget() {
+  if (!confirm('この端末が覚えている管理キーを、すべて消します。\n\nつぎに開くときは、入れ直しになります。\n\nよろしいですか？')) return;
+  RECEPTIONS.forEach(function (rc) { localStorage.removeItem(rc.store); });
+  location.reload();
 }
 
-/* ---------- ご案内を送る ---------- */
-$('btn-invite').addEventListener('click', askInvite);
+$('btn-login').addEventListener('click', login);
+$('key').addEventListener('keydown', function (e) { if (e.key === 'Enter') login(); });
+$('btn-reload').addEventListener('click', function () { load(true); });
 
-function askInvite() {
-  const cands = data.people.filter((p) => !p.invite && p.plan && p.plan !== '未');
-  if (!cands.length) {
-    const none = data.people.filter((p) => !p.invite).length;
-    toast(none ? 'コースが決まっていない方しかいません。先に面談シートでコースをお選びください。'
-               : 'まだご案内をお送りしていない方はいません。', true);
-    return;
-  }
+/* ---------- はじめに ---------- */
+load(false);
+setInterval(function () { load(false); }, 60000);
 
-  const list = cands.map((p, i) =>
-    '<label><input type="checkbox" checked data-plan="' + esc(p.plan) + '" value="' + esc(p.uid) + '">'
-    + '<span class="who">' + esc(p.name) + '<br><span class="sub">' + esc(p.plan)
-    + '／' + esc(p.stage) + '</span></span></label>').join('');
-
-  const el = modal(
-    '<h2>お申し込みのご案内を送る</h2>'
-    + '<p><b>はじめから全員にチェックが入っています。</b>送らない方のチェックを外してください。</p>'
-    + '<div style="display:flex;gap:.4rem">'
-    +   '<button type="button" class="btn ghost" data-all="1" style="font-size:.8rem;padding:.3rem .9rem">全部つける</button>'
-    +   '<button type="button" class="btn ghost" data-all="0" style="font-size:.8rem;padding:.3rem .9rem">全部はずす</button>'
-    + '</div>'
-    + '<div class="sumbox" id="inv-sum"></div>'
-    + '<div class="picklist">' + list + '</div>'
-    + (data.dry_run ? '<div class="warnbox" style="background:var(--amber-soft);color:var(--amber)">'
-        + 'いまはお試し中です。送信の予定だけが記録され、LINEは飛びません。</div>' : '')
-    + '<div class="foot">'
-    +   '<button type="button" class="btn ghost" data-close>やめる</button>'
-    +   '<button type="button" class="btn" id="do-invite">この方に送る</button>'
-    + '</div>');
-
-  const boxes = () => [].slice.call(el.querySelectorAll('.picklist input[type=checkbox]'));
-  function sum() {
-    const order = [], m = {};
-    let n = 0;
-    boxes().forEach((b) => {
-      if (!b.checked) return;
-      n++;
-      const p = b.getAttribute('data-plan') || '未';
-      if (m[p] === undefined) { m[p] = 0; order.push(p); }
-      m[p]++;
+/* ---------- 見本（?mock=1）----------------------------------------------
+   GASにつながず、画面だけ見るためのものです。押しても何も変わりません。
+---------------------------------------------------------------------- */
+function mockApi(rc) {
+  if (rc.id === '3ki') {
+    return Promise.resolve({
+      ok: true, version: 'v2.4.0',
+      summary: { ikigomi: 12, total: 36, notInvited: 0, terms: 36, signed: 35, waiting: 1, done: 34 },
+      flags: { open_gate: true, test_mode: false, maintenance: false }
     });
-    const txt = order.map((k) => k + ' ' + m[k] + '名').join('／');
-    $('inv-sum').textContent = n ? ('送る：合計 ' + n + '名（' + txt + '）') : '送る方が選ばれていません';
-    return { n, txt };
   }
-  el.addEventListener('change', sum);
-  el.addEventListener('click', (e) => {
-    const b = e.target.closest('[data-all]');
-    if (!b) return;
-    boxes().forEach((x) => { x.checked = b.dataset.all === '1'; });
-    sum();
-  });
-  sum();
-
-  el.querySelector('#do-invite').addEventListener('click', async () => {
-    const s = sum();
-    if (!s.n) { toast('1人も選ばれていません。', true); return; }
-    if (!window.confirm('合計 ' + s.n + '名（' + s.txt + '）に\nお申し込みのご案内を送ります。\n\nよろしいですか？')) return;
-
-    const btn = el.querySelector('#do-invite');
-    btn.disabled = true;
-    btn.textContent = '送信中…';
-    try {
-      const uids = boxes().filter((b) => b.checked).map((b) => b.value);
-      const r = await api('admin_invite', { uids });
-      if (!r.ok) throw new Error(r.error || 'うまくいきませんでした');
-      close();
-      toast(r.message);
-      load(false);
-    } catch (err) {
-      btn.disabled = false;
-      btn.textContent = 'この方に送る';
-      toast(err.message, true);
-    }
+  return Promise.resolve({
+    ok: true, version: 'v1.3.0',
+    summary: { total: 5, paid: 1, bank: 2, bankok: 1, wait: 1, cancel: 0, expire: 0, todo: 1, overdue: 1, yen: 14000 },
+    remain: { part1: 37, part2: 38 },
+    flags: { gate_off: false, stopped: false, phase: 'before' }
   });
 }
-
-/* =========================================================================
-   🔔 スマホ通知（Firebase Cloud Messaging）
-   ・ホーム画面に追加したこの画面へ、受付のお知らせを届けます。
-   ・どのお知らせを受け取るかは、運営お一人おひとり（＝端末ごと）に決められます。
-   ・iPhoneは「ホーム画面に追加」してからでないと通知を受け取れません（Appleの仕様）。
-   ========================================================================= */
-const PUSH_CFG = {
-  apiKey: 'AIzaSyBpBpGmxfWhyHq3rzwH2Oa_6IWDIZbOAj8',
-  authDomain: 'elabo-plus.firebaseapp.com',
-  projectId: 'elabo-plus',
-  messagingSenderId: '452649305918',
-  appId: '1:452649305918:web:4bef5bae57aee4d86c4e6f'
-};
-const VAPID_KEY = 'BAtxAvwJITAJ_q2DHtIajcTI_UEgJQhOlPI3uQ8IlXoV_kfyG3SQyRSVkT83Iyln9RsReuwgcR3By6g7roWif1Y';
-const PUSH_ON   = 'rion3ki_push_on';    // この端末で通知をオンにしたか
-const PUSH_NAME = 'rion3ki_push_name';  // 端末の呼び名（どなたの端末か分かるように）
-
-let pushToken = null;
-
-function pushSupported() {
-  return ('Notification' in window) && ('serviceWorker' in navigator) && !!window.isSecureContext;
-}
-function isIos() {
-  // iPadOSはMacを名乗るので、指で触れるかどうかも見る
-  return /iPad|iPhone|iPod/.test(navigator.userAgent)
-    || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-}
-
-/** 通知が使えないとき、何が足りないのかを並べる */
-function diagRows() {
-  const rows = [
-    ['通知の機能（Notification）', ('Notification' in window)],
-    ['裏で待つ仕組み（Service Worker）', ('serviceWorker' in navigator)],
-    ['安全な接続（https）', !!window.isSecureContext],
-    ['ホーム画面から起動', isStandalone()]
-  ];
-  return rows.map((r) =>
-    '<div class="pushdiag__r"><span>' + esc(r[0]) + '</span><b class="' + (r[1] ? 'ok' : 'ng') + '">'
-    + (r[1] ? '使えます' : '見つかりません') + '</b></div>').join('');
-}
-function isStandalone() {
-  return window.navigator.standalone === true
-    || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
-}
-
-let fbLoading = null;
-function loadFirebase() {
-  if (window.firebase && window.firebase.messaging) return Promise.resolve();
-  if (fbLoading) return fbLoading;
-  const one = (src) => new Promise((ok, ng) => {
-    const el = document.createElement('script');
-    el.src = src;
-    el.onload = ok;
-    el.onerror = () => ng(new Error('通知の部品を読み込めませんでした'));
-    document.head.appendChild(el);
-  });
-  fbLoading = one('https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js')
-    .then(() => one('https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js'))
-    .then(() => { if (!firebase.apps.length) firebase.initializeApp(PUSH_CFG); });
-  return fbLoading;
-}
-
-/** この端末のトークンを取る（通知の許可もここで取ります） */
-async function pushGetToken() {
-  if (!pushSupported()) throw new Error('この端末では通知を使えません。');
-  await loadFirebase();
-  const perm = await Notification.requestPermission();
-  if (perm !== 'granted') {
-    throw new Error('通知が許可されませんでした。端末の設定からも変えられます。');
-  }
-  const q = new URLSearchParams(PUSH_CFG).toString();
-  const reg = await navigator.serviceWorker.register('firebase-messaging-sw.js?' + q);
-  const token = await firebase.messaging()
-    .getToken({ vapidKey: VAPID_KEY, serviceWorkerRegistration: reg });
-  if (!token) throw new Error('通知の登録ができませんでした。少し時間をおいてお試しください。');
-  pushToken = token;
-  return token;
-}
-
-/** ヘッダーの🔔に、いまオンかどうかの緑の点をつける */
-function paintPushBadge() {
-  const b = $('btn-push');
-  if (!b) return;
-  b.hidden = false;
-  const on = localStorage.getItem(PUSH_ON) === '1'
-    && ('Notification' in window) && Notification.permission === 'granted';
-  b.classList.toggle('on', on);
-  b.textContent = on ? '🔔' : '🔕';
-}
-
-/** 一度オンにした端末は、画面を開くたびに黙ってトークンを入れ直しておく */
-async function pushRefresh() {
-  if (localStorage.getItem(PUSH_ON) !== '1') return;
-  if (!pushSupported() || Notification.permission !== 'granted') return;
-  try {
-    const token = await pushGetToken();
-    await api('admin_push_register', { fcm: token, name: localStorage.getItem(PUSH_NAME) || '' });
-  } catch (err) { /* 黙っておく。画面は止めない */ }
-}
-
-$('btn-push').addEventListener('click', showPush);
-
-async function showPush() {
-  const el = modal(
-    '<h2>🔔 スマホ通知</h2>'
-    + '<p>この端末に、受付のお知らせを届けます。設定はお一人おひとり（端末ごと）です。</p>'
-    + '<div id="pu-body" style="font-size:.88rem;color:var(--ink-soft)">読み込んでいます…</div>'
-    + '<div class="foot">'
-    +   '<button type="button" class="btn ghost" data-close>閉じる</button>'
-    +   '<button type="button" class="btn ok" id="pu-main" hidden></button>'
-    + '</div>');
-
-  const body = el.querySelector('#pu-body');
-  const main = el.querySelector('#pu-main');
-
-  // ★iPhoneの判定を先に。Safariのタブでは Notification 自体が無いので、
-  //   先に pushSupported() を見ると「使えません」が出て理由が伝わらない。
-  if (isIos() && !isStandalone()) {
-    body.innerHTML = '<div class="warnbox">iPhone・iPadでは、'
-      + '<b>ホーム画面に追加したこの画面</b>からでないと通知を受け取れません（Appleの決まりです）。</div>'
-      + '<p style="margin:.7rem 0 .3rem"><b>やりかた</b></p>'
-      + '<ol style="margin:0;padding-left:1.3em;font-size:.86rem;line-height:1.9">'
-      + '<li>Safariの下（または上）の <b>共有ボタン（□に↑）</b> を押す</li>'
-      + '<li><b>「ホーム画面に追加」</b> を選ぶ</li>'
-      + '<li>ホーム画面にできた<b>アイコンから開き直す</b></li>'
-      + '<li>もう一度この 🔔 を押す</li></ol>';
-    return;
-  }
-  if (!pushSupported()) {
-    body.innerHTML = '<div class="warnbox">この端末では通知を使えません。</div>'
-      + '<p style="margin:.7rem 0 .3rem">足りないものはこちらです。</p>'
-      + '<div class="pushdiag">' + diagRows() + '</div>'
-      + '<p style="margin:.7rem 0 0;font-size:.82rem">'
-      + 'パソコンならChrome、AndroidならChrome、iPhoneならホーム画面に追加したこの画面から'
-      + 'お試しください。（社内ネットワークや、ブラウザの拡張機能でとめられていることもあります）</p>';
-    return;
-  }
-
-  const on = localStorage.getItem(PUSH_ON) === '1' && Notification.permission === 'granted';
-
-  // ── まだオンにしていない端末。まずは許可を取るところから
-  if (!on) {
-    body.innerHTML = '<p style="margin:0 0 .6rem">「通知を受け取る」を押すと、'
-      + '端末から許可を聞かれます。許可すると、お知らせの種類を選べるようになります。</p>'
-      + '<p style="margin:0">はじめは <b>振込のご連絡</b> と <b>カード決済のご連絡</b> の'
-      + '2つがオンになります。</p>';
-    main.hidden = false;
-    main.textContent = '通知を受け取る';
-    main.onclick = async () => {
-      main.disabled = true;
-      main.textContent = '登録しています…';
-      try {
-        const token = await pushGetToken();
-        const name = (localStorage.getItem(PUSH_NAME) || '').trim()
-          || (prompt('どなたの端末ですか？（例：ゆきこ／iPhone）', '') || '').trim()
-          || 'お名前なし';
-        localStorage.setItem(PUSH_NAME, name);
-        const r = await api('admin_push_register', { fcm: token, name });
-        if (!r || !r.ok) throw new Error((r && r.error) || '登録できませんでした');
-        localStorage.setItem(PUSH_ON, '1');
-        paintPushBadge();
-        toast('通知をオンにしました');
-        close();
-        showPush();
-      } catch (err) {
-        main.disabled = false;
-        main.textContent = '通知を受け取る';
-        body.innerHTML = '<div class="warnbox">' + esc(String(err.message || err)) + '</div>';
-      }
-    };
-    return;
-  }
-
-  // ── すでにオンの端末。種類の一覧を出す
-  try {
-    if (!pushToken) await pushGetToken();
-    let r = await api('admin_push_get', { fcm: pushToken });
-    if (!r || !r.ok) throw new Error((r && r.error) || '設定を読めませんでした');
-    if (!r.registered) {
-      r = await api('admin_push_register', {
-        fcm: pushToken, name: localStorage.getItem(PUSH_NAME) || 'お名前なし'
-      });
-      if (!r || !r.ok) throw new Error((r && r.error) || '登録できませんでした');
-    }
-    paintPushRows(body, main, r);
-  } catch (err) {
-    body.innerHTML = '<div class="warnbox">' + esc(String(err.message || err)) + '</div>';
-  }
-}
-
-function paintPushRows(body, main, r) {
-  const kinds = r.kinds || [];
-  const prefs = r.prefs || {};
-
-  body.innerHTML =
-    '<div class="sumbox">この端末：' + esc(localStorage.getItem(PUSH_NAME) || 'お名前なし') + '</div>'
-    + (r.ready ? '' : '<div class="warnbox" style="margin-top:.6rem">'
-        + 'まだ送信のかぎ（FCM_PRIVATE_KEY）が入っていないため、実際には届きません。'
-        + '設定だけ先に保存できます。</div>')
-    + '<div class="pushlist">'
-    + kinds.map((k) =>
-        '<label class="pushrow">'
-        + '<input type="checkbox" data-kind="' + esc(k.key) + '"'
-        + (prefs[k.key] ? ' checked' : '') + '>'
-        + '<span><b>' + esc(k.label) + '</b>'
-        + (k.hint ? '<em>' + esc(k.hint) + '</em>' : '') + '</span></label>').join('')
-    + '</div>'
-    + '<p style="margin:.8rem 0 0;font-size:.8rem">'
-    + '<button type="button" class="lnk" id="pu-test">試しに1つ送ってみる</button>'
-    + '　<button type="button" class="lnk" id="pu-off">この端末の通知をやめる</button></p>';
-
-  main.hidden = false;
-  main.textContent = '保存する';
-  main.onclick = async () => {
-    const want = {};
-    body.querySelectorAll('[data-kind]').forEach((c) => { want[c.dataset.kind] = c.checked; });
-    main.disabled = true;
-    main.textContent = '保存しています…';
-    try {
-      const res = await api('admin_push_prefs', { fcm: pushToken, prefs: JSON.stringify(want) });
-      if (!res || !res.ok) throw new Error((res && res.error) || '保存できませんでした');
-      toast('通知の設定を保存しました');
-      close();
-    } catch (err) {
-      main.disabled = false;
-      main.textContent = '保存する';
-      toast(String(err.message || err), true);
-    }
-  };
-
-  body.querySelector('#pu-test').addEventListener('click', async () => {
-    try {
-      const res = await api('admin_push_test', { fcm: pushToken });
-      if (!res || !res.ok) {
-        throw new Error((res && res.error) === 'no_credentials'
-          ? 'まだ送信のかぎが入っていないため送れません'
-          : '送れませんでした');
-      }
-      toast('送りました。数秒お待ちください');
-    } catch (err) { toast(String(err.message || err), true); }
-  });
-
-  body.querySelector('#pu-off').addEventListener('click', async () => {
-    try {
-      await api('admin_push_off', { fcm: pushToken, name: localStorage.getItem(PUSH_NAME) || '' });
-    } catch (err) { /* 消せなくても、この端末はオフにする */ }
-    localStorage.removeItem(PUSH_ON);
-    paintPushBadge();
-    toast('この端末の通知をやめました');
-    close();
-  });
-}
-
-/* ---------- モーダル ---------- */
-function modal(html) {
-  close();
-  const scrim = document.createElement('div');
-  scrim.className = 'scrim';
-  scrim.id = 'scrim';
-  scrim.innerHTML = '<div class="modal" role="dialog" aria-modal="true">' + html + '</div>';
-  scrim.addEventListener('click', (e) => {
-    if (e.target === scrim || e.target.closest('[data-close]')) close();
-  });
-  document.body.appendChild(scrim);
-  document.addEventListener('keydown', onEsc);
-  return scrim;
-}
-function close() {
-  const s = $('scrim');
-  if (s) s.remove();
-  document.removeEventListener('keydown', onEsc);
-}
-function onEsc(e) { if (e.key === 'Escape') close(); }
-
-/* ---------- 立ち上がり ---------- */
-(function () {
-  const saved = localStorage.getItem(KEY_STORE);
-  if (!saved) return;
-  adminKey = saved;
-  load(false).catch(() => {});
-})();
 </script>
 </body>
 </html>
