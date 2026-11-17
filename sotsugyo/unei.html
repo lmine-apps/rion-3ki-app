@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>卒業式 受付｜運営の手順書</title>
+<!--
+  凛穏塾 3期生 卒業式 受付 ── 運営の手順書（2026-11-18）
+
+  ・運営の方がこれ1枚で動けるように書いています。
+  ・管理キー、スプレッドシートのURL、口座番号はここには書きません。
+    このページは公開の場所に置いてあるためです（検索には出ません）。
+  ・画面プレビューは本物の受付ページをそのまま表示しています。
+    文言を直すと、このページの見た目も一緒に変わります。
+-->
+<style>
+  :root{
+    --ground:#f4f7fa;
+    --panel:#fff;
+    --panel-2:#f8fafc;
+    --ink:#16283b;
+    --ink-mid:#5d7186;
+    --ink-soft:#8d9dad;
+    --line:rgba(22,40,59,.14);
+    --line-soft:rgba(22,40,59,.07);
+    --navy:#12345a;
+    --navy-dk:#0b203d;
+    --sky:#62b7e7;
+    --sky-pale:#e5f5fd;
+    --ops:#8c6d1f;
+    --ops-pale:#f6efdc;
+    --warn:#c0503f;
+    --warn-pale:#fdf0ed;
+    --ok:#1f7a5c;
+    --ok-pale:#eaf5ef;
+    --mark:#fff6d8;
+    --mark-line:#e0b93c;
+    --gothic:"Hiragino Kaku Gothic ProN","Yu Gothic UI","Yu Gothic","Meiryo",system-ui,sans-serif;
+    --mincho:"Yu Mincho","YuMincho","Hiragino Mincho ProN","Noto Serif JP",serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]){
+      --ground:#0d151f; --panel:#16212e; --panel-2:#1b2836;
+      --ink:#e6eef5; --ink-mid:#a8bccd; --ink-soft:#7d93a6;
+      --line:rgba(230,238,245,.16); --line-soft:rgba(230,238,245,.08);
+      --navy:#9fc9e8; --navy-dk:#061626; --sky:#62b7e7; --sky-pale:#10293f;
+      --ops:#e3c472; --ops-pale:#352c15;
+      --warn:#f0a99c; --warn-pale:#3a1b17;
+      --ok:#7fd3b0; --ok-pale:#11332a;
+      --mark:#3a3317; --mark-line:#7a6a28;
+    }
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--ground);color:var(--ink);
+       font-family:var(--gothic);line-height:1.9;font-size:15.5px;
+       -webkit-text-size-adjust:100%}
+
+  /* ---------- 見出し帯 ---------- */
+  .head{background:linear-gradient(160deg,var(--navy-dk),#12345a);color:#fff;
+        padding:2.1rem 1.1rem 1.7rem}
+  .head__in{max-width:980px;margin:0 auto}
+  .head__k{display:block;font-size:.68rem;letter-spacing:.22em;opacity:.65;font-weight:700}
+  .head h1{margin:.35rem 0 .5rem;font-size:1.5rem;line-height:1.5;font-family:var(--mincho)}
+  .head p{margin:0;font-size:.88rem;opacity:.85}
+  .head__nav{margin:1.1rem 0 0;display:flex;flex-wrap:wrap;gap:.5rem}
+  .head__nav a{display:inline-block;background:rgba(255,255,255,.12);color:#fff;
+    text-decoration:none;border-radius:999px;padding:.35rem .95rem;font-size:.8rem;font-weight:700}
+  .head__nav a:hover{background:rgba(255,255,255,.22)}
+
+  main{max-width:980px;margin:0 auto;padding:1.4rem 1.1rem 5rem}
+
+  /* ---------- もくじ ---------- */
+  .toc{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+       padding:1rem 1.2rem;margin:0 0 2rem}
+  .toc b{display:block;font-size:.8rem;letter-spacing:.08em;color:var(--ink-mid);margin:0 0 .5rem}
+  .toc ol{margin:0;padding-left:1.4em}
+  .toc li{margin:.15rem 0}
+  .toc a{color:var(--navy);text-decoration:none;font-weight:700}
+  .toc a:hover{text-decoration:underline}
+
+  /* ---------- 章 ---------- */
+  section{margin:0 0 2.8rem;scroll-margin-top:1rem}
+  h2{font-size:1.18rem;margin:0 0 .9rem;padding:0 0 .5rem;
+     border-bottom:2px solid var(--sky);font-family:var(--mincho)}
+  h2 .n{display:inline-block;background:var(--navy);color:#fff;border-radius:7px;
+        font-family:var(--gothic);font-size:.78rem;padding:.1rem .55rem;margin-right:.55rem;
+        vertical-align:.1em}
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]) h2 .n{background:#1d4d7d;color:#fff}
+  }
+  h3{font-size:1rem;margin:1.6rem 0 .5rem}
+  p{margin:.5rem 0}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+        padding:1.1rem 1.2rem;margin:.9rem 0}
+  .card>:first-child{margin-top:0}
+  .card>:last-child{margin-bottom:0}
+
+  .note{background:var(--mark);border-left:4px solid var(--mark-line);
+        border-radius:0 10px 10px 0;padding:.75rem 1rem;margin:.9rem 0;font-size:.92rem}
+  .warn{background:var(--warn-pale);border-left:4px solid var(--warn);
+        border-radius:0 10px 10px 0;padding:.75rem 1rem;margin:.9rem 0;font-size:.92rem}
+  .good{background:var(--ok-pale);border-left:4px solid var(--ok);
+        border-radius:0 10px 10px 0;padding:.75rem 1rem;margin:.9rem 0;font-size:.92rem}
+
+  table{width:100%;border-collapse:collapse;margin:.9rem 0;font-size:.88rem;
+        background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  th,td{padding:.55rem .7rem;border-bottom:1px solid var(--line-soft);text-align:left;
+        vertical-align:top}
+  th{background:var(--panel-2);font-size:.8rem;color:var(--ink-mid);white-space:nowrap}
+  tr:last-child td{border-bottom:0}
+  td b{font-weight:700}
+
+  .tag{display:inline-block;font-size:.72rem;font-weight:700;padding:.12rem .55rem;
+       border-radius:999px;white-space:nowrap}
+  .tag.wait{background:#fdf3dd;color:#8a6a1e}
+  .tag.paid{background:#e4f3ea;color:#1c7a4b}
+  .tag.bank{background:#e5f0fb;color:#1f5a8b}
+  .tag.ok{background:#d8efe1;color:#15613a}
+  .tag.off{background:#eceff2;color:#6b7b89}
+  .tag.over{background:#fbe9e7;color:#9c3a28}
+
+  /* ---------- 流れの図 ---------- */
+  .flow{display:flex;flex-wrap:wrap;gap:.5rem;align-items:stretch;margin:1rem 0}
+  .flow__b{flex:1 1 150px;min-width:140px;background:var(--panel);border:1px solid var(--line);
+    border-radius:12px;padding:.7rem .8rem;font-size:.84rem;line-height:1.7}
+  .flow__b b{display:block;font-size:.88rem;margin:0 0 .15rem}
+  .flow__b.is-ops{background:var(--ops-pale);border-color:var(--ops)}
+  .flow__b.is-ops b{color:var(--ops)}
+  .flow__b small{display:block;color:var(--ink-soft);font-size:.76rem;line-height:1.6}
+  .flow__a{align-self:center;color:var(--ink-soft);font-weight:700;flex:none}
+  @media(max-width:640px){ .flow__a{display:none} }
+
+  /* ---------- スマホ枠のプレビュー ---------- */
+  .shots{display:flex;flex-wrap:wrap;gap:1.4rem;margin:1rem 0}
+  .shot{flex:1 1 300px;min-width:280px}
+  .shot__cap{font-size:.84rem;font-weight:700;margin:0 0 .4rem}
+  .shot__cap span{display:block;font-weight:400;color:var(--ink-soft);font-size:.78rem;line-height:1.6}
+  .phone{border:9px solid #1a2531;border-radius:26px;overflow:hidden;background:#fff;
+         box-shadow:0 10px 26px rgba(10,25,45,.18);height:560px}
+  .phone iframe{display:block;width:100%;height:100%;border:0;background:#fff}
+
+  /* ---------- 管理画面の再現 ---------- */
+  .ui{border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:.9rem 0;
+      background:var(--panel);font-size:.86rem}
+  .ui__h{background:linear-gradient(160deg,var(--navy-dk),#12345a);color:#fff;
+         padding:.7rem .9rem;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+  .ui__h b{font-size:.92rem}
+  .ui__h .pill{background:rgba(255,255,255,.14);border-radius:999px;padding:.18rem .7rem;
+               font-size:.74rem;font-weight:700}
+  .ui__b{padding:.9rem}
+  .row{border:1px solid var(--line);border-radius:10px;padding:.65rem .8rem;margin:.5rem 0;
+       background:var(--panel-2)}
+  .row__t{display:flex;justify-content:space-between;gap:.6rem;align-items:center;flex-wrap:wrap}
+  .row__n{font-weight:700}
+  .row__m{color:var(--ink-soft);font-size:.78rem;margin:.2rem 0 0}
+  .row .btnx{display:inline-block;background:var(--ok);color:#fff;border-radius:8px;
+             padding:.3rem .8rem;font-size:.78rem;font-weight:700;margin:.45rem .35rem 0 0}
+  .row .btnx.ghost{background:transparent;color:var(--ink-mid);border:1.4px solid var(--line)}
+
+  .cnt{display:flex;flex-wrap:wrap;gap:.5rem;margin:.6rem 0}
+  .cnt div{flex:1 1 90px;background:var(--panel-2);border:1px solid var(--line);
+           border-radius:10px;padding:.5rem .6rem;text-align:center}
+  .cnt b{display:block;font-size:1.1rem}
+  .cnt span{font-size:.72rem;color:var(--ink-soft)}
+
+  .callout{position:relative;padding-left:2.2rem}
+  .callout::before{content:attr(data-n);position:absolute;left:0;top:.15rem;
+    width:1.6rem;height:1.6rem;border-radius:50%;background:var(--warn);color:#fff;
+    font-size:.78rem;font-weight:700;display:grid;place-items:center}
+
+  ol.steps2{margin:.6rem 0;padding-left:0;list-style:none;counter-reset:s}
+  ol.steps2>li{counter-increment:s;position:relative;padding:.1rem 0 .8rem 2.3rem;margin:0}
+  ol.steps2>li::before{content:counter(s);position:absolute;left:0;top:.25rem;
+    width:1.7rem;height:1.7rem;border-radius:50%;background:var(--navy);color:#fff;
+    font-size:.82rem;font-weight:700;display:grid;place-items:center}
+  @media (prefers-color-scheme:dark){
+    :root:not([data-theme="light"]) ol.steps2>li::before{background:#1d4d7d}
+  }
+
+  details{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+          padding:.7rem .95rem;margin:.6rem 0}
+  summary{cursor:pointer;font-weight:700;font-size:.93rem}
+  details[open] summary{margin-bottom:.5rem}
+
+  a.link{color:var(--navy);font-weight:700}
+  code{background:var(--panel-2);border:1px solid var(--line-soft);border-radius:5px;
+       padding:.05rem .35rem;font-size:.86em}
+  footer{max-width:980px;margin:0 auto;padding:0 1.1rem 3rem;color:var(--ink-soft);font-size:.8rem}
+
+  @media print{
+    .head__nav,.toc{display:none}
+    body{background:#fff}
+    section{page-break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+
+<header class="head">
+  <div class="head__in">
+    <span class="head__k">RION JUKU / GRADUATION</span>
+    <h1>卒業式 受付｜運営の手順書</h1>
+    <p>凛穏塾 3期生 卒業式（2027年1月31日）の受付を、運営の方が動かすための1枚です。</p>
+    <div class="head__nav">
+      <a href="../admin.html">受付をえらぶ（管理）</a>
+      <a href="./admin.html">卒業式 受付の管理</a>
+      <a href="./?mock=1" target="_blank" rel="noopener">受付ページを見る</a>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<div class="toc">
+  <b>もくじ</b>
+  <ol>
+    <li><a href="#s1">はじめに ── 運営がすることは、ほぼ1つです</a></li>
+    <li><a href="#s2">受付の全体像</a></li>
+    <li><a href="#s3">お客様が見る画面（プレビュー）</a></li>
+    <li><a href="#s4">管理ページの開き方と見かた</a></li>
+    <li><a href="#s5">運営の操作① 入金を確認する</a></li>
+    <li><a href="#s6">運営の操作② 期限切れをまとめて処理する</a></li>
+    <li><a href="#s7">状態（ステータス）の意味</a></li>
+    <li><a href="#s8">スプレッドシートの見かた</a></li>
+    <li><a href="#s9">スマホ通知の設定</a></li>
+    <li><a href="#s10">4つのスイッチ（ふだんは全部オフ）</a></li>
+    <li><a href="#s11">こんなときは</a></li>
+    <li><a href="#s12">受付のまえ・あとのチェックリスト</a></li>
+  </ol>
+</div>
+
+<!-- ======================= 1 ======================= -->
+<section id="s1">
+  <h2><span class="n">1</span>はじめに ── 運営がすることは、ほぼ1つです</h2>
+
+  <p>お申し込みから決済まで、ほとんどは自動で進みます。
+  運営の方にお願いしたいのは、次の<b>1つ</b>だけです。</p>
+
+  <div class="good">
+    <b>銀行振込を選ばれた方のお入金を、通帳で確かめて「入金を確認しました」を押す。</b><br>
+    これだけです。クレジットカードのお支払いは、運営がすることは何もありません。
+  </div>
+
+  <p>そのほかに、受付が終わったあとに<b>「期限切れをまとめて処理する」</b>を一度押していただきます
+  （→ <a class="link" href="#s6">6章</a>）。こちらは忘れていても事故にはなりません。</p>
+
+  <div class="note">
+    <b>このページについて</b><br>
+    管理キー・スプレッドシートのURL・お振込先の口座番号は、このページには書いてありません。
+    お手元の控えをご覧ください。
+  </div>
+</section>
+
+<!-- ======================= 2 ======================= -->
+<section id="s2">
+  <h2><span class="n">2</span>受付の全体像</h2>
+
+  <h3>クレジットカードのとき（運営の出番なし）</h3>
+  <div class="flow">
+    <div class="flow__b"><b>公式LINE</b>ご案内が届く<small>LINEから開かないと受付ページは見られません</small></div>
+    <div class="flow__a">▶</div>
+    <div class="flow__b"><b>受付ページ</b>部をえらぶ → お名前<small>この時点で<span class="tag wait">決済待ち</span>の行ができます</small></div>
+    <div class="flow__a">▶</div>
+    <div class="flow__b"><b>決済ページ</b>カードでお支払い</div>
+    <div class="flow__a">▶</div>
+    <div class="flow__b"><b>自動</b><span class="tag paid">決済済み</span>に変わる<small>お席が1つ埋まります</small></div>
+  </div>
+
+  <h3>銀行振込のとき（ここだけ運営の出番があります）</h3>
+  <div class="flow">
+    <div class="flow__b"><b>受付ページ</b>「銀行振込」をえらぶ<small><span class="tag bank">振込待ち</span>になり、<b>この時点でお席を押さえます</b></small></div>
+    <div class="flow__a">▶</div>
+    <div class="flow__b"><b>ご本人</b>お振込 → 「振り込みました」を押す<small>お名義とお振込日も入ります</small></div>
+    <div class="flow__a">▶</div>
+    <div class="flow__b is-ops"><b>🔔 運営</b>通帳を見て確かめる<small>スマホに通知が届きます</small></div>
+    <div class="flow__a">▶</div>
+    <div class="flow__b is-ops"><b>🔔 運営</b>「入金を確認しました」を押す<small><span class="tag ok">入金確認済み</span>になります</small></div>
+  </div>
+
+  <div class="note">
+    <b>お席の数え方</b><br>
+    第1部40席・第2部40席です。<br>
+    <span class="tag paid">決済済み</span><span class="tag bank">振込待ち</span><span class="tag ok">入金確認済み</span>
+    の3つを数えます。<span class="tag wait">決済待ち</span>は数えません
+    （ページを閉じてしまった方でお席が死なないようにするためです）。<br>
+    <b>振込は「申し込んだ時点」でお席を押さえます。</b>お入金を待つあいだも席は確保されています。
+  </div>
+
+  <p>「両部」をお選びの方は、第1部と第2部のお席を1つずつお使いになります。</p>
+
+  <table>
+    <tr><th>　</th><th>第1部</th><th>第2部</th><th>両部</th></tr>
+    <tr><td>内容</td><td>卒業式</td><td>懇親会（立食・貸切）</td><td>どちらにも参加</td></tr>
+    <tr><td>時間</td><td>13:00〜15:00（予定）</td><td>17:00〜19:00（16:30受付開始）</td><td>—</td></tr>
+    <tr><td>会場</td><td>ザ・リッツ・カールトン大阪</td><td>SENBA KITCHEN GREEN HOUSE ハービスプラザ店</td><td>同じ番地です</td></tr>
+    <tr><td>参加費</td><td>6,000円</td><td>8,000円</td><td>14,000円</td></tr>
+    <tr><td>定員</td><td>40名</td><td>40名</td><td>—</td></tr>
+  </table>
+
+  <p><b>受付期間</b>　2026年11月27日（金）10:00 〜 12月4日（金）23:59<br>
+  <b>お振込の期限</b>　お申し込みから<b>5日</b>（固定の日付ではありません。お一人ずつ違います）</p>
+</section>
+
+<!-- ======================= 3 ======================= -->
+<section id="s3">
+  <h2><span class="n">3</span>お客様が見る画面（プレビュー）</h2>
+
+  <p>下は<b>本物の受付ページ</b>です。画像ではないので、指でさわって中をご覧いただけます。
+  文言を直せば、ここの見た目も一緒に変わります。</p>
+
+  <div class="note">
+    受付期間の外は「まだ受付前です」と出ます。これで正しい動きです。<br>
+    11月27日（金）10:00になると、自動でお申し込みの画面に変わります。
+  </div>
+
+  <div class="shots">
+    <div class="shot">
+      <p class="shot__cap">受付ページ
+        <span>公式LINEのご案内から開いた状態です</span></p>
+      <div class="phone"><iframe src="./?mock=1" title="受付ページのプレビュー" loading="lazy"></iframe></div>
+    </div>
+    <div class="shot">
+      <p class="shot__cap">お申し込みの流れ
+        <span>部をえらぶ → お名前 → お支払い方法 → 決済ページ</span></p>
+      <div class="card" style="height:560px;overflow:auto">
+        <ol class="steps2">
+          <li><b>部をおえらびになる</b><br>
+            第1部／第2部／両部。満席の部は押せなくなります。</li>
+          <li><b>お名前をご入力いただく</b><br>
+            <b>決済のまえに</b>いただきます。あとからのアンケートですと、
+            2〜3割の方が出されず「お名前のないご入金」が残ってしまうためです。</li>
+          <li><b>お支払い方法をおえらびになる</b><br>
+            クレジットカード／銀行振込。</li>
+          <li><b>カードの場合</b>　決済ページへ進み、お支払いが終わると自動で
+            <span class="tag paid">決済済み</span>になります。</li>
+          <li><b>振込の場合</b>　お振込先と期限が画面に出ます。
+            この時点で<span class="tag bank">振込待ち</span>＝<b>お席は確保ずみ</b>です。<br>
+            お振込がお済みになったら、同じページの
+            <b>「振り込みました」</b>を押していただきます。</li>
+          <li><b>完了画面</b>　当日のご案内が出ます。
+            同じ方が同じURLを開き直すと、この完了画面が出ます。</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <div class="warn">
+    <b>受付ページは公式LINEからしか開けません。</b><br>
+    LINEのご案内のボタンから開いていただくと、どなたのお申し込みかが分かるしくみです。
+    URLだけをコピーして人に渡しても、「公式LINEからお開きください」としか出ません。
+  </div>
+</section>
+
+<!-- ======================= 4 ======================= -->
+<section id="s4">
+  <h2><span class="n">4</span>管理ページの開き方と見かた</h2>
+
+  <ol class="steps2">
+    <li><b><a class="link" href="../admin.html">受付をえらぶ画面</a></b>を開きます。
+      （ホーム画面に追加しておくと、アプリのように開けます）</li>
+    <li><b>管理キー</b>を入れます。一度入れると、同じ端末では次から入れ直す必要はありません。</li>
+    <li><b>「卒業式 受付」</b>のカードを開きます。</li>
+  </ol>
+
+  <div class="note">
+    3期生のお申し込みの管理と、卒業式の受付の管理は<b>同じ入口</b>にまとめてあります。
+    管理キーも同じものが通ります。
+  </div>
+
+  <h3>開いたところ</h3>
+  <div class="ui">
+    <div class="ui__h">
+      <b>卒業式 受付管理</b>
+      <span class="pill">受付中</span>
+      <span class="pill">🔔 通知の設定</span>
+      <span class="pill">← 受付をえらぶ</span>
+    </div>
+    <div class="ui__b">
+      <div class="cnt">
+        <div><b>12</b><span>第1部 残り</span></div>
+        <div><b>21</b><span>第2部 残り</span></div>
+        <div><b>48</b><span>お申し込み</span></div>
+        <div><b>3</b><span>振込待ち</span></div>
+      </div>
+      <p style="font-size:.82rem;color:var(--ink-soft);margin:.2rem 0 .8rem">
+        ※ 1分ごとに自動で読み直します。「更新」でもすぐ読み直せます。</p>
+
+      <div class="row callout" data-n="1">
+        <div class="row__t">
+          <span class="row__n">山田 花子 さま</span>
+          <span class="tag bank">振込待ち</span>
+        </div>
+        <p class="row__m">第2部／8,000円　お振込の期限 12月6日
+          <b>お名義 ヤマダ ハナコ／お振込日 12月2日</b></p>
+        <span class="btnx">入金を確認しました</span>
+        <span class="btnx ghost">キャンセル</span>
+      </div>
+
+      <div class="row">
+        <div class="row__t">
+          <span class="row__n">鈴木 太郎 さま</span>
+          <span class="tag paid">決済済み</span>
+        </div>
+        <p class="row__m">両部／14,000円　カード　12月1日 14:22</p>
+      </div>
+
+      <div class="row">
+        <div class="row__t">
+          <span class="row__n">（お名前なし）</span>
+          <span class="tag wait">決済待ち</span>
+        </div>
+        <p class="row__m">第1部／6,000円　まだ決済ページへ進まれていません。
+          <b>お席は使っていません。</b></p>
+      </div>
+    </div>
+  </div>
+
+  <p class="callout" data-n="1" style="margin-top:1rem">
+    <b>お名義とお振込日が太字で出ている行</b>が、ご本人から「振り込みました」のご連絡が届いた行です。
+    この行の通帳を見てください。</p>
+</section>
+
+<!-- ======================= 5 ======================= -->
+<section id="s5">
+  <h2><span class="n">5</span>運営の操作① 入金を確認する</h2>
+
+  <ol class="steps2">
+    <li>スマホに <b>「💰 振込のご連絡【卒業式】」</b> の通知が届きます。<br>
+      <span style="color:var(--ink-soft);font-size:.88rem">
+      通知をタップすると、この管理ページが開きます。</span></li>
+    <li><b>通帳（ネットバンキング）で、お名義と金額を確かめます。</b></li>
+    <li>その方の行の <b>「入金を確認しました」</b> を押します。</li>
+    <li>確認の画面が出ますので「OK」。
+      <span class="tag bank">振込待ち</span> が <span class="tag ok">入金確認済み</span> に変わります。</li>
+  </ol>
+
+  <div class="good">
+    お席の数は<b>変わりません</b>。振込をお選びになった時点ですでに1席お使いになっているためです。
+  </div>
+
+  <div class="warn">
+    <b>押す前に、かならず通帳をご覧ください。</b><br>
+    「振り込みました」はご本人が押されたご申告です。実際のご入金とは別のものです。<br>
+    お名義がお申し込みのお名前と違うことがあります（ご家族名義など）。
+    迷われたら、押さずに残しておいてください。期限を過ぎてもお席は勝手には消えません
+    （→ <a class="link" href="#s6">6章</a>を押したときだけです）。
+  </div>
+
+  <h3>カードでお支払いの方は？</h3>
+  <p><b>何もしなくて大丈夫です。</b>決済が終わると自動で <span class="tag paid">決済済み</span> になります。</p>
+</section>
+
+<!-- ======================= 6 ======================= -->
+<section id="s6">
+  <h2><span class="n">6</span>運営の操作② 期限切れをまとめて処理する</h2>
+
+  <p>お振込の期限（お申し込みから5日）を過ぎてもご入金がない方のお席を、空けるための操作です。</p>
+
+  <ol class="steps2">
+    <li>管理ページの上のほうにある
+      <b>「⌛ 期限切れをまとめて処理する」</b>の<b>「実行」</b>を押します。</li>
+    <li>確認の画面が出ますので「OK」。</li>
+    <li>期限を過ぎた <span class="tag bank">振込待ち</span> だけが
+      <span class="tag over">期限切れ</span> になり、<b>その分だけお席が戻ります。</b></li>
+  </ol>
+
+  <div class="good">
+    <b>ご入金がお済みの方には触りません。</b>
+    <span class="tag ok">入金確認済み</span> や <span class="tag paid">決済済み</span> は何も変わりません。
+  </div>
+
+  <div class="note">
+    <b>いつ押すか</b><br>
+    押さなくても事故にはなりません。「期限切れ待ち ○件」と画面に出たときに押していただければ十分です。<br>
+    満席が近くて、1席でもお戻ししたいときにもお使いいただけます。
+  </div>
+
+  <p>期限を過ぎた方が、そのあとでお振込くださることもあります。
+  その場合はご本人が受付ページを開き直せば、もう一度お申し込みいただけます
+  （お席が残っていれば）。</p>
+</section>
+
+<!-- ======================= 7 ======================= -->
+<section id="s7">
+  <h2><span class="n">7</span>状態（ステータス）の意味</h2>
+
+  <table>
+    <tr><th>状態</th><th>意味</th><th>お席</th><th>運営がすること</th></tr>
+    <tr>
+      <td><span class="tag wait">決済待ち</span></td>
+      <td>受付ページで部をおえらびになったところ。まだお支払いに進まれていません。</td>
+      <td>使っていません</td>
+      <td>なし</td>
+    </tr>
+    <tr>
+      <td><span class="tag paid">決済済み</span></td>
+      <td>カードでのお支払いが終わりました。</td>
+      <td><b>1席</b></td>
+      <td>なし</td>
+    </tr>
+    <tr>
+      <td><span class="tag bank">振込待ち</span></td>
+      <td>銀行振込をおえらびになりました。お入金待ちです。</td>
+      <td><b>1席</b></td>
+      <td>通帳を見て確認 → ボタン</td>
+    </tr>
+    <tr>
+      <td><span class="tag ok">入金確認済み</span></td>
+      <td>運営が通帳で確かめて、ボタンを押した状態。<b>完了です。</b></td>
+      <td><b>1席</b></td>
+      <td>なし</td>
+    </tr>
+    <tr>
+      <td><span class="tag over">期限切れ</span></td>
+      <td>お振込の期限を過ぎ、<a class="link" href="#s6">6章</a>の操作をしたもの。</td>
+      <td>戻りました</td>
+      <td>なし</td>
+    </tr>
+    <tr>
+      <td><span class="tag off">キャンセル</span></td>
+      <td>運営が手で取り消したもの。</td>
+      <td>戻りました</td>
+      <td>なし</td>
+    </tr>
+  </table>
+
+  <div class="note">
+    <b>両部</b>をお選びの方は、第1部と第2部のお席を1つずつお使いになります。
+  </div>
+</section>
+
+<!-- ======================= 8 ======================= -->
+<section id="s8">
+  <h2><span class="n">8</span>スプレッドシートの見かた</h2>
+
+  <p>お申し込みは、受付管理のスプレッドシートの
+  <b>【卒業式】タブ</b>に1行ずつ積まれていきます。</p>
+
+  <div class="warn">
+    <b>スプレッドシートは「見るため」のものです。</b><br>
+    状態（G列）を手で書き換えないでください。お席の数が合わなくなります。
+    状態を変えるときは、かならず管理ページのボタンをお使いください。
+  </div>
+
+  <table>
+    <tr><th>列</th><th>中身</th><th>だれが書くか</th></tr>
+    <tr><td>A</td><td>申込日時</td><td>自動</td></tr>
+    <tr><td>B</td><td>UID（公式LINEの方を見分ける番号）</td><td>自動</td></tr>
+    <tr><td>C</td><td>LINE友だち名</td><td>自動</td></tr>
+    <tr><td>D</td><td><b>お名前</b>（ご本人のご入力）</td><td>自動</td></tr>
+    <tr><td>E</td><td>参加部（第1部／第2部／両部）</td><td>自動</td></tr>
+    <tr><td>F</td><td>決済価格</td><td>自動</td></tr>
+    <tr><td>G</td><td><b>状態</b></td><td>自動（手で直さないでください）</td></tr>
+    <tr><td>H</td><td>決済日時</td><td>自動</td></tr>
+    <tr><td>I</td><td>支払方法（カード／振込）</td><td>自動</td></tr>
+    <tr><td>J</td><td>振込期限</td><td>自動</td></tr>
+    <tr><td>K</td><td>注文キー</td><td>自動</td></tr>
+    <tr><td>L</td><td><b>運営メモ</b></td><td><b>運営の方どうぞ</b>（自動では絶対に書きません）</td></tr>
+    <tr><td>M</td><td>お名義（振込）</td><td>ご本人のご入力</td></tr>
+    <tr><td>N</td><td>お振込日（振込）</td><td>ご本人のご入力</td></tr>
+    <tr><td>O</td><td>振込連絡（「振り込みました」を押された日時）</td><td>自動</td></tr>
+  </table>
+
+  <div class="good">
+    <b>L列（運営メモ）は自由にお使いいただけます。</b>
+    自動の処理がこの列に書き込むことはありません。
+    「ご家族名義でご入金」「お電話済み」など、何でも残しておいてください。
+  </div>
+
+  <p>当日のお名簿にするときは、G列が
+  <span class="tag paid">決済済み</span> または <span class="tag ok">入金確認済み</span>
+  の行だけをご覧ください。</p>
+</section>
+
+<!-- ======================= 9 ======================= -->
+<section id="s9">
+  <h2><span class="n">9</span>スマホ通知の設定</h2>
+
+  <p>お振込のご連絡が届いたとき、運営の方のスマホに通知でお知らせします。
+  設定は<b>お一人おひとり（端末ごと）</b>です。</p>
+
+  <h3>はじめて使うとき</h3>
+  <ol class="steps2">
+    <li><b>iPhone・iPadの方は、先に「ホーム画面に追加」してください。</b><br>
+      Safariの共有ボタン（□に↑）→「ホーム画面に追加」。
+      <b>追加したアイコンから開き直してください。</b><br>
+      <span style="color:var(--ink-soft);font-size:.88rem">
+      Appleの決まりで、Safariのタブのままでは通知を受け取れません。</span></li>
+    <li>管理ページの右上の <b>🔔</b> を押します。</li>
+    <li>「通知を受け取る」を押し、端末の「許可」を押します。</li>
+    <li>どなたの端末か、お名前を入れてください（例：ゆきこ／iPhone）。</li>
+  </ol>
+
+  <h3>どのお知らせを受け取るか</h3>
+  <p>🔔 をもう一度押すと、一覧が出ます。
+  <b>3期生のお申し込み</b>と<b>卒業式の受付</b>が分かれて並びますので、
+  必要なものだけチェックを入れて「保存する」を押してください。</p>
+
+  <div class="ui">
+    <div class="ui__h"><b>🔔 スマホ通知</b></div>
+    <div class="ui__b" style="font-size:.84rem">
+      <p style="margin:0 0 .6rem;background:var(--sky-pale);border-radius:9px;
+                padding:.5rem .8rem;font-weight:700;color:var(--navy)">この端末：ゆきこ／iPhone</p>
+      <p style="margin:.8rem 0 .2rem;font-size:.76rem;font-weight:700;letter-spacing:.04em;
+                color:var(--navy);border-bottom:2px solid var(--sky-pale);padding-bottom:.2rem">
+        3期生 お申し込み</p>
+      <p style="margin:.3rem 0">☑ 振込のご連絡が届いた　／　☑ カード決済が入った　…</p>
+      <p style="margin:.8rem 0 .2rem;font-size:.76rem;font-weight:700;letter-spacing:.04em;
+                color:var(--navy);border-bottom:2px solid var(--sky-pale);padding-bottom:.2rem">
+        卒業式 受付</p>
+      <p style="margin:.3rem 0">
+        ☑ 振込のご連絡が届いた<br>
+        ☑ 振込の期限を過ぎた<br>
+        ☑ 満席になった<br>
+        ☐ カード決済が入った<br>
+        ☐ 銀行振込をお選びになった<br>
+        ☐ 支払い方法を変えられた</p>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>はじめから入っているチェック</b>は、運営の手が要るものだけです。<br>
+    「カード決済が入った」などは、押していただくことが何もないのでオフにしてあります。
+    すべてのお申し込みを見たい方は、オンにしてください。
+  </div>
+
+  <p>うまくいかないときは「試しに1つ送ってみる」を押すと、この端末に1通だけ届きます。</p>
+</section>
+
+<!-- ======================= 10 ======================= -->
+<section id="s10">
+  <h2><span class="n">10</span>4つのスイッチ（ふだんは全部オフ）</h2>
+
+  <p>管理ページの上のほう、折りたたまれているところにあります。
+  <b>ふだんは何も触る必要がありません。</b></p>
+
+  <table>
+    <tr><th>スイッチ</th><th>何が起きるか</th><th>使いどき</th></tr>
+    <tr>
+      <td><b>🚪 期間前でも受付を開く</b></td>
+      <td>受付期間の外でも、受付ページが「受付中」になります。</td>
+      <td>動作確認のときだけ。<b>ご案内の前に必ずオフへ。</b></td>
+    </tr>
+    <tr>
+      <td><b>⏸ 受付をいったん止める</b></td>
+      <td>期間中でも「終了しました」になります。</td>
+      <td>満席のとき、手を止めたいとき。</td>
+    </tr>
+    <tr>
+      <td><b>🧪 テストモード</b></td>
+      <td>お支払い方法に「テスト決済」が増えます。お金を通さずに完了画面まで見られます。</td>
+      <td>確認のときだけ。<b>オンのあいだは誰でも押せます。必ずオフへ。</b></td>
+    </tr>
+    <tr>
+      <td><b>⌛ 期限切れをまとめて処理する</b></td>
+      <td>→ <a class="link" href="#s6">6章</a></td>
+      <td>期限のあと。</td>
+    </tr>
+  </table>
+
+  <div class="warn">
+    テストで作った行は、一覧から<b>「キャンセル」</b>にしてお席をお戻しください。
+    そのままですと、その分だけお席が埋まったままになります。
+  </div>
+</section>
+
+<!-- ======================= 11 ======================= -->
+<section id="s11">
+  <h2><span class="n">11</span>こんなときは</h2>
+
+  <details>
+    <summary>お名義がお申し込みのお名前と違う</summary>
+    <p>よくあることです（ご家族名義など）。金額と部が合っていれば、そのまま
+    「入金を確認しました」を押していただいて大丈夫です。
+    気になるときはL列（運営メモ）に一言残しておいてください。</p>
+  </details>
+
+  <details>
+    <summary>金額が合わない（多い／少ない）</summary>
+    <p><b>押さずに残してください。</b>ご本人にご連絡いただいたうえで、
+    あらためて押すか、キャンセルにするかをお決めください。
+    ボタンを押すと「完了」になってしまいます。</p>
+  </details>
+
+  <details>
+    <summary>「振り込みました」のご連絡が来ないのに、入金がある</summary>
+    <p>かまいません。通帳で確かめられれば、その方の行の
+    「入金を確認しました」を押していただいて大丈夫です。</p>
+  </details>
+
+  <details>
+    <summary>同じ方が二重にお申し込みになっている</summary>
+    <p>同じ方・同じ部の「決済待ち」は、新しいお申し込みで上書きされるので行は増えません。<br>
+    「決済済み」の行が2つある場合は、片方を<b>キャンセル</b>にしてお席をお戻しください。
+    ご返金が要る場合は決済側のお手続きになります。</p>
+  </details>
+
+  <details>
+    <summary>キャンセルしたいとおっしゃっている</summary>
+    <p>一覧のその行の「キャンセル」を押してください。お席が1つ戻ります。<br>
+    ご返金については、受付ページのご案内（キャンセル規定）に従ってください。</p>
+  </details>
+
+  <details>
+    <summary>満席になった</summary>
+    <p>受付ページで、その部のボタンが自動で押せなくなります。運営の操作は要りません。<br>
+    「🈵 満席になった」の通知もスマホに届きます。</p>
+  </details>
+
+  <details>
+    <summary>お客様から「ページが開けない」と言われた</summary>
+    <p>公式LINEのご案内の<b>ボタンから</b>開いていただいているかをご確認ください。
+    URLをコピーして貼ったり、他の方から転送されたリンクでは開けないしくみです。</p>
+  </details>
+
+  <details>
+    <summary>一覧が古い気がする</summary>
+    <p>右上の「更新」を押してください。ふだんは1分ごとに自動で読み直しています。</p>
+  </details>
+
+  <details>
+    <summary>通知が来ない</summary>
+    <p>iPhone・iPadは「ホーム画面に追加」したアイコンから開いていないと届きません
+    （→ <a class="link" href="#s9">9章</a>）。<br>
+    🔔 →「試しに1つ送ってみる」で、この端末に届くかどうかを確かめられます。</p>
+  </details>
+</section>
+
+<!-- ======================= 12 ======================= -->
+<section id="s12">
+  <h2><span class="n">12</span>受付のまえ・あとのチェックリスト</h2>
+
+  <h3>11月27日（金）10:00 の前に</h3>
+  <ul>
+    <li>運営の方それぞれのスマホで、🔔 の通知をオンにしておく（→ <a class="link" href="#s9">9章</a>）</li>
+    <li>確認のために使った <b>🚪 期間前でも受付を開く</b> と <b>🧪 テストモード</b> が
+      <b>オフ</b>になっているか</li>
+    <li>テストで作った行を<b>キャンセル</b>にして、お席が40・40に戻っているか</li>
+  </ul>
+
+  <h3>受付のあいだ（毎日）</h3>
+  <ul>
+    <li>「💰 振込のご連絡」の通知が来たら、通帳を見て
+      「入金を確認しました」を押す（→ <a class="link" href="#s5">5章</a>）</li>
+  </ul>
+
+  <h3>12月4日（金）23:59 のあと</h3>
+  <ul>
+    <li>お振込の期限（最後の方は12月9日ごろ）を過ぎたら、
+      <b>⌛ 期限切れをまとめて処理する</b> を一度押す（→ <a class="link" href="#s6">6章</a>）</li>
+    <li>スプレッドシートの【卒業式】タブから、
+      <span class="tag paid">決済済み</span>・<span class="tag ok">入金確認済み</span>
+      の行で当日のお名簿を作る</li>
+  </ul>
+</section>
+
+</main>
+
+<footer>
+  凛穏塾 3期生 卒業式 受付｜運営の手順書　（2026年11月18日版）<br>
+  画面や文言を直したときは、このページも合わせて直します。
+</footer>
+
+</body>
+</html>

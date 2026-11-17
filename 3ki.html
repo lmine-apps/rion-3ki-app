@@ -69,7 +69,12 @@
   #btn-push{position:relative;padding:.35rem .7rem;font-size:.95rem;line-height:1}
   #btn-push.on::after{content:'';position:absolute;top:.25rem;right:.35rem;width:.45rem;height:.45rem;
     border-radius:50%;background:#6ee7a8;box-shadow:0 0 0 2px var(--navy-dk)}
-  .pushlist{display:flex;flex-direction:column;gap:.15rem;margin:.6rem 0 0}
+  .pushlist{display:flex;flex-direction:column;gap:.15rem;margin:.3rem 0 0}
+  /* 「3期生 お申し込み」「卒業式 受付」の見出し。どの受付のお知らせかを分けます */
+  .pushgrp{margin:.9rem 0 0;padding:.3rem 0 .2rem;font-size:.78rem;font-weight:700;
+    letter-spacing:.04em;color:var(--navy);border-bottom:2px solid var(--sky-soft)}
+  .pushgrp em{display:block;font-style:normal;font-weight:400;font-size:.72rem;
+    color:var(--ink-soft);letter-spacing:0;margin-top:.15rem}
   .pushrow{display:flex;align-items:flex-start;gap:.6rem;padding:.55rem .2rem;
     border-bottom:1px solid var(--line);cursor:pointer}
   .pushrow:last-child{border-bottom:0}
@@ -451,6 +456,12 @@
    ========================================================================= */
 
 const GAS_URL = 'https://script.google.com/macros/s/AKfycbwxo1mNRBl5Gjp86XbNXZONgkNHAGHp86uqQYux0Lu3CnP11zH8is5MFrqik0VwvcXL/exec';
+
+/* 卒業式の受付は別のGASですが、通知のあて先（スプレッドシートの「🔔 通知」タブ）は
+   3期生とまったく同じ場所です。ですからこの画面の 🔔 ひとつで、
+   3期生と卒業式、どちらのお知らせを受け取るかをまとめて決められます。
+   管理キーも同じものが通ります（3期生の ADMIN_TOKEN ＝ 卒業式の ADMIN_KEY）。 */
+const GAS_URL_SOTSU = 'https://script.google.com/macros/s/AKfycbxwYDyLmLGSahHyc6vlV3Inq-Ch1GxJRVt0b0ATDRyETUJzl8YRLsVdJHlVASpRjI1m/exec';
 const KEY_STORE = 'rion3ki_admin_key';
 const RELOAD_MS = 60000;
 
@@ -712,15 +723,19 @@ document.addEventListener('click', async (e) => {
   }
 });
 
-async function api(action, body) {
+async function apiTo(url, action, body) {
   const payload = Object.assign({ action, token: adminKey }, body || {});
-  const res = await fetch(GAS_URL, {
+  const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain;charset=utf-8' },
     body: JSON.stringify(payload)
   });
   if (!res.ok) throw new Error('通信に失敗しました（' + res.status + '）');
   return res.json();
+}
+
+async function api(action, body) {
+  return apiTo(GAS_URL, action, body);
 }
 
 function toast(msg, bad) {
@@ -1373,6 +1388,9 @@ function askInvite() {
    🔔 スマホ通知（Firebase Cloud Messaging）
    ・ホーム画面に追加したこの画面へ、受付のお知らせを届けます。
    ・どのお知らせを受け取るかは、運営お一人おひとり（＝端末ごと）に決められます。
+   ・3期生と卒業式、どちらのお知らせもここでまとめて切り替えます（2026-11-18）。
+     受付ごとにGASは別ですが、あて先の「🔔 通知」タブは同じなので、
+     端末の登録は一度きりで済みます。
    ・iPhoneは「ホーム画面に追加」してからでないと通知を受け取れません（Appleの仕様）。
    ========================================================================= */
 const PUSH_CFG = {
@@ -1474,7 +1492,8 @@ $('btn-push').addEventListener('click', showPush);
 async function showPush() {
   const el = modal(
     '<h2>🔔 スマホ通知</h2>'
-    + '<p>この端末に、受付のお知らせを届けます。設定はお一人おひとり（端末ごと）です。</p>'
+    + '<p>この端末に、3期生と卒業式のお知らせを届けます。'
+    + '設定はお一人おひとり（端末ごと）です。</p>'
     + '<div id="pu-body" style="font-size:.88rem;color:var(--ink-soft)">読み込んでいます…</div>'
     + '<div class="foot">'
     +   '<button type="button" class="btn ghost" data-close>閉じる</button>'
@@ -1512,9 +1531,10 @@ async function showPush() {
   // ── まだオンにしていない端末。まずは許可を取るところから
   if (!on) {
     body.innerHTML = '<p style="margin:0 0 .6rem">「通知を受け取る」を押すと、'
-      + '端末から許可を聞かれます。許可すると、お知らせの種類を選べるようになります。</p>'
-      + '<p style="margin:0">はじめは <b>振込のご連絡</b> と <b>カード決済のご連絡</b> の'
-      + '2つがオンになります。</p>';
+      + '端末から許可を聞かれます。許可すると、<b>3期生</b>と<b>卒業式</b>それぞれについて、'
+      + 'どのお知らせを受け取るかを選べるようになります。</p>'
+      + '<p style="margin:0">はじめは、<b>振込のご連絡</b>など、'
+      + '運営の手が要るものだけがオンになります。</p>';
     main.hidden = false;
     main.textContent = '通知を受け取る';
     main.onclick = async () => {
@@ -1553,29 +1573,50 @@ async function showPush() {
       });
       if (!r || !r.ok) throw new Error((r && r.error) || '登録できませんでした');
     }
-    paintPushRows(body, main, r);
+    // 卒業式のお知らせも、同じこの画面で切り替えられるように読んできます。
+    // 卒業式のGASが応えなくても、3期生のぶんだけは必ず出します。
+    let rs = null;
+    try {
+      const got = await apiTo(GAS_URL_SOTSU, 'admin_push_get', { fcm: pushToken });
+      if (got && got.ok && got.registered) rs = got;
+    } catch (errSotsu) { /* 黙っておく */ }
+
+    paintPushRows(body, main, r, rs);
   } catch (err) {
     body.innerHTML = '<div class="warnbox">' + esc(String(err.message || err)) + '</div>';
   }
 }
 
-function paintPushRows(body, main, r) {
-  const kinds = r.kinds || [];
-  const prefs = r.prefs || {};
+/** 受付ひとつぶんの、チェックの一覧をつくります */
+function pushGroupHtml(title, note, kinds, prefs, src) {
+  return '<div class="pushgrp">' + esc(title)
+    + (note ? '<em>' + esc(note) + '</em>' : '') + '</div>'
+    + '<div class="pushlist">'
+    + (kinds || []).map((k) =>
+        '<label class="pushrow">'
+        + '<input type="checkbox" data-kind="' + esc(k.key) + '" data-src="' + esc(src) + '"'
+        + ((prefs || {})[k.key] ? ' checked' : '') + '>'
+        // ラベルの頭についている【卒業式】は、見出しで分かるので外します
+        + '<span><b>' + esc(String(k.label || '').replace(/^【[^】]*】/, '')) + '</b>'
+        + (k.hint ? '<em>' + esc(k.hint) + '</em>' : '') + '</span></label>').join('')
+    + '</div>';
+}
+
+function paintPushRows(body, main, r, rs) {
+  const warn = (msg) => '<div class="warnbox" style="margin-top:.6rem">' + msg + '</div>';
+  const noKey = 'まだ送信のかぎ（FCM_PRIVATE_KEY）が入っていないため、実際には届きません。'
+              + '設定だけ先に保存できます。';
 
   body.innerHTML =
     '<div class="sumbox">この端末：' + esc(localStorage.getItem(PUSH_NAME) || 'お名前なし') + '</div>'
-    + (r.ready ? '' : '<div class="warnbox" style="margin-top:.6rem">'
-        + 'まだ送信のかぎ（FCM_PRIVATE_KEY）が入っていないため、実際には届きません。'
-        + '設定だけ先に保存できます。</div>')
-    + '<div class="pushlist">'
-    + kinds.map((k) =>
-        '<label class="pushrow">'
-        + '<input type="checkbox" data-kind="' + esc(k.key) + '"'
-        + (prefs[k.key] ? ' checked' : '') + '>'
-        + '<span><b>' + esc(k.label) + '</b>'
-        + (k.hint ? '<em>' + esc(k.hint) + '</em>' : '') + '</span></label>').join('')
-    + '</div>'
+    + (r.ready ? '' : warn(noKey))
+    + pushGroupHtml('3期生 お申し込み', '', r.kinds, r.prefs, 'main')
+    + (rs
+        ? pushGroupHtml('卒業式 受付', '11月27日(金)10:00 → 12月4日(金)23:59',
+            rs.kinds, rs.prefs, 'sotsu')
+          + (rs.ready || !r.ready ? '' : warn('卒業式のほうは、まだ送信のかぎが入っていません。'))
+        : '<div class="pushgrp">卒業式 受付<em>いまは読み込めませんでした。'
+          + 'あとでもう一度 🔔 を開いてみてください。</em></div>')
     + '<p style="margin:.8rem 0 0;font-size:.8rem">'
     + '<button type="button" class="lnk" id="pu-test">試しに1つ送ってみる</button>'
     + '　<button type="button" class="lnk" id="pu-off">この端末の通知をやめる</button></p>';
@@ -1583,13 +1624,23 @@ function paintPushRows(body, main, r) {
   main.hidden = false;
   main.textContent = '保存する';
   main.onclick = async () => {
-    const want = {};
-    body.querySelectorAll('[data-kind]').forEach((c) => { want[c.dataset.kind] = c.checked; });
+    const want = {};      // 3期生のぶん
+    const wantS = {};     // 卒業式のぶん
+    body.querySelectorAll('[data-kind]').forEach((c) => {
+      (c.dataset.src === 'sotsu' ? wantS : want)[c.dataset.kind] = c.checked;
+    });
     main.disabled = true;
     main.textContent = '保存しています…';
     try {
       const res = await api('admin_push_prefs', { fcm: pushToken, prefs: JSON.stringify(want) });
       if (!res || !res.ok) throw new Error((res && res.error) || '保存できませんでした');
+      if (rs) {
+        const res2 = await apiTo(GAS_URL_SOTSU, 'admin_push_prefs',
+          { fcm: pushToken, prefs: JSON.stringify(wantS) });
+        if (!res2 || !res2.ok) {
+          throw new Error('3期生のぶんは保存しましたが、卒業式のぶんを保存できませんでした');
+        }
+      }
       toast('通知の設定を保存しました');
       close();
     } catch (err) {

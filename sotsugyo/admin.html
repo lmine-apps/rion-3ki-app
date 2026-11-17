@@ -218,6 +218,14 @@
     <span id="flag" class="flag" hidden></span>
     <button type="button" id="btn-reload" hidden>更新</button>
     <button type="button" id="btn-logout" hidden>キーを消す</button>
+    <!-- 運営の手順書（2026-11-18）。操作と画面の説明をまとめたページです -->
+    <button type="button" onclick="window.open('./unei.html','_blank','noopener')"
+            title="操作と画面の説明をまとめた手順書を開きます">📖 手順書</button>
+    <!-- 通知の設定（2026-11-18）
+         スマホ通知のあて先は3期生と同じ1か所にまとめてあります。
+         3期生の管理ページの 🔔 で、こちら卒業式のぶんも一緒に切り替えられます。 -->
+    <button type="button" onclick="location.href='../3ki.html'"
+            title="3期生の画面で、卒業式のぶんもまとめて切り替えられます">🔔 通知の設定</button>
     <!-- 受付の入口へ（2026-11-15／URLをひとつにまとめたので、行き来できるように） -->
     <button type="button" onclick="location.href='../admin.html'">← 受付をえらぶ</button>
   </div>

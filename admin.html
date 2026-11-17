@@ -387,6 +387,8 @@ function paint() {
   document.title = (todoAll ? '(' + todoAll + ') ' : '') + '受付管理｜凛穏塾';
 
   $('foot').innerHTML = (vers.length ? 'GAS ' + esc(vers.join('　／　')) + '<br>' : '')
+    /* 運営の手順書（2026-11-18）。操作と画面の説明をまとめたページです */
+    + '<a href="./sotsugyo/unei.html" target="_blank" rel="noopener">📖 卒業式受付の手順書</a><br>'
     + '<button type="button" id="btn-forget">この端末の管理キーを消す</button>';
   var f = $('btn-forget');
   if (f) f.addEventListener('click', forget);
