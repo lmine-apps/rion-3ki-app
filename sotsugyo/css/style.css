@@ -20,8 +20,11 @@
   --line: rgba(18, 52, 90, .12);
   --shadow: 0 12px 36px rgba(7, 23, 44, .11);
   --shadow-sm: 0 7px 24px rgba(7, 23, 44, .07);
-  --serif: "Yu Mincho", "YuMincho", "Hiragino Mincho ProN", "Noto Serif JP", serif;
-  --sans: "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", system-ui, sans-serif;
+  /* 書体（2026-11-18）。夏の大同窓会のページで好評だった組み合わせに揃えました。
+     Noto を先頭に置き、読み込めなかったときは今までの端末の書体に下がります。
+     ※Noto を実際に読むのは、index.html に <link> を置いたページだけです。 */
+  --serif: "Noto Serif JP", "Yu Mincho", "YuMincho", "Hiragino Mincho ProN", serif;
+  --sans: "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", system-ui, sans-serif;
   --num: Georgia, "Times New Roman", serif;
 
   /* 文字サイズの倍率。ヘッダー下の「中／大」で切り替える（30〜60代が読みやすいように） */
@@ -73,6 +76,7 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 /* ---------------------------------------------------------------- ヘッダー */
 .head {
   position: relative;
+  overflow: hidden;
   color: #fff;
   padding: 34px 20px 36px;
   text-align: center;
@@ -98,8 +102,8 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 .head__title {
   margin: 0;
   font-family: var(--serif);
-  font-size: clamp(calc(21px * var(--fs-scale)), 5.2vw, calc(27px * var(--fs-scale)));
-  font-weight: 500;
+  font-size: clamp(calc(22px * var(--fs-scale)), 5.4vw, calc(29px * var(--fs-scale)));
+  font-weight: 700;
   letter-spacing: .20em;
   text-wrap: balance;
 }
@@ -232,14 +236,73 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 
 .card__title {
   font-family: var(--serif);
-  font-size: calc(19px * var(--fs-scale));
-  font-weight: 500;
-  letter-spacing: .12em;
+  font-size: calc(21px * var(--fs-scale));
+  font-weight: 700;
+  letter-spacing: .1em;
   color: var(--navy-900);
   text-align: center;
   padding-bottom: 14px;
-  border-bottom: 1px solid var(--line);
   text-wrap: balance;
+  line-height: 1.5;
+}
+/* 見出しの下の線。まっすぐな1本より、中央から薄れるほうが上品に出ます */
+.card__title::after {
+  content: "";
+  display: block;
+  width: 64px;
+  height: 1px;
+  margin: 14px auto 0;
+  background: linear-gradient(90deg, transparent, var(--sky-500), transparent);
+}
+
+/* 見出しの上に置く小さな札（2026-11-18）。
+   夏の大同窓会のページの EVENT DETAIL などと同じ役まわりです。 */
+.eyebrow {
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 13px 4px;
+  border-radius: 999px;
+  background: var(--sky-100);
+  border: 1px solid rgba(98, 183, 231, .34);
+  color: var(--navy-700);
+  font-size: calc(9.5px * var(--fs-scale));
+  font-weight: 700;
+  letter-spacing: .18em;
+  line-height: 1.6;
+}
+.eyebrow::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--sky-500);
+}
+
+/* カードとカードのあいだの飾り（2026-11-18） */
+.divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 1px 0;
+}
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  max-width: 78px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--sky-400), transparent);
+  opacity: .7;
+}
+.divider i {
+  width: 6px;
+  height: 6px;
+  background: var(--sky-400);
+  transform: rotate(45deg);
+  opacity: .55;
 }
 .sub-title {
   font-family: var(--serif);
@@ -418,7 +481,8 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 }
 .plan__name {
   font-family: var(--serif);
-  font-size: calc(15px * var(--fs-scale));
+  font-size: calc(16px * var(--fs-scale));
+  font-weight: 700;
   letter-spacing: .14em;
   color: var(--navy-800);
 }
@@ -1859,37 +1923,62 @@ body.is-locked { overflow: hidden; }
  * ============================================================== */
 
 /* 日時・会場などの一覧。見た目は .bank と同じ組み方 */
+/* 日時・会場などの並び（2026-11-18 模様替え）
+   横に並ぶ表をやめて、1件ずつの札にしました。
+   見出しは小さな札、中身は明朝で大きく、補足はゴシックで小さく。
+   夏の大同窓会のページと同じ組み方です。
+   ※app.js が作る <div><dt>…</dt><dd>…<small>…</small></dd></div> のままで出ます。 */
 .info {
   margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  background: var(--line);
-  border: 1px solid var(--line);
-  border-radius: 11px;
-  overflow: hidden;
+  display: grid;
+  gap: 10px;
 }
-.info > div { display: flex; background: #fff; }
+.info > div {
+  position: relative;
+  display: block;
+  padding: 15px 16px 15px 19px;
+  background: linear-gradient(180deg, #fbfdff 0%, #fff 100%);
+  border: 1px solid var(--line);
+  border-radius: 13px;
+}
+.info > div::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 14px;
+  bottom: 14px;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: linear-gradient(180deg, var(--navy-700), var(--sky-400));
+}
 .info dt {
-  flex: none;
-  width: calc(78px * var(--fs-scale));
-  padding: 10px 13px;
-  background: rgba(229, 245, 253, .6);
-  font-size: calc(11.5px * var(--fs-scale));
-  color: var(--text-mid);
+  display: inline-block;
+  margin: 0 0 8px;
+  padding: 3px 10px 2px;
+  background: var(--sky-100);
+  border-radius: 999px;
+  font-size: calc(10px * var(--fs-scale));
   font-weight: 700;
-  letter-spacing: .04em;
+  letter-spacing: .14em;
+  color: var(--navy-700);
 }
 .info dd {
   margin: 0;
-  padding: 10px 13px;
-  font-size: calc(13.5px * var(--fs-scale));
-  line-height: 1.75;
+  font-family: var(--serif);
+  font-size: calc(16.5px * var(--fs-scale));
+  font-weight: 500;
+  letter-spacing: .03em;
+  line-height: 1.6;
+  color: var(--navy-900);
 }
 .info dd small {
   display: block;
-  margin-top: 3px;
+  margin-top: 6px;
+  font-family: var(--sans);
   font-size: calc(11.5px * var(--fs-scale));
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.75;
   color: var(--text-mid);
 }
 

@@ -11,7 +11,12 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-title" content="凛穏塾 卒業式">
 <meta name="theme-color" content="#07172c">
-<link rel="stylesheet" href="css/style.css?v=4">
+<!-- 書体（2026-11-18）。夏の大同窓会のページと同じ Noto の2書体です。
+     読み込めなかったときは、端末の明朝・ゴシックに下がるだけで崩れません。 -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@400;500;700;900&display=swap">
+<link rel="stylesheet" href="css/style.css?v=5">
 </head>
 <body class="js-fade">
 
@@ -58,29 +63,39 @@
 
     <!-- 開催概要 -->
     <div class="card" data-fade>
+      <p class="eyebrow">EVENT DETAIL</p>
       <h2 class="card__title">開催のご案内</h2>
       <p class="note" id="target-note"></p>
       <dl class="info" id="info-main"></dl>
     </div>
 
+    <div class="divider" aria-hidden="true"><i></i></div>
+
     <!-- 第1部 -->
     <div class="card" data-fade>
+      <p class="eyebrow">PART 1</p>
       <h2 class="card__title">第1部</h2>
       <div class="plan" id="plan-part1"></div>
       <dl class="info" id="info-part1"></dl>
       <div id="items-part1"></div>
     </div>
 
+    <div class="divider" aria-hidden="true"><i></i></div>
+
     <!-- 第2部 -->
     <div class="card" data-fade>
+      <p class="eyebrow">PART 2</p>
       <h2 class="card__title">第2部</h2>
       <div class="plan" id="plan-part2"></div>
       <dl class="info" id="info-part2"></dl>
       <div id="items-part2"></div>
     </div>
 
+    <div class="divider" aria-hidden="true"><i></i></div>
+
     <!-- お申し込み -->
     <div class="card" data-fade>
+      <p class="eyebrow">ENTRY</p>
       <h2 class="card__title">お申し込み</h2>
 
       <!-- 募集前 -->
@@ -120,12 +135,14 @@
 
     <!-- キャンセル・返金 -->
     <div class="card" id="box-cancel" hidden data-fade>
+      <p class="eyebrow">CANCEL &amp; REFUND</p>
       <h2 class="card__title">お取り消しについて</h2>
       <ul class="lines" id="cancel-body"></ul>
     </div>
 
     <!-- 当日のご案内 -->
     <div class="card" id="box-notice" hidden data-fade>
+      <p class="eyebrow">INFORMATION</p>
       <h2 class="card__title" id="notice-title">当日のご案内</h2>
       <ul class="lines" id="notice-body"></ul>
     </div>
@@ -306,7 +323,7 @@
 
 <div class="waitbar" id="waitbar">お待ちください…</div>
 
-<script src="js/config.js?v=4"></script>
-<script src="js/app.js?v=4"></script>
+<script src="js/config.js?v=5"></script>
+<script src="js/app.js?v=5"></script>
 </body>
 </html>
