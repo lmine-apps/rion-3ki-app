@@ -879,19 +879,61 @@ function initFontSize() {
   set(saved);
 }
 
-/** スクロールでふわっと出す */
+/** スクロールでふわっと出す
+ *  2026-11-18 作り直し。
+ *    ブラウザの「見えました」の合図（IntersectionObserver）だけに頼ると、
+ *    画面が裏に回っているときなどに合図が来ず、ずっと出ないままになります。
+ *    そこで、スクロールのたびに自分でも位置を見るようにしました。
+ *    どちらが先に気づいても結果は同じです（二重に出ることはありません）。 */
 function initFade() {
-  if (!('IntersectionObserver' in window)) {
-    document.querySelectorAll('[data-fade]').forEach(function (el) { el.classList.add('is-in'); });
-    return;
-  }
-  var io = new IntersectionObserver(function (entries) {
-    entries.forEach(function (en) {
-      if (en.isIntersecting) { en.target.classList.add('is-in'); io.unobserve(en.target); }
-    });
-  }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+  var list = [].slice.call(document.querySelectorAll('[data-fade]'));
+  if (!list.length) return;
 
-  document.querySelectorAll('[data-fade]:not(.is-in)').forEach(function (el) { io.observe(el); });
+  var show = function (el) { el.classList.add('is-in'); };
+
+  // 自分で位置を見るほう
+  var ticking = false;
+  var sweep = function () {
+    ticking = false;
+    var line = (window.innerHeight || 0) * 0.92;
+    var rest = [];
+    for (var i = 0; i < list.length; i++) {
+      var el = list[i];
+      if (el.classList.contains('is-in')) continue;
+      var r = el.getBoundingClientRect();
+      // まだ画面に出ていない（高さが0の）ものは、そのまま待ちます。
+      // これを入れないと、読み込んだ直後に全部まとめて出てしまいます。
+      if (!r.height) { rest.push(el); continue; }
+      if (r.top < line) show(el);
+      else rest.push(el);
+    }
+    list = rest;
+  };
+  var onScroll = function () {
+    if (ticking) return;
+    ticking = true;
+    // ここは setTimeout を使います。requestAnimationFrame は、画面が裏に
+    // 回っているあいだ動かないブラウザがあるためです（2026-11-18）。
+    setTimeout(sweep, 16);
+  };
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  document.addEventListener('visibilitychange', onScroll);
+
+  // ブラウザの合図があれば、そちらでも出します
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) { show(en.target); io.unobserve(en.target); }
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+    list.forEach(function (el) { io.observe(el); });
+  }
+
+  sweep();                   // 最初に見えているぶん
+  setTimeout(sweep, 200);    // 文章が入って高さが決まったあと
+  setTimeout(sweep, 900);
 }
 
 /** 「ひとつ前にもどる」 */

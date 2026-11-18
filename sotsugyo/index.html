@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@400;500;700;900&display=swap">
-<link rel="stylesheet" href="css/style.css?v=6">
+<link rel="stylesheet" href="css/style.css?v=13">
 </head>
 <body class="js-fade">
 
@@ -66,7 +66,7 @@
       <p class="eyebrow">EVENT DETAIL</p>
       <h2 class="card__title">開催のご案内</h2>
       <p class="note" id="target-note"></p>
-      <dl class="info" id="info-main"></dl>
+      <dl class="info info--hero" id="info-main"></dl>
     </div>
 
     <div class="divider" aria-hidden="true"><i></i></div>
@@ -134,10 +134,51 @@
     </div>
 
     <!-- キャンセル・返金 -->
+    <!-- お申し込み後の流れ（2026-11-18 とーるさんご指定）。
+         画面の実際の動きに合わせて書いています。文言を変えるときはここを直します。 -->
+    <div class="card" data-fade>
+      <p class="eyebrow">FLOW</p>
+      <h2 class="card__title">お申し込み後の流れ</h2>
+      <p class="note">お支払い方法によって、少しだけ流れが変わります。見出しをお押しください。</p>
+
+      <details class="acc">
+        <summary>クレジットカードをお選びの場合</summary>
+        <ol class="flow">
+          <li><b>お名前とメールアドレスをご入力</b>
+            <span>ご参加の部をお選びいただいたあと、このおふたつだけご入力いただきます。</span></li>
+          <li><b>決済ページでお支払い</b>
+            <span>別の画面で決済ページが開きます。お手続きが終わった時点で、お席が確定します。</span></li>
+          <li><b>公式LINEにご連絡がまいります</b>
+            <span>お申し込みを承ったことをお知らせします。</span></li>
+        </ol>
+      </details>
+
+      <details class="acc">
+        <summary>銀行振込をお選びの場合</summary>
+        <ol class="flow">
+          <li><b>お名前とメールアドレスをご入力</b>
+            <span>ここまではカードのときと同じです。</span></li>
+          <li><b>お振込先と期限をご案内</b>
+            <span>画面に表示し、公式LINEにも同じ内容をお送りします。期限はお申し込みから5日間です。この時点でお席をお取りしています。</span></li>
+          <li><b>お振込</b>
+            <span>恐れ入りますが、振込手数料はご負担をお願いしております。</span></li>
+          <li><b>「振り込みました」をお知らせ</b>
+            <span>お振込のお名義と振込日を、受付ページからお知らせください。</span></li>
+          <li><b>ご入金の確認 → お席の確定</b>
+            <span>確認でき次第、公式LINEへご連絡をさしあげます。</span></li>
+        </ol>
+        <p class="note">※ 期限までにご入金を確認できない場合は、お席をお返しいただきます。そのときも公式LINEでご連絡いたします。</p>
+      </details>
+    </div>
+
+    <!-- お取り消し（2026-11-18 とーるさんご指定で収納型に）。
+         見出しそのものがボタンです。中身は app.js が #cancel-body に入れます。 -->
     <div class="card" id="box-cancel" hidden data-fade>
       <p class="eyebrow">CANCEL &amp; REFUND</p>
-      <h2 class="card__title">お取り消しについて</h2>
-      <ul class="lines" id="cancel-body"></ul>
+      <details class="acc acc--bare">
+        <summary>お取り消しについて</summary>
+        <ul class="lines" id="cancel-body"></ul>
+      </details>
     </div>
 
     <!-- 当日のご案内 -->
@@ -192,6 +233,12 @@
        ============================================================ -->
   <section id="screen-form" class="screen">
     <div class="card">
+      <!-- いまどこまで進んでいるか（2026-11-18 とーるさんご指定） -->
+      <ol class="steps" aria-label="お手続きの進みぐあい">
+        <li class="is-done">ご参加の部</li>
+        <li class="is-now" aria-current="step">お名前のご入力</li>
+        <li>お支払い</li>
+      </ol>
       <h2 class="card__title">お申し込みの確認</h2>
 
       <div class="picked" id="form-picked"></div>
@@ -230,6 +277,12 @@
        ============================================================ -->
   <section id="screen-go" class="screen">
     <div class="card card--done">
+      <!-- いまどこまで進んでいるか（2026-11-18 とーるさんご指定） -->
+      <ol class="steps" aria-label="お手続きの進みぐあい">
+        <li class="is-done">ご参加の部</li>
+        <li class="is-done">お名前のご入力</li>
+        <li class="is-now" aria-current="step">お支払い</li>
+      </ol>
       <h2 class="card__title">決済ページを開きました</h2>
       <p class="donelead">お手続きが終わりますと、凛穏塾の公式LINEにご連絡がまいります。</p>
       <p class="note">画面が開かなかった場合は、下のボタンをもう一度お押しください。</p>
@@ -246,6 +299,12 @@
        ============================================================ -->
   <section id="screen-bank" class="screen">
     <div class="card">
+      <!-- いまどこまで進んでいるか（2026-11-18 とーるさんご指定） -->
+      <ol class="steps" aria-label="お手続きの進みぐあい">
+        <li class="is-done">ご参加の部</li>
+        <li class="is-done">お名前のご入力</li>
+        <li class="is-now" aria-current="step">お支払い</li>
+      </ol>
       <h2 class="card__title">お振込先のご案内</h2>
       <div class="picked" id="bank-picked"></div>
       <p class="due">お振込の期限　<b id="bank-due">—</b></p>
@@ -277,6 +336,12 @@
        ============================================================ -->
   <section id="screen-bank-done" class="screen">
     <div class="card card--done">
+      <!-- いまどこまで進んでいるか（2026-11-18 とーるさんご指定） -->
+      <ol class="steps" aria-label="お手続きの進みぐあい">
+        <li class="is-done">ご参加の部</li>
+        <li class="is-done">お名前のご入力</li>
+        <li class="is-done">お支払い</li>
+      </ol>
       <h2 class="card__title">お知らせをうけつけました</h2>
       <p class="donelead">ご連絡ありがとうございます。<br>ご入金を確認できましたら、公式LINEへご連絡をさしあげます。</p>
     </div>
@@ -323,7 +388,7 @@
 
 <div class="waitbar" id="waitbar">お待ちください…</div>
 
-<script src="js/config.js?v=6"></script>
-<script src="js/app.js?v=6"></script>
+<script src="js/config.js?v=13"></script>
+<script src="js/app.js?v=13"></script>
 </body>
 </html>

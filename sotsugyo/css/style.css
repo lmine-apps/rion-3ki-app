@@ -1466,11 +1466,17 @@ body.is-locked { overflow: hidden; }
    js-fade は JS が付けます。JSが動かないときは、隠さずそのまま見せます。 */
 .js-fade [data-fade] {
   opacity: 0;
-  transform: translateY(24px);
+  transform: translateY(30px);
   transition: opacity 1.1s cubic-bezier(.22, .61, .36, 1),
               transform 1.1s cubic-bezier(.22, .61, .36, 1);
 }
 .js-fade [data-fade].is-in { opacity: 1; transform: none; }
+
+/* ★ふわっと出すカードでは、読み込みどうじの登場アニメ（cardIn）を止めます。
+   2つが同時に動くと、スクロールの前に出てきてしまうためです（2026-11-18）。 */
+.js-fade [data-fade].card { animation: none; }
+/* ひと呼吸おいて出ると、より「ふわっと」見えます */
+.js-fade [data-fade] { transition-delay: .06s; }
 
 @media (prefers-reduced-motion: reduce) {
   .js-fade [data-fade] { opacity: 1; transform: none; transition: none; }
@@ -1981,6 +1987,257 @@ body.is-locked { overflow: hidden; }
   line-height: 1.75;
   color: var(--text-mid);
 }
+
+/* 開催のご案内だけ、ひとまわり大きく出します（2026-11-18）。
+   とーるさん「日付と時間と場所は大事なので、少し目立つように」。
+   いちばん上の行（日時）がいちばん大きくなります。 */
+.info--hero > div {
+  padding: 17px 18px 17px 21px;
+  background: linear-gradient(180deg, #f6faff 0%, #fff 100%);
+  border-color: rgba(98, 183, 231, .30);
+}
+.info--hero > div::before { width: 4px; top: 12px; bottom: 12px; }
+.info--hero dt {
+  font-size: calc(11.5px * var(--fs-scale));
+  padding: 4px 12px 3px;
+  letter-spacing: .12em;
+}
+.info--hero dd {
+  font-size: calc(19.5px * var(--fs-scale));
+  font-weight: 700;
+  letter-spacing: .04em;
+}
+.info--hero dd small {
+  margin-top: 7px;
+  font-size: calc(12.5px * var(--fs-scale));
+  font-weight: 700;
+  color: var(--navy-700);
+}
+/* 1行目（日時）はさらに大きく */
+.info--hero > div:first-child dd { font-size: calc(23px * var(--fs-scale)); }
+/* 最後の行（受付期間）は、日時や会場より控えめに */
+.info--hero > div:last-child dd {
+  font-size: calc(15.5px * var(--fs-scale));
+  font-weight: 500;
+}
+
+/* お申し込み後の流れ（2026-11-18） */
+.flow__head {
+  margin: 20px 0 12px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--serif);
+  font-size: calc(15px * var(--fs-scale));
+  font-weight: 700;
+  letter-spacing: .08em;
+  color: var(--navy-900);
+}
+.flow {
+  counter-reset: flow;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.flow li {
+  position: relative;
+  counter-increment: flow;
+  padding: 0 0 18px 40px;
+}
+/* 番号のまる */
+.flow li::before {
+  content: counter(flow);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: var(--navy-800);
+  color: #fff;
+  font-family: var(--serif);
+  font-size: calc(12.5px * var(--fs-scale));
+  font-weight: 700;
+  line-height: 25px;
+  text-align: center;
+}
+/* まるとまるをつなぐ細い線 */
+.flow li::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  top: 29px;
+  bottom: 4px;
+  width: 1px;
+  background: linear-gradient(180deg, var(--sky-400), rgba(98, 183, 231, .18));
+}
+.flow li:last-child { padding-bottom: 0; }
+.flow li:last-child::after { display: none; }
+.flow li b {
+  display: block;
+  padding-top: 3px;
+  font-size: calc(14.5px * var(--fs-scale));
+  font-weight: 700;
+  color: var(--navy-900);
+  line-height: 1.6;
+}
+.flow li span {
+  display: block;
+  margin-top: 4px;
+  font-size: calc(12.5px * var(--fs-scale));
+  color: var(--text-mid);
+  line-height: 1.75;
+}
+
+/* 収納型の見出し（2026-11-18 とーるさんご指定）。
+   お押しいただくと開きます。JavaScript は使っていません（<details> の標準の動きです）。 */
+.acc {
+  margin-top: 12px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: linear-gradient(180deg, #fbfdff 0%, #fff 100%);
+  overflow: hidden;
+}
+.acc + .acc { margin-top: 10px; }
+.acc > summary {
+  position: relative;
+  list-style: none;
+  cursor: pointer;
+  padding: 15px 44px 14px 17px;
+  font-family: var(--serif);
+  font-size: calc(14.5px * var(--fs-scale));
+  font-weight: 700;
+  letter-spacing: .06em;
+  color: var(--navy-900);
+  line-height: 1.6;
+  -webkit-tap-highlight-color: transparent;
+}
+.acc > summary::-webkit-details-marker { display: none; }
+/* 右はしの ＋ / − */
+.acc > summary::after {
+  content: "";
+  position: absolute;
+  right: 17px;
+  top: 50%;
+  width: 9px;
+  height: 9px;
+  margin-top: -6px;
+  border-right: 2px solid var(--sky-500);
+  border-bottom: 2px solid var(--sky-500);
+  transform: rotate(45deg);
+  transition: transform .18s ease;
+}
+.acc[open] > summary::after { margin-top: -2px; transform: rotate(-135deg); }
+.acc[open] > summary { border-bottom: 1px solid var(--line); }
+.acc > .flow,
+.acc > .note { padding: 16px 17px 16px; }
+.acc > .flow { padding-bottom: 6px; }
+.acc > .note { padding-top: 0; }
+/* 開いたときも、ふわっと出します */
+.acc[open] > .flow,
+.acc[open] > .note,
+.acc[open] > .lines { animation: revealIn .42s cubic-bezier(.22, .61, .36, 1) both; }
+
+/* 枠のない収納（見出しそのものがボタン）。お取り消しのカードで使っています */
+.acc--bare {
+  margin-top: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  overflow: visible;
+}
+.acc--bare > summary {
+  padding: 0 34px 14px 0;
+  font-size: calc(21px * var(--fs-scale));
+  letter-spacing: .1em;
+  text-align: center;
+}
+.acc--bare > summary::after { right: 4px; margin-top: -9px; }
+.acc--bare[open] > summary::after { margin-top: -5px; }
+.acc--bare > summary { border-bottom: 0 !important; }
+/* 見出しの下の線は、ふつうのカードの見出しとそろえます */
+.acc--bare > summary::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 64px;
+  height: 1px;
+  margin-left: -32px;
+  background: linear-gradient(90deg, transparent, var(--sky-500), transparent);
+}
+.acc--bare > .lines { padding: 16px 0 0; }
+
+/* いまどこまで進んでいるか（2026-11-18 とーるさんご指定） */
+.steps {
+  counter-reset: step;
+  list-style: none;
+  display: flex;
+  margin: 0 0 18px;
+  padding: 0;
+}
+.steps li {
+  counter-increment: step;
+  position: relative;
+  flex: 1;
+  padding-top: 32px;
+  text-align: center;
+  font-size: calc(10.5px * var(--fs-scale));
+  font-weight: 700;
+  letter-spacing: .02em;
+  line-height: 1.4;
+  color: var(--text-mid);
+}
+/* まる */
+.steps li::before {
+  content: counter(step);
+  position: absolute;
+  top: 0;
+  left: 50%;
+  margin-left: -12px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid var(--line);
+  color: var(--text-mid);
+  font-family: var(--serif);
+  font-size: calc(12px * var(--fs-scale));
+  line-height: 22px;
+  text-align: center;
+  z-index: 1;
+}
+/* まるとまるをつなぐ線 */
+.steps li::after {
+  content: "";
+  position: absolute;
+  top: 12px;
+  left: -50%;
+  width: 100%;
+  height: 1px;
+  background: var(--line);
+}
+.steps li:first-child::after { display: none; }
+
+/* 済んだところ */
+.steps li.is-done { color: var(--navy-700); }
+.steps li.is-done::before {
+  content: "✓";
+  background: var(--sky-100);
+  border-color: rgba(98, 183, 231, .45);
+  color: var(--navy-700);
+  font-weight: 700;
+}
+.steps li.is-done::after { background: var(--sky-400); }
+
+/* いまここ */
+.steps li.is-now { color: var(--navy-900); }
+.steps li.is-now::before {
+  background: var(--navy-800);
+  border-color: var(--navy-800);
+  color: #fff;
+  box-shadow: 0 0 0 4px rgba(98, 183, 231, .18);
+}
+.steps li.is-now::after { background: var(--sky-400); }
 
 /* 残席。数字が主役になるように */
 .seat {
