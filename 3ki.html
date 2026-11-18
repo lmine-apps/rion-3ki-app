@@ -1658,7 +1658,21 @@ function paintPushRows(body, main, r, rs) {
           ? 'まだ送信のかぎが入っていないため送れません'
           : '送れませんでした');
       }
-      toast('送りました。数秒お待ちください');
+      // 卒業式のぶんも、同じ端末あてに1つ送ります。受付ごとにGASが別なので、
+      // 3期生が届いたからといって卒業式も届くとはかぎりません。両方ためします。
+      let sotsuNg = '';
+      if (rs) {
+        try {
+          const res2 = await apiTo(GAS_URL_SOTSU, 'admin_push_test', { fcm: pushToken });
+          if (!res2 || !res2.ok) {
+            sotsuNg = (res2 && res2.error) === 'no_credentials'
+              ? '卒業式のほうは、まだ送信のかぎが入っていません'
+              : '卒業式のほうは送れませんでした';
+          }
+        } catch (errTest) { sotsuNg = '卒業式のほうは送れませんでした'; }
+      }
+      if (sotsuNg) { toast('3期生のぶんは送りました。' + sotsuNg, true); return; }
+      toast('送りました。数秒お待ちください（' + (rs ? '2つ' : '1つ') + '届きます）');
     } catch (err) { toast(String(err.message || err), true); }
   });
 
