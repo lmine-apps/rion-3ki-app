@@ -2492,3 +2492,210 @@ body.is-locked { overflow: hidden; }
 #day-cal { margin-top: 18px; }
 #day-line { margin-top: 10px; }
 #day-lead .donelead { margin-bottom: 6px; }
+
+/* ================================================================
+   受付・お申し込みの枠（2026-11-19 とーるさんご指定）
+
+   それまでは「開催のご案内」「第1部」などと同じ見た目のカードで、
+   いちばん大事なところが埋もれていました。
+   夏の大同窓会LPの CTA と同じ考え方で、
+     ・枠ごと浮かせる（色・縁・影）
+     ・ボタンを「押すもの」とわかる形（色・丸み・矢印）
+   の2つだけ変えています。文字の組み方は、ほかのカードのままです。
+   ================================================================ */
+
+.card--entry {
+  background:
+    radial-gradient(circle at 92% 6%, rgba(98, 183, 231, .20), transparent 46%),
+    linear-gradient(170deg, #ffffff 0%, #f2fafe 100%);
+  border: 2px solid rgba(98, 183, 231, .50);
+  box-shadow: 0 18px 46px rgba(7, 23, 44, .16);
+  padding-top: 34px;
+}
+/* 内側の細い縁は、外の2本線とぶつかるので消します */
+.card--entry::before { display: none; }
+/* 上辺の帯。「ここが入口です」の合図です */
+.card--entry::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; top: 0;
+  height: 4px;
+  border-radius: 16px 16px 0 0;
+  background: linear-gradient(90deg, var(--navy-800), var(--sky-500), var(--navy-800));
+}
+
+.eyebrow--entry {
+  background: var(--navy-800);
+  border-color: var(--navy-800);
+  color: #fff;
+}
+.eyebrow--entry::before { background: var(--sky-400); }
+
+.card__title--entry {
+  /* 「受付・お申し込みはこちら」が、スマホで2行に割れないところまで詰めています */
+  font-size: calc(22px * var(--fs-scale));
+  font-weight: 900;
+  letter-spacing: .02em;
+  color: var(--navy-950);
+}
+.card__title--entry::after {
+  width: 86px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--navy-800), transparent);
+}
+
+/* 締切の一行。ボタンの下に小さく添えます */
+.entry-deadline {
+  align-self: center;
+  margin-top: 4px !important;
+  padding: 7px 15px;
+  border-radius: 999px;
+  background: var(--alert-bg);
+  border: 1px solid var(--alert-line);
+  color: var(--alert);
+  font-size: calc(12px * var(--fs-scale));
+  font-weight: 700;
+  line-height: 1.7;
+  text-align: center;
+}
+.entry-deadline b { font-weight: 900; white-space: nowrap; }
+
+/* ---------------------------------------------------------------- 押すボタン */
+
+.payopts--cta { gap: 13px; }
+
+.payopt--cta {
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  padding: 17px 18px 17px 20px;
+  border: 0;
+  border-radius: 14px;
+  color: #fff;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--navy-800), var(--navy-700));
+  box-shadow: 0 10px 24px rgba(18, 52, 90, .30);
+}
+/* もとの .payopt の左の細い線は、色の上では見えないので消します */
+.payopt--cta::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  left: 0; top: 0; bottom: 0;
+  width: auto;
+  border-radius: 0;
+  background: linear-gradient(105deg, transparent 40%, rgba(255, 255, 255, .20) 50%, transparent 60%);
+  animation: ctaShine 3.6s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes ctaShine {
+  0%   { transform: translateX(-120%); }
+  100% { transform: translateX(120%); }
+}
+.payopt--cta:hover {
+  border-color: transparent;
+  box-shadow: 0 14px 30px rgba(18, 52, 90, .38);
+  transform: translateY(-1px);
+}
+.payopt--cta:active { transform: translateY(1px); }
+
+.payopt__body {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+/* ボタンの上の行。左に PART 1、右に残席を並べます。
+   残席を見出しの横に置くと、見出しが折れてしまうためです（2026-11-19） */
+.payopt__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 1px;
+}
+.payopt__label {
+  font-size: calc(9.5px * var(--fs-scale));
+  font-weight: 700;
+  letter-spacing: .16em;
+  opacity: .78;
+}
+.payopt--cta .payopt__title {
+  color: #fff;
+  font-size: calc(15.5px * var(--fs-scale));
+  font-weight: 800;
+  letter-spacing: .04em;
+  line-height: 1.5;
+}
+.payopt--cta .payopt__desc {
+  color: rgba(255, 255, 255, .88);
+  font-size: calc(11.5px * var(--fs-scale));
+  line-height: 1.7;
+}
+.payopt__arrow {
+  position: relative;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, .18);
+  border: 1px solid rgba(255, 255, 255, .34);
+  font-size: calc(15px * var(--fs-scale));
+  line-height: 28px;
+  text-align: center;
+}
+
+/* 残席の札。色の上に置くので、白ぬきにします */
+.payopt--cta .seat {
+  position: relative;
+  flex: none;
+  background: rgba(255, 255, 255, .17);
+  border-color: rgba(255, 255, 255, .38);
+  color: #fff;
+}
+.payopt--cta .seat--few {
+  background: rgba(255, 255, 255, .92);
+  border-color: #fff;
+  color: var(--alert);
+}
+
+/* 部ごとの色わけ。第2部は水色より、両部はいちばん濃くしています */
+.payopt--part2 {
+  background: linear-gradient(135deg, #1c4b78, #3f93c8);
+  box-shadow: 0 10px 24px rgba(28, 75, 120, .30);
+}
+.payopt--both {
+  background: linear-gradient(135deg, var(--navy-950), var(--navy-800));
+  box-shadow: 0 10px 26px rgba(7, 23, 44, .36);
+}
+.payopt--both .payopt__label { color: #e8d4a8; opacity: 1; }
+.payopt--card { background: linear-gradient(135deg, var(--navy-800), var(--navy-700)); }
+.payopt--bank { background: linear-gradient(135deg, #1c4b78, #3f93c8); }
+
+/* 満席のとき。押せないことが、色でわかるようにします */
+.payopt--cta[disabled] {
+  background: #e9edf1;
+  color: var(--text-mid);
+  box-shadow: none;
+  cursor: default;
+}
+.payopt--cta[disabled]::before { animation: none; background: none; }
+.payopt--cta[disabled] .payopt__title,
+.payopt--cta[disabled] .payopt__desc { color: var(--text-mid); }
+.payopt--cta[disabled] .payopt__arrow {
+  background: rgba(23, 43, 61, .07);
+  border-color: var(--line);
+  color: var(--text-mid);
+}
+.payopt--cta[disabled]:hover { transform: none; box-shadow: none; }
+
+/* 処理中。光の流れを止めて、押せないことを出します */
+.payopt--cta.is-busy { opacity: .6; }
+.payopt--cta.is-busy::before { animation: none; }
+
+/* 動きを減らす設定の方には、光を流しません */
+@media (prefers-reduced-motion: reduce) {
+  .payopt--cta::before { animation: none; }
+}

@@ -177,6 +177,18 @@ function paintStatic() {
 
   byId('target-note').textContent   = CONFIG.TEXT.target_note || '';
   byId('capacity-note').textContent = CONFIG.TEXT.capacity_note || '';
+
+  // 締切の一行（2026-11-19）。ボタンのすぐ下に出します
+  var dl = byId('entry-deadline');
+  if (dl) {
+    if (CONFIG.EVENT.close_label) {
+      dl.innerHTML = '受付は <b>' + esc(CONFIG.EVENT.close_label) +
+        '</b> まで。定員に達した時点で終了いたします。';
+      dl.hidden = false;
+    } else {
+      dl.hidden = true;
+    }
+  }
   byId('before-note').textContent   = CONFIG.TEXT.before_open || '';
   byId('closed-note').textContent   = CONFIG.TEXT.after_close || '';
   byId('soldout-note').textContent  = CONFIG.TEXT.soldout || '';
@@ -286,10 +298,19 @@ function paintPickOptions() {
     var p  = ps[k];
     var ok = STATE.avail[k];
     out.push(
-      '<button type="button" class="payopt" data-pick="' + k + '"' + (ok ? '' : ' disabled') + '>' +
-        '<span class="payopt__title">' + esc(p.label) + (p.title ? '　' + esc(p.title) : '') + '</span>' +
-        '<span class="payopt__desc">' + esc(yen(p.price)) +
-          (ok ? '　' + (p.time || '') : '　満席になりました') + '</span>' +
+      '<button type="button" class="payopt payopt--cta payopt--' + k + '"' +
+        ' data-pick="' + k + '"' + (ok ? '' : ' disabled') + '>' +
+        '<span class="payopt__body">' +
+          '<span class="payopt__top">' +
+            '<span class="payopt__label">' + (k === 'part1' ? 'PART 1' : 'PART 2') + '</span>' +
+            (ok ? seatHtml(k) : '') +
+          '</span>' +
+          '<span class="payopt__title">' + esc(p.label) +
+            (p.title ? '　' + esc(p.title) : '') + 'にお申し込み</span>' +
+          '<span class="payopt__desc">' + esc(yen(p.price)) +
+            (ok ? '　' + (p.time || '') : '　満席になりました') + '</span>' +
+        '</span>' +
+        '<span class="payopt__arrow" aria-hidden="true">→</span>' +
       '</button>');
   });
 
@@ -297,9 +318,16 @@ function paintPickOptions() {
   var b = ps.both;
   if (STATE.avail.both) {
     out.push(
-      '<button type="button" class="payopt" data-pick="both">' +
-        '<span class="payopt__title">' + esc(b.label) + '　' + esc(b.title) + '</span>' +
-        '<span class="payopt__desc">' + esc(yen(b.price)) + '　第1部・第2部のお席をそれぞれ1つお取りします</span>' +
+      '<button type="button" class="payopt payopt--cta payopt--both" data-pick="both">' +
+        '<span class="payopt__body">' +
+          '<span class="payopt__top">' +
+            '<span class="payopt__label">PART 1 + 2</span>' +
+          '</span>' +
+          '<span class="payopt__title">' + esc(b.label) + 'にお申し込み</span>' +
+          '<span class="payopt__desc">' + esc(yen(b.price)) +
+            '　第1部・第2部のお席をそれぞれ1つお取りします</span>' +
+        '</span>' +
+        '<span class="payopt__arrow" aria-hidden="true">→</span>' +
       '</button>');
   }
 
@@ -364,10 +392,14 @@ function goForm(part) {
   byId('f-name').value = STATE.name || '';
   byId('f-mail').value = STATE.mail || '';
 
-  // 銀行振込もお選びいただくとき
+  /* お支払い方法（2026-11-19 とーるさんご指定で並べ替え）
+   *   振込も出すときは、最初からお支払い方法を並べておきます。
+   *   そのボタンが、そのまま「進む」ボタンです。
+   *   振込を出さないときだけ、従来どおり btn-go を使います。 */
   var showBank = CONFIG.PAYMENT.show_bank || Q.get(CONFIG.PAYMENT.bank_query) === '1';
   byId('form-payopts').hidden = !showBank;
-  byId('btn-go').textContent = showBank ? 'この内容でお申し込みに進む' : 'お支払いに進む';
+  byId('btn-go').hidden = showBank;
+  byId('btn-go').textContent = 'お支払いに進む';
   if (showBank) paintPayOptions();
 
   showScreen('screen-form');
@@ -381,14 +413,26 @@ function pickedHtml(part) {
 
 function paintPayOptions() {
   byId('pay-options').innerHTML =
-    '<button type="button" class="payopt" data-method="card">' +
-      '<span class="payopt__title">' + esc(CONFIG.PAYMENT.card_label) + '</span>' +
-      '<span class="payopt__desc">決済ページでそのままお支払いいただけます</span>' +
+    '<button type="button" class="payopt payopt--cta payopt--card" data-method="card">' +
+      '<span class="payopt__body">' +
+        '<span class="payopt__top">' +
+          '<span class="payopt__label">CARD</span>' +
+        '</span>' +
+        '<span class="payopt__title">' + esc(CONFIG.PAYMENT.card_label) + 'でお支払い</span>' +
+        '<span class="payopt__desc">決済ページが開きます。その場でお席が確定します</span>' +
+      '</span>' +
+      '<span class="payopt__arrow" aria-hidden="true">→</span>' +
     '</button>' +
-    '<button type="button" class="payopt" data-method="bank">' +
-      '<span class="payopt__title">銀行振込</span>' +
-      '<span class="payopt__desc">お申し込みから' + STATE.bank_days +
-        '日以内にお振り込みください（選ぶと振込先が出ます）</span>' +
+    '<button type="button" class="payopt payopt--cta payopt--bank" data-method="bank">' +
+      '<span class="payopt__body">' +
+        '<span class="payopt__top">' +
+          '<span class="payopt__label">BANK</span>' +
+        '</span>' +
+        '<span class="payopt__title">銀行振込でお支払い</span>' +
+        '<span class="payopt__desc">振込先と期限（お申し込みから' + STATE.bank_days +
+          '日）を次の画面でご案内します</span>' +
+      '</span>' +
+      '<span class="payopt__arrow" aria-hidden="true">→</span>' +
     '</button>' +
     // 🧪 テストモードのあいだだけ出ます（2026-11-17）
     (STATE.test_mode
@@ -400,7 +444,9 @@ function paintPayOptions() {
       : '');
 
   byId('pay-options').querySelectorAll('[data-method]').forEach(function (btn) {
-    btn.addEventListener('click', function () { submitForm(btn.getAttribute('data-method')); });
+    btn.addEventListener('click', function () {
+      submitForm(btn.getAttribute('data-method'), btn);
+    });
   });
 }
 
@@ -409,13 +455,13 @@ document.addEventListener('submit', function (e) {
     e.preventDefault();
     var showBank = CONFIG.PAYMENT.show_bank || Q.get(CONFIG.PAYMENT.bank_query) === '1';
     if (showBank) {
-      // お支払い方法のボタンでお進みいただきます
+      /* お支払い方法のボタンでお進みいただきます。
+         ここに来るのは、入力欄で Enter を押されたときだけです。 */
       if (!checkName()) return;
-      byId('form-payopts').hidden = false;
       byId('form-payopts').scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
-    submitForm('card');
+    submitForm('card', byId('btn-go'));
   }
   if (e.target.id === 'form-bank') {
     e.preventDefault();
@@ -450,11 +496,12 @@ function formError(msg) {
   return false;
 }
 
-async function submitForm(method) {
+async function submitForm(method, from) {
   if (!checkName()) return;
   if (!STATE.uid) return showScreen('screen-nouid');
 
-  var btn = byId('btn-go');
+  // お押しになったボタンそのものを「処理中」にします（2026-11-19）
+  var btn = from || byId('btn-go');
   busy(btn, true);
 
   try {

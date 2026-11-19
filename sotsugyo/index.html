@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@400;500;700;900&display=swap">
-<link rel="stylesheet" href="css/style.css?v=13">
+<link rel="stylesheet" href="css/style.css?v=14">
 </head>
 <body class="js-fade">
 
@@ -93,10 +93,12 @@
 
     <div class="divider" aria-hidden="true"><i></i></div>
 
-    <!-- お申し込み -->
-    <div class="card" data-fade>
-      <p class="eyebrow">ENTRY</p>
-      <h2 class="card__title">お申し込み</h2>
+    <!-- お申し込み（2026-11-19 とーるさんご指定。
+         ほかのカードと同じ見た目で埋もれていたため、枠ごと目立たせています。
+         型は夏の大同窓会LPの CTA に寄せました。 -->
+    <div class="card card--entry" id="box-entry" data-fade>
+      <p class="eyebrow eyebrow--entry">ENTRY</p>
+      <h2 class="card__title card__title--entry">受付・お申し込みはこちら</h2>
 
       <!-- 募集前 -->
       <div id="gate-before" hidden>
@@ -118,8 +120,9 @@
       <!-- 受付中 -->
       <div id="gate-open" hidden>
         <p class="note" id="capacity-note"></p>
-        <div class="payopts" id="pick-options"></div>
-        <p class="pickhint">ご参加の部をお選びください。<b>この時点ではまだお支払いになりません。</b></p>
+        <p class="pickhint">ご参加の部を、下のボタンからお選びください。<br><b>この時点ではまだお支払いになりません。</b></p>
+        <div class="payopts payopts--cta" id="pick-options"></div>
+        <p class="entry-deadline" id="entry-deadline" hidden></p>
       </div>
 
       <!-- 満席 -->
@@ -260,15 +263,22 @@
           <span class="field__hint">当日のご連絡と、お申し込み内容の控えにお使いします。</span>
         </div>
         <p class="alert" id="form-error" hidden></p>
+
+        <!-- お支払い方法（2026-11-19 とーるさんご指定で並べ替え）
+             以前は「お申し込みに進む」を押してから、ここが下に出てくる形でした。
+             押したのに進まず、ボタンが2回つづくので分かりにくい、というご指摘です。
+             いまは お名前 → メール → お支払い方法 の順で最初から出ていて、
+             お支払い方法のボタンが、そのまま「進む」ボタンになっています。
+             ★銀行振込を出さない設定（show_bank: false）のときは、
+               選ぶものが無いので、下の btn-go をボタンとして使います。 -->
+        <div id="form-payopts" hidden>
+          <h3 class="sub-title">お支払い方法をお選びください</h3>
+          <div class="payopts payopts--cta" id="pay-options"></div>
+        </div>
+
         <button type="submit" class="btn" id="btn-go">お支払いに進む</button>
         <button type="button" class="btn btn--ghost" data-back>ひとつ前にもどる</button>
       </form>
-
-      <!-- 銀行振込も出すとき（?bank=1 または show_bank: true） -->
-      <div id="form-payopts" hidden>
-        <h3 class="sub-title">お支払い方法</h3>
-        <div class="payopts" id="pay-options"></div>
-      </div>
     </div>
   </section>
 
@@ -388,7 +398,7 @@
 
 <div class="waitbar" id="waitbar">お待ちください…</div>
 
-<script src="js/config.js?v=13"></script>
-<script src="js/app.js?v=13"></script>
+<script src="js/config.js?v=14"></script>
+<script src="js/app.js?v=14"></script>
 </body>
 </html>
