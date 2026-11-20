@@ -108,6 +108,7 @@ async function load() {
     var r = await api('state', {});
     if (!r || !r.ok) throw new Error(r && r.error ? r.error : 'state');
 
+    setSkew(r.now);
     STATE.phase     = r.phase;
     STATE.remain    = r.remain;
     STATE.avail     = r.avail;
@@ -152,6 +153,7 @@ async function refreshRemain() {
   try {
     var r = await api('state', {});
     if (!r || !r.ok) return;
+    setSkew(r.now);
     STATE.phase  = r.phase;
     STATE.remain = r.remain;
     STATE.avail  = r.avail;
@@ -178,17 +180,9 @@ function paintStatic() {
   byId('target-note').textContent   = CONFIG.TEXT.target_note || '';
   byId('capacity-note').textContent = CONFIG.TEXT.capacity_note || '';
 
-  // 締切の一行（2026-11-19）。ボタンのすぐ下に出します
-  var dl = byId('entry-deadline');
-  if (dl) {
-    if (CONFIG.EVENT.close_label) {
-      dl.innerHTML = '受付は <b>' + esc(CONFIG.EVENT.close_label) +
-        '</b> まで。定員に達した時点で終了いたします。';
-      dl.hidden = false;
-    } else {
-      dl.hidden = true;
-    }
-  }
+  // 締切の日時（2026-11-20）。秒読みの枠の中に出します
+  setTextId('closecd-open',  CONFIG.EVENT.open_label ? CONFIG.EVENT.open_label + ' 開始' : '');
+  setTextId('closecd-close', CONFIG.EVENT.close_label || '');
   byId('before-note').textContent   = CONFIG.TEXT.before_open || '';
   byId('closed-note').textContent   = CONFIG.TEXT.after_close || '';
   byId('soldout-note').textContent  = CONFIG.TEXT.soldout || '';
@@ -272,7 +266,7 @@ function paintLp() {
   byId('gate-soldout').hidden = !(STATE.phase === 'open' && full);
 
   if (STATE.phase === 'before') startCountdown();
-  if (STATE.phase === 'open' && !full) paintPickOptions();
+  if (STATE.phase === 'open' && !full) { paintPickOptions(); startCloseCountdown(); }
 
   // 募集前なのに開けている（確認用）ときだけ帯を出します
   byId('openbar').hidden = !(STATE.phase === 'before' && Q.get('phase'));
@@ -335,6 +329,95 @@ function paintPickOptions() {
   byId('pick-options').querySelectorAll('[data-pick]').forEach(function (btn) {
     btn.addEventListener('click', function () { goForm(btn.getAttribute('data-pick')); });
   });
+}
+
+/**
+ * サーバー（GAS）の時計と、この端末の時計のずれを覚えます（2026-11-20）。
+ *   端末の時計がずれている方でも、締切までの秒読みが合うようにするためです。
+ *   GASは now を「2026/11/20 09:40:16」の形（日本時間）で返します。
+ */
+function setSkew(now) {
+  var m = /^(\d{4})\/(\d{1,2})\/(\d{1,2}) (\d{1,2}):(\d{2}):(\d{2})$/.exec(s(now));
+  if (!m) return;
+  var p2 = function (v) { return String(v).padStart(2, '0'); };
+  var t = new Date(m[1] + '-' + p2(m[2]) + '-' + p2(m[3]) + 'T' +
+                   p2(m[4]) + ':' + m[5] + ':' + m[6] + '+09:00').getTime();
+  if (!isNaN(t)) STATE.skew = t - Date.now();
+}
+
+/** id で探して文字を入れます（無ければ何もしません） */
+function setTextId(id, text) {
+  var el = byId(id);
+  if (el) el.textContent = text;
+}
+
+/**
+ * 受付終了までの秒読み（2026-11-20 とーるさんご指定）
+ *   ・締切は config.js の EVENT.close_at
+ *   ・残り72時間を切ると data-urgency="soon"、24時間を切ると "last" にして色を変えます
+ *   ・0になったら、受付の状況を取り直します（GASが「終了」を返せば画面が切り替わります）
+ */
+var CC_TIMER = null;
+function startCloseCountdown() {
+  var box = byId('closecd');
+  if (!box) return;
+
+  var open  = new Date(CONFIG.EVENT.open_at).getTime();
+  var close = new Date(CONFIG.EVENT.close_at).getTime();
+  if (isNaN(close)) { box.hidden = true; return; }
+  box.hidden = false;
+  if (CC_TIMER) return;
+
+  var shown = {};
+  var put = function (k, v) {
+    var text = String(v).padStart(2, '0');
+    if (shown[k] === text) return;
+    var el = box.querySelector('[data-cc="' + k + '"]');
+    if (!el) return;
+    el.textContent = text;
+    // 数字が変わった瞬間だけ、小さく動かします
+    if (shown[k] !== undefined) {
+      el.classList.remove('is-tick');
+      void el.offsetWidth;
+      el.classList.add('is-tick');
+    }
+    shown[k] = text;
+  };
+
+  var tick = function () {
+    var now  = Date.now() + (STATE.skew || 0);
+    var left = Math.max(close - now, 0);
+    var sec  = Math.floor(left / 1000);
+    put('d', Math.floor(sec / 86400));
+    put('h', Math.floor(sec % 86400 / 3600));
+    put('m', Math.floor(sec % 3600 / 60));
+    put('s', sec % 60);
+
+    var u = left <= 86400000 ? 'last' : (left <= 259200000 ? 'soon' : 'normal');
+    if (box.getAttribute('data-urgency') !== u || !shown.label) {
+      box.setAttribute('data-urgency', u);
+      setTextId('closecd-k', u === 'last' ? '締切まで24時間を切りました'
+                           : u === 'soon' ? 'まもなく締切です'
+                           : '受付終了まで');
+      shown.label = true;
+    }
+
+    // 受付期間のうち、どこまで進んだか
+    var bar = byId('closecd-bar');
+    if (bar && !isNaN(open) && close > open) {
+      var done = Math.min(Math.max((now - open) / (close - open), 0), 1);
+      bar.style.width = (done * 100).toFixed(2) + '%';
+    }
+
+    if (left <= 0) {
+      clearInterval(CC_TIMER);
+      CC_TIMER = null;
+      refreshRemain();
+    }
+  };
+
+  tick();
+  CC_TIMER = setInterval(tick, 1000);
 }
 
 /** 受付開始までの秒読み */

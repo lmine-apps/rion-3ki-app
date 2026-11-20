@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@400;500;700;900&display=swap">
-<link rel="stylesheet" href="css/style.css?v=14">
+<link rel="stylesheet" href="css/style.css?v=15">
 </head>
 <body class="js-fade">
 
@@ -119,10 +119,40 @@
 
       <!-- 受付中 -->
       <div id="gate-open" hidden>
+
+        <!-- 受付終了までの秒読み（2026-11-20 とーるさんご指定）
+             ・締切（config.js の close_at）までを、1秒ごとに数えます
+             ・残り3日を切ると「まもなく締切」、24時間を切ると赤みのある色に変わります
+             ・下の帯は「定員になり次第、早めに終了します」の補足です
+             ★以前ボタンの下にあった締切の一行は、ここにまとめました -->
+        <div class="closecd" id="closecd" data-urgency="normal" hidden>
+          <div class="closecd__head">
+            <span class="closecd__live"><i></i>受付中</span>
+            <span class="closecd__k" id="closecd-k">受付終了まで</span>
+          </div>
+          <div class="closecd__row" aria-hidden="true">
+            <span class="closecd__u"><b data-cc="d">--</b><i>日</i></span>
+            <span class="closecd__s">:</span>
+            <span class="closecd__u"><b data-cc="h">--</b><i>時間</i></span>
+            <span class="closecd__s">:</span>
+            <span class="closecd__u"><b data-cc="m">--</b><i>分</i></span>
+            <span class="closecd__s">:</span>
+            <span class="closecd__u closecd__u--sec"><b data-cc="s">--</b><i>秒</i></span>
+          </div>
+          <div class="closecd__bar" aria-hidden="true"><span id="closecd-bar"></span></div>
+          <p class="closecd__date">
+            <span id="closecd-open"></span>
+            <span class="closecd__date-end"><b id="closecd-close"></b> 締切</span>
+          </p>
+          <p class="closecd__early">
+            <span class="closecd__early-ic" aria-hidden="true">!</span>
+            <span>定員になり次第、<b>期間内でも早期に受付を終了</b>いたします。お早めにお申し込みください。</span>
+          </p>
+        </div>
+
         <p class="note" id="capacity-note"></p>
         <p class="pickhint">ご参加の部を、下のボタンからお選びください。<br><b>この時点ではまだお支払いになりません。</b></p>
         <div class="payopts payopts--cta" id="pick-options"></div>
-        <p class="entry-deadline" id="entry-deadline" hidden></p>
       </div>
 
       <!-- 満席 -->
@@ -398,7 +428,7 @@
 
 <div class="waitbar" id="waitbar">お待ちください…</div>
 
-<script src="js/config.js?v=14"></script>
-<script src="js/app.js?v=14"></script>
+<script src="js/config.js?v=15"></script>
+<script src="js/app.js?v=15"></script>
 </body>
 </html>

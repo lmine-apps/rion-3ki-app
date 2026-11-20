@@ -2544,22 +2544,6 @@ body.is-locked { overflow: hidden; }
   background: linear-gradient(90deg, transparent, var(--navy-800), transparent);
 }
 
-/* 締切の一行。ボタンの下に小さく添えます */
-.entry-deadline {
-  align-self: center;
-  margin-top: 4px !important;
-  padding: 7px 15px;
-  border-radius: 999px;
-  background: var(--alert-bg);
-  border: 1px solid var(--alert-line);
-  color: var(--alert);
-  font-size: calc(12px * var(--fs-scale));
-  font-weight: 700;
-  line-height: 1.7;
-  text-align: center;
-}
-.entry-deadline b { font-weight: 900; white-space: nowrap; }
-
 /* ---------------------------------------------------------------- 押すボタン */
 
 .payopts--cta { gap: 13px; }
@@ -2698,4 +2682,305 @@ body.is-locked { overflow: hidden; }
 /* 動きを減らす設定の方には、光を流しません */
 @media (prefers-reduced-motion: reduce) {
   .payopt--cta::before { animation: none; }
+}
+
+/* ==========================================================================
+   受付終了までの秒読み（2026-11-20 とーるさんご指定）
+
+   お申し込みの枠のいちばん上に置く、濃紺の「時計」です。
+     ・白い枠（お申し込みのカード）の中で、ここだけ濃い色にして目を引きます
+     ・金の細い線は、卒業式の案内状の雰囲気に合わせました
+     ・下の帯（切り取り線の下）は「定員になり次第、早期終了」の補足です
+     ・data-urgency が soon（残り3日）→ 金の札、last（残り24時間）→ 赤みのある色
+   ========================================================================== */
+
+.closecd {
+  position: relative;
+  margin: 4px 0 6px;
+  padding: 20px 14px 0;
+  border-radius: 18px;
+  color: #fff;
+  text-align: center;
+  background:
+    radial-gradient(circle at 88% -8%, rgba(132, 206, 241, .34), transparent 46%),
+    radial-gradient(circle at 6% 108%, rgba(232, 212, 168, .16), transparent 42%),
+    linear-gradient(155deg, var(--navy-950) 0%, var(--navy-800) 58%, var(--navy-700) 100%);
+  box-shadow:
+    0 16px 34px rgba(7, 23, 44, .30),
+    inset 0 1px 0 rgba(255, 255, 255, .14);
+  overflow: hidden;
+}
+/* 内側の金の細い枠 */
+.closecd::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border: 1px solid rgba(232, 212, 168, .30);
+  border-radius: 13px;
+  pointer-events: none;
+}
+/* ゆっくり横切る光 */
+.closecd::after {
+  content: "";
+  position: absolute;
+  top: 0; bottom: 0; left: 0;
+  width: 46%;
+  background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, .07) 50%, transparent 70%);
+  transform: translateX(-130%);
+  animation: closecdSweep 7s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes closecdSweep {
+  0%, 55% { transform: translateX(-130%); }
+  100%    { transform: translateX(330%); }
+}
+
+/* ---- 上の見出し ---- */
+.closecd__head {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 7px 10px;
+  margin-bottom: 13px;
+}
+.closecd__live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px 3px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .12);
+  border: 1px solid rgba(255, 255, 255, .26);
+  font-size: calc(10.5px * var(--fs-scale));
+  font-weight: 700;
+  letter-spacing: .12em;
+  line-height: 1.5;
+}
+.closecd__live i {
+  position: relative;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #7fe3b0;
+}
+.closecd__live i::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1.5px solid #7fe3b0;
+  opacity: 0;
+  animation: closecdPing 2s ease-out infinite;
+}
+@keyframes closecdPing {
+  0%   { transform: scale(.5); opacity: .8; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+.closecd__k {
+  font-family: var(--serif);
+  font-size: calc(14.5px * var(--fs-scale));
+  font-weight: 700;
+  letter-spacing: .2em;
+  color: #f1e2bd;
+  line-height: 1.5;
+}
+
+/* ---- 数字 ---- */
+.closecd__row {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 5px;
+}
+.closecd__u {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 1 1 0;
+  max-width: 74px;
+  min-width: 0;
+}
+.closecd__u b {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 13px 2px 12px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #ffffff 0%, #ffffff 49.4%, #e9f2f8 50.6%, #f7fbfe 100%);
+  box-shadow:
+    0 6px 14px rgba(0, 0, 0, .28),
+    inset 0 -2px 0 rgba(18, 52, 90, .10);
+  color: var(--navy-950);
+  font-family: var(--num);
+  font-size: calc(37px * var(--fs-scale));
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .01em;
+}
+/* まん中の細い線（めくり式の時計のように） */
+.closecd__u b::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; top: 50%;
+  height: 1px;
+  background: rgba(7, 23, 44, .16);
+}
+.closecd__u--sec b { color: var(--navy-700); }
+.closecd__u i {
+  font-style: normal;
+  font-size: calc(10.5px * var(--fs-scale));
+  font-weight: 500;
+  letter-spacing: .14em;
+  color: rgba(255, 255, 255, .80);
+}
+.closecd__s {
+  padding-top: 17px;
+  color: rgba(241, 226, 189, .85);
+  font-family: var(--num);
+  font-size: calc(22px * var(--fs-scale));
+  line-height: 1;
+  animation: closecdBlink 1s steps(1) infinite;
+}
+@keyframes closecdBlink { 50% { opacity: .25; } }
+/* 数字が変わった瞬間（消えた状態からは始めません。止まっていても読めるように） */
+.closecd__u b.is-tick { animation: closecdTick .34s ease-out; }
+@keyframes closecdTick {
+  0%   { transform: translateY(-3px) scale(1.03); }
+  100% { transform: none; }
+}
+
+/* ---- 受付期間のどこまで来たか ---- */
+.closecd__bar {
+  position: relative;
+  height: 4px;
+  margin: 17px 8px 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .16);
+}
+.closecd__bar span {
+  position: relative;
+  display: block;
+  width: 0;
+  min-width: 4px;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--sky-400), #f1e2bd);
+  transition: width 1s linear;
+}
+.closecd__bar span::after {
+  content: "";
+  position: absolute;
+  right: -4px; top: 50%;
+  width: 10px; height: 10px;
+  margin-top: -5px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(241, 226, 189, .35), 0 0 12px rgba(241, 226, 189, .9);
+}
+.closecd__date {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 2px 6px;
+  margin: 10px 8px 0 !important;
+  font-size: calc(10px * var(--fs-scale));
+  line-height: 1.6;
+  color: rgba(255, 255, 255, .62);
+}
+.closecd__date-end { margin-left: auto; color: #f1e2bd; font-weight: 700; }
+.closecd__date-end b { font-weight: 700; }
+
+/* ---- 下の帯：定員になり次第、早期終了 ---- */
+.closecd__early {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 9px;
+  margin: 16px -14px 0 !important;
+  padding: 13px 18px 15px;
+  border-top: 1px dashed rgba(241, 226, 189, .42);
+  background: rgba(0, 0, 0, .20);
+  font-size: calc(12.5px * var(--fs-scale));
+  line-height: 1.75;
+  text-align: left;
+  color: rgba(255, 255, 255, .88);
+}
+.closecd__early b { color: #ffe9b8; font-weight: 700; }
+.closecd__early-ic {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 19px; height: 19px;
+  margin-top: 2px;
+  border-radius: 50%;
+  background: #f1e2bd;
+  color: var(--navy-950);
+  font-family: var(--num);
+  font-size: calc(12.5px * var(--fs-scale));
+  font-weight: 700;
+  line-height: 1;
+}
+/* 切り取り線の両はしの切り欠き（チケットのように） */
+.closecd__early::before,
+.closecd__early::after {
+  content: "";
+  position: absolute;
+  top: -9px;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: #f6fbfe;
+  box-shadow: inset 0 2px 5px rgba(7, 23, 44, .22);
+}
+.closecd__early::before { left: -9px; }
+.closecd__early::after  { right: -9px; }
+
+/* ---- 残り3日：金の札に ---- */
+.closecd[data-urgency="soon"] .closecd__k,
+.closecd[data-urgency="last"] .closecd__k {
+  padding: 3px 13px;
+  border-radius: 999px;
+  background: #f1e2bd;
+  color: var(--navy-950);
+  letter-spacing: .1em;
+  font-family: var(--sans);
+  font-size: calc(12.5px * var(--fs-scale));
+  font-weight: 900;
+}
+
+/* ---- 残り24時間：赤みのある色に ---- */
+.closecd[data-urgency="last"] {
+  background:
+    radial-gradient(circle at 88% -8%, rgba(255, 178, 150, .34), transparent 46%),
+    linear-gradient(155deg, #3b1014 0%, #8a2f26 62%, var(--alert) 100%);
+  box-shadow: 0 16px 34px rgba(120, 30, 24, .34), inset 0 1px 0 rgba(255, 255, 255, .16);
+}
+.closecd[data-urgency="last"] .closecd__k { background: #fff; color: #8a2f26; }
+.closecd[data-urgency="last"] .closecd__live i { background: #ffd27a; }
+.closecd[data-urgency="last"] .closecd__live i::after { border-color: #ffd27a; }
+.closecd[data-urgency="last"] .closecd__u b { color: #8a2f26; }
+.closecd[data-urgency="last"] .closecd__bar span { background: linear-gradient(90deg, #ffd27a, #fff); }
+
+@media (max-width: 380px) {
+  .closecd { padding-left: 11px; padding-right: 11px; }
+  .closecd__early { margin-left: -11px !important; margin-right: -11px !important; padding-left: 15px; padding-right: 15px; }
+  .closecd__row { gap: 3px; }
+  .closecd__u b { font-size: calc(32px * var(--fs-scale)); padding: 12px 1px 11px; }
+  .closecd__s { font-size: calc(18px * var(--fs-scale)); padding-top: 15px; }
+}
+:root[data-fs="large"] .closecd__u b { font-size: calc(28px * var(--fs-scale)); }
+
+/* 動きを減らす設定の方には、光・点滅・跳ねを止めます（数字は進みます） */
+@media (prefers-reduced-motion: reduce) {
+  .closecd::after,
+  .closecd__live i::after,
+  .closecd__s,
+  .closecd__u b.is-tick { animation: none; }
+  .closecd__bar span { transition: none; }
 }
