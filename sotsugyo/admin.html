@@ -580,14 +580,26 @@ function paintKpis() {
   const cap = data.capacity || {};
   const few = (n) => (Number(n) <= 5) ? ' few' : '';
 
-  const cards = [
-    { l: '第1部 残り', v: rem.part1, sub: '／' + (cap.part1 || 0) + '席', cls: 'seat' + few(rem.part1) },
-    { l: '第2部 残り', v: rem.part2, sub: '／' + (cap.part2 || 0) + '席', cls: 'seat' + few(rem.part2) },
+  /* 定員の上限を外しているあいだ（GAS側 CAPACITY_ON = false）は、
+     「残り○席」ではなく「お申し込み○名」を出します（2026-11-21） */
+  const noLimit = data.limit === false;
+  const used = data.used || {};
+  const seats = noLimit
+    ? [
+        { l: '第1部 お申し込み', v: used.part1 || 0, sub: '名', cls: 'seat' },
+        { l: '第2部 お申し込み', v: used.part2 || 0, sub: '名', cls: 'seat' }
+      ]
+    : [
+        { l: '第1部 残り', v: rem.part1, sub: '／' + (cap.part1 || 0) + '席', cls: 'seat' + few(rem.part1) },
+        { l: '第2部 残り', v: rem.part2, sub: '／' + (cap.part2 || 0) + '席', cls: 'seat' + few(rem.part2) }
+      ];
+
+  const cards = seats.concat([
     { l: '要対応',     v: s.todo,    cls: (s.todo ? 'act' : '') },
     { l: 'お支払い済み', v: (s.paid || 0) + (s.bankok || 0), cls: 'done' },
     { l: '振込待ち',   v: s.bank },
     { l: '決済待ち',   v: s.wait }
-  ];
+  ]);
 
   $('kpis').innerHTML = cards.map(c =>
     '<div class="kpi ' + (c.cls || '') + '">' +
@@ -796,6 +808,7 @@ function mockApi(action, body) {
     flags: MOCK_FLAGS,
     capacity: { part1: 40, part2: 40 },
     remain: { part1: 37, part2: 38 },
+    limit: false, used: { part1: 3, part2: 2 },
     price: { part1: 6000, part2: 8000, both: 14000 },
     summary: { total: rows.length, paid: 1, bank: 2, bankok: 1, wait: 1, cancel: 0,
                expire: 0, todo: 1, overdue: 1, yen: 14000 },

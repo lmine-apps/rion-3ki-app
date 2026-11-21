@@ -914,6 +914,23 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
 }
 .pickhint b { font-weight: 700; white-space: nowrap; }
 
+/* 締切の一行。ボタンの下に小さく添えます
+   （カウントダウンを出していないあいだだけ出ます。2026-11-21） */
+.entry-deadline {
+  align-self: center;
+  margin-top: 4px !important;
+  padding: 7px 15px;
+  border-radius: 999px;
+  background: var(--alert-bg);
+  border: 1px solid var(--alert-line);
+  color: var(--alert);
+  font-size: calc(12px * var(--fs-scale));
+  font-weight: 700;
+  line-height: 1.7;
+  text-align: center;
+}
+.entry-deadline b { font-weight: 900; white-space: nowrap; }
+
 .payopts { display: flex; flex-direction: column; gap: 10px; }
 .payopt {
   position: relative;

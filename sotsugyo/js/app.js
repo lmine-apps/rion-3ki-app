@@ -14,6 +14,7 @@
  *    ?mock=1    … GASにつながず、ぜんぶの画面を見られます
  *    &phase=open|before|closed … 募集の状況を好きに切り替えます
  *    &remain=3,0 … 残席を好きな数にします（第1部,第2部）
+ *    &limit=1    … 定員の上限を「かけている」ときの見た目にします（いまは外しているのが標準）
  *    ?bank=1    … 銀行振込の選択肢を出します
  * ========================================================== */
 
@@ -25,6 +26,7 @@ var STATE = {
   uid: '',
   phase: '',
   remain: { part1: 0, part2: 0 },
+  limit: true,       // 定員の上限をかけているか（GASが返します。false のあいだ定員・残席は出しません）
   avail: { part1: false, part2: false, both: false },
   price: {},
   bank_days: 5,
@@ -111,6 +113,7 @@ async function load() {
     setSkew(r.now);
     STATE.phase     = r.phase;
     STATE.remain    = r.remain;
+    STATE.limit     = r.limit !== false;
     STATE.avail     = r.avail;
     STATE.price     = r.price || {};
     STATE.bank_days = r.bank_days || 5;
@@ -156,6 +159,7 @@ async function refreshRemain() {
     setSkew(r.now);
     STATE.phase  = r.phase;
     STATE.remain = r.remain;
+    STATE.limit  = r.limit !== false;
     STATE.avail  = r.avail;
     paintLp();
   } catch (ignore) {}
@@ -178,7 +182,6 @@ function paintStatic() {
   linkOrDisable(pv, CONFIG.LINKS.privacy);
 
   byId('target-note').textContent   = CONFIG.TEXT.target_note || '';
-  byId('capacity-note').textContent = CONFIG.TEXT.capacity_note || '';
 
   // 締切の日時（2026-11-20）。秒読みの枠の中に出します
   setTextId('closecd-open',  CONFIG.EVENT.open_label ? CONFIG.EVENT.open_label + ' 開始' : '');
@@ -255,8 +258,15 @@ function paintLp() {
         seatHtml(k) +
       '</div>' +
       '<div class="plan__price">' + esc(yen(p.price)) + '<span class="plan__tax">（税込）</span></div>' +
-      '<p class="plan__note">お一人さま　定員' + p.capacity + '名</p>';
+      (STATE.limit ? '<p class="plan__note">お一人さま　定員' + p.capacity + '名</p>' : '');
   });
+
+  // 定員の案内。上限を外しているあいだは出しません（2026-11-21）
+  var cn = byId('capacity-note');
+  if (cn) {
+    cn.textContent = STATE.limit ? (CONFIG.TEXT.capacity_note || '') : '';
+    cn.hidden = !cn.textContent;
+  }
 
   byId('gate-before').hidden  = STATE.phase !== 'before';
   byId('gate-closed').hidden  = STATE.phase !== 'closed';
@@ -268,6 +278,19 @@ function paintLp() {
   if (STATE.phase === 'before') startCountdown();
   if (STATE.phase === 'open' && !full) { paintPickOptions(); startCloseCountdown(); }
 
+  /* 締切の一行。カウントダウンを出していないあいだだけ、ボタンの下に出します（2026-11-21）
+   *   カウントダウンを出しているときは、その枠の中に締切が書いてあるので出しません。 */
+  var dl = byId('entry-deadline');
+  if (dl) {
+    if (!CONFIG.SHOW_CLOSE_COUNTDOWN && CONFIG.EVENT.close_label) {
+      dl.innerHTML = '受付は <b>' + esc(CONFIG.EVENT.close_label) + '</b> まで。' +
+        (STATE.limit ? '定員に達した時点で終了いたします。' : '');
+      dl.hidden = false;
+    } else {
+      dl.hidden = true;
+    }
+  }
+
   // 募集前なのに開けている（確認用）ときだけ帯を出します
   byId('openbar').hidden = !(STATE.phase === 'before' && Q.get('phase'));
   var oa = document.querySelector('[data-open-at]');
@@ -276,6 +299,7 @@ function paintLp() {
 
 /** 残席のバッジ */
 function seatHtml(k) {
+  if (!STATE.limit) return '';          // 定員の上限を外しているあいだは出しません
   var n = STATE.remain[k];
   if (typeof n !== 'number') return '';
   var cls = n <= 0 ? 'seat seat--none' : (n <= 5 ? 'seat seat--few' : 'seat');
@@ -361,6 +385,14 @@ var CC_TIMER = null;
 function startCloseCountdown() {
   var box = byId('closecd');
   if (!box) return;
+
+  // いったん消しています（config.js の SHOW_CLOSE_COUNTDOWN）。
+  // 締切を過ぎたときの切り替えは、20秒ごとの取り直し（refreshRemain）が受け持ちます
+  if (!CONFIG.SHOW_CLOSE_COUNTDOWN) { box.hidden = true; return; }
+
+  // 「定員になり次第、早期終了」の帯は、上限をかけているときだけ
+  var early = box.querySelector('.closecd__early');
+  if (early) early.hidden = !STATE.limit;
 
   var open  = new Date(CONFIG.EVENT.open_at).getTime();
   var close = new Date(CONFIG.EVENT.close_at).getTime();
@@ -899,6 +931,7 @@ function mockApi(action, body) {
       ok: true, version: 'mock', phase: Q.get('phase') || 'open',
       test_mode: Q.get('test') === '1',
       remain: remain,
+      limit: Q.get('limit') === '1',     // いまの本番と同じく、上限なしが標準
       avail: { part1: remain.part1 > 0, part2: remain.part2 > 0,
                both: remain.part1 > 0 && remain.part2 > 0 },
       price: { part1: CONFIG.PARTS.part1.price, part2: CONFIG.PARTS.part2.price,

@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@400;500;700;900&display=swap">
-<link rel="stylesheet" href="css/style.css?v=15">
+<link rel="stylesheet" href="css/style.css?v=16">
 </head>
 <body class="js-fade">
 
@@ -124,7 +124,9 @@
              ・締切（config.js の close_at）までを、1秒ごとに数えます
              ・残り3日を切ると「まもなく締切」、24時間を切ると赤みのある色に変わります
              ・下の帯は「定員になり次第、早めに終了します」の補足です
-             ★以前ボタンの下にあった締切の一行は、ここにまとめました -->
+             ★2026-11-21 とーるさんご指定で、いったん消しています。
+               もう一度出すときは config.js の SHOW_CLOSE_COUNTDOWN を true に。
+               消しているあいだは、ボタンの下の一行（#entry-deadline）が締切をお伝えします -->
         <div class="closecd" id="closecd" data-urgency="normal" hidden>
           <div class="closecd__head">
             <span class="closecd__live"><i></i>受付中</span>
@@ -153,6 +155,7 @@
         <p class="note" id="capacity-note"></p>
         <p class="pickhint">ご参加の部を、下のボタンからお選びください。<br><b>この時点ではまだお支払いになりません。</b></p>
         <div class="payopts payopts--cta" id="pick-options"></div>
+        <p class="entry-deadline" id="entry-deadline" hidden></p>
       </div>
 
       <!-- 満席 -->
@@ -428,7 +431,7 @@
 
 <div class="waitbar" id="waitbar">お待ちください…</div>
 
-<script src="js/config.js?v=15"></script>
-<script src="js/app.js?v=15"></script>
+<script src="js/config.js?v=16"></script>
+<script src="js/app.js?v=16"></script>
 </body>
 </html>
