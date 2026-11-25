@@ -236,7 +236,7 @@ function venueSmall(v) {
 function itemsHtml(p) {
   if (!p.items || !p.items.length) return '';
   return '<ul class="lines">' +
-    p.items.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>' +
+    p.items.map(function (t) { return '<li>' + esc(t).replace(/\n/g, '<br>') + '</li>'; }).join('') + '</ul>' +
     (p.items_more ? '<p class="lines__more">' + esc(p.items_more) + '</p>' : '');
 }
 
