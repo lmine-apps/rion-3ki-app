@@ -223,14 +223,21 @@ function paintStatic() {
         (p.reception ? '<small>' + esc(p.reception) + '</small>' : '') + '</dd></div>' +
       tbdRow(p.items);
 
-    byId('items-' + k).innerHTML = (p.items && p.items.length)
-      ? '<ul class="lines">' + p.items.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>'
-      : '';
+    byId('items-' + k).innerHTML = itemsHtml(p);
   });
 }
 
 function venueSmall(v) {
   return v && v.name ? '<small>' + esc(v.name) + '　' + mapLink(v) + '</small>' : '';
+}
+
+/* 第1部・第2部の「内容」の箇条書き。
+ *   items_more があれば、箇条書きのあとに小さく添えます（「…etc」など） */
+function itemsHtml(p) {
+  if (!p.items || !p.items.length) return '';
+  return '<ul class="lines">' +
+    p.items.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>' +
+    (p.items_more ? '<p class="lines__more">' + esc(p.items_more) + '</p>' : '');
 }
 
 /* まだ決まっていないところは「未確定」とだけ出します
@@ -724,9 +731,7 @@ function paintDay(m) {
           '　' + mapLink(p.venue) + '</small></dd></div>' +
         tbdRow(p.items) +
       '</dl>' +
-      ((p.items && p.items.length)
-        ? '<ul class="lines">' + p.items.map(function (t) { return '<li>' + esc(t) + '</li>'; }).join('') + '</ul>'
-        : '') +
+      itemsHtml(p) +
       '</div>';
   }).join('');
 

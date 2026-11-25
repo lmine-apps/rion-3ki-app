@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@400;500;700;900&display=swap">
-<link rel="stylesheet" href="css/style.css?v=16">
+<link rel="stylesheet" href="css/style.css?v=17">
 </head>
 <body class="js-fade">
 
@@ -30,7 +30,11 @@
   <b>🚪 受付テスト中</b>　受付開始（<span data-open-at>—</span>）の前ですが、確認のために開いています。
 </div>
 
-<header class="head">
+<!-- ヘッダーは画像です（2026-11-26 とーるさんご指定）。
+     元の文字のヘッダーに戻すときは、class の head--img と <img> の行を消すだけです。
+     下の見出し（h1）は、読み上げと検索のために残しています（画面には出ません） -->
+<header class="head head--img">
+  <img class="head__img" src="assets/header-sotsugyo.jpg?v=1" width="1600" height="538" alt="凛穏塾 卒業式　2027年1月31日（日）13:00〜">
   <div class="head__inner">
     <p class="kicker" data-ev="kicker">RION JUKU / GRADUATION</p>
     <h1 class="head__title" data-ev="name">凛穏塾 3期生 卒業式</h1>
@@ -431,7 +435,7 @@
 
 <div class="waitbar" id="waitbar">お待ちください…</div>
 
-<script src="js/config.js?v=16"></script>
-<script src="js/app.js?v=16"></script>
+<script src="js/config.js?v=17"></script>
+<script src="js/app.js?v=17"></script>
 </body>
 </html>

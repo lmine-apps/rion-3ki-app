@@ -92,6 +92,33 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
   pointer-events: none;
 }
 .head__inner { position: relative; z-index: 1; max-width: 640px; margin: 0 auto; }
+
+/* 画像のヘッダー（2026-11-26）
+ *   スマホでは画面の幅いっぱい。パソコンでは大きくなりすぎないよう幅を止めて、
+ *   左右は画像と同じ赤で埋めます。 */
+.head--img {
+  padding: 0;
+  background: #991b1e;
+  border-bottom: 2px solid #c9a24a;
+}
+.head--img::before { display: none; }
+.head__img {
+  display: block;
+  width: 100%;
+  max-width: 980px;
+  height: auto;
+  margin: 0 auto;
+}
+/* 文字の見出しは、画面には出さず読み上げ用に残します */
+.head--img .head__inner {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 .kicker {
   margin: 0 0 10px;
   font-size: calc(9px * var(--fs-scale));
@@ -2384,6 +2411,13 @@ body.is-locked { overflow: hidden; }
   line-height: 1.85;
 }
 .lines li:last-child { margin-bottom: 0; }
+.lines__more {
+  margin: 6px 0 0;
+  padding-left: 16px;
+  font-size: calc(13px * var(--fs-scale));
+  line-height: 1.85;
+  opacity: .7;
+}
 .lines li::before {
   content: "";
   position: absolute;
