@@ -557,11 +557,17 @@ function paintPayOptions() {
       '<span class="payopt__arrow" aria-hidden="true">→</span>' +
     '</button>' +
     // 🧪 テストモードのあいだだけ出ます（2026-11-17）
+    //   カード・振込と同じ大きさのボタンにしています（2026-11-26「ボタンだと気付かない」）
     (STATE.test_mode
-      ? '<button type="button" class="payopt payopt--test" data-method="test">' +
-          '<span class="payopt__title">🧪 テスト決済</span>' +
-          '<span class="payopt__desc">Stripeを通さずに決済済みにします。' +
-            'そのあとの画面を確かめるためのものです</span>' +
+      ? '<button type="button" class="payopt payopt--cta payopt--test" data-method="test">' +
+          '<span class="payopt__body">' +
+            '<span class="payopt__top">' +
+              '<span class="payopt__label">TEST</span>' +
+            '</span>' +
+            '<span class="payopt__title">🧪 テスト決済で進む</span>' +
+            '<span class="payopt__desc">決済ページを開かずに、決済済みとして次へ進みます</span>' +
+          '</span>' +
+          '<span class="payopt__arrow" aria-hidden="true">→</span>' +
         '</button>'
       : '');
 

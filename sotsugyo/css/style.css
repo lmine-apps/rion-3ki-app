@@ -2383,10 +2383,11 @@ body.is-locked { overflow: hidden; }
   letter-spacing: .02em;
 }
 
-/* 🧪 テスト決済のボタン。本物の決済と見分けられるように */
-.payopt--test {
-  border-style: dashed !important;
-  background: #fffbeb !important;
+/* 🧪 テスト決済のボタン。
+ *   形と大きさはカード・振込と同じ。色だけ、上のテストモードの帯と同じオレンジにして、
+ *   本物の決済と見分けられるようにしています（2026-11-26） */
+.payopt--cta.payopt--test {
+  background: linear-gradient(135deg, #b45309, #e08a1e);
 }
 
 /* 「未確定」の札。会場・時間とおなじ行に、控えめに並びます（2026-11-16） */
