@@ -762,9 +762,21 @@ function paintKpis() {
         { l: '第2部 残り', v: rem.part2, sub: '／' + (cap.part2 || 0) + '席（申込' + (used.part2 || 0) + '名）', cls: 'seat' + few(rem.part2) }
       ];
 
+  /* 部ごとのお支払い済み（2026-11-27）
+     決済済み＋入金確認済みの行を数える。両部は第1部・第2部の両方に1人ずつ。
+     振込待ち（席は押さえているがまだ入金なし）は入れない */
+  const paidPart = { part1: 0, part2: 0 };
+  (data.rows || []).forEach(p => {
+    if (p.state !== '決済済み' && p.state !== '入金確認済み') return;
+    if (p.part === 'part1' || p.part === 'both') paidPart.part1++;
+    if (p.part === 'part2' || p.part === 'both') paidPart.part2++;
+  });
+
   const cards = seats.concat([
+    { l: '第1部 お支払い済み', v: paidPart.part1, sub: '名', cls: 'done' },
+    { l: '第2部 お支払い済み', v: paidPart.part2, sub: '名', cls: 'done' },
     { l: '要対応',     v: s.todo,    cls: (s.todo ? 'act' : '') },
-    { l: 'お支払い済み', v: (s.paid || 0) + (s.bankok || 0), cls: 'done' },
+    { l: 'お支払い済み（合計）', v: (s.paid || 0) + (s.bankok || 0), sub: '件', cls: 'done' },
     { l: '振込待ち',   v: s.bank },
     { l: '決済待ち',   v: s.wait }
   ]);
