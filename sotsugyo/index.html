@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Noto+Serif+JP:wght@400;500;700;900&display=swap">
-<link rel="stylesheet" href="css/style.css?v=19">
+<link rel="stylesheet" href="css/style.css?v=21">
 </head>
 <body class="js-fade">
 
@@ -157,6 +157,8 @@
         </div>
 
         <p class="note" id="capacity-note"></p>
+        <!-- 定員に達したあとのお知らせ（受付は続ける設定のとき。文は運営アプリで変えられます） -->
+        <p class="alert alert--over" id="over-note" hidden></p>
         <p class="pickhint">ご参加の部を、下のボタンからお選びください。<br><b>この時点ではまだお支払いになりません。</b></p>
         <div class="payopts payopts--cta" id="pick-options"></div>
         <p class="entry-deadline" id="entry-deadline" hidden></p>
@@ -309,6 +311,7 @@
              ★銀行振込を出さない設定（show_bank: false）のときは、
                選ぶものが無いので、下の btn-go をボタンとして使います。 -->
         <div id="form-payopts" hidden>
+          <p class="alert alert--over" id="over-note-form" hidden></p>
           <h3 class="sub-title">お支払い方法をお選びください</h3>
           <div class="payopts payopts--cta" id="pay-options"></div>
         </div>
@@ -359,13 +362,15 @@
       <p class="note" id="bank-note"></p>
 
       <h3 class="sub-title">お振り込みが済みましたら</h3>
+      <!-- お振込の前に押される方がいらしたため、ひとこと添えています（2026-11-27） -->
+      <p class="note">※ お知らせは、<b>お振込がお済みになってから</b>お願いいたします。まだの方は、このままページを閉じていただいて大丈夫です。お振込のあとで、もう一度このページをお開きください。</p>
       <form class="form" id="form-bank">
         <div class="field">
           <label class="field__label" for="f-holder">お振込のお名義</label>
           <input type="text" id="f-holder" maxlength="40" placeholder="例）ヤマダ ハナコ">
         </div>
         <div class="field">
-          <label class="field__label" for="f-paidon">お振込日</label>
+          <label class="field__label" for="f-paidon">お振込日（お振り込みになった日）</label>
           <input type="date" id="f-paidon">
         </div>
         <p class="alert" id="bank-error" hidden></p>
@@ -435,7 +440,7 @@
 
 <div class="waitbar" id="waitbar">お待ちください…</div>
 
-<script src="js/config.js?v=19"></script>
-<script src="js/app.js?v=19"></script>
+<script src="js/config.js?v=21"></script>
+<script src="js/app.js?v=21"></script>
 </body>
 </html>

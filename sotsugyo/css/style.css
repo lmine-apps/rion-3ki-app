@@ -350,6 +350,14 @@ button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
   font-size: calc(13px * var(--fs-scale));
 }
 
+/* 定員に達したあとのお知らせ（2026-11-27） */
+.alert--over {
+  margin: 0 0 14px;
+  line-height: 1.8;
+  font-weight: 700;
+}
+.alert--over[hidden] { display: none; }
+
 /* ---------------------------------------------------------------- ステップバー */
 .steps {
   display: flex;

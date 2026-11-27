@@ -26,7 +26,12 @@ var STATE = {
   uid: '',
   phase: '',
   remain: { part1: 0, part2: 0 },
-  limit: true,       // 定員の上限をかけているか（GASが返します。false のあいだ定員・残席は出しません）
+  limit: true,       // 定員・残席を画面に出すか（GASが返します。false のあいだ出しません）
+  cap_on: false,     // 定員を使っているか（数を見せない設定でも true）
+  capacity: null,    // 席数 {part1, part2}（運営アプリで変えた数。無ければ config.js の数）
+  over: 'stop',      // 定員に達したとき … 'stop'（受付を止める）／'accept'（受付は続ける）
+  over_note: '',     // 定員に達したあとに出すお知らせ（出さないときは空）
+  over_parts: null,  // どの部が定員に達しているか {part1, part2}
   avail: { part1: false, part2: false, both: false },
   price: {},
   bank_days: 5,
@@ -115,6 +120,7 @@ async function load() {
     STATE.remain    = r.remain;
     STATE.limit     = r.limit !== false;
     STATE.avail     = r.avail;
+    takeCap(r);
     STATE.price     = r.price || {};
     STATE.bank_days = r.bank_days || 5;
     STATE.test_mode = !!r.test_mode;      // 🧪 テスト決済のボタンを出すか
@@ -161,6 +167,7 @@ async function refreshRemain() {
     STATE.remain = r.remain;
     STATE.limit  = r.limit !== false;
     STATE.avail  = r.avail;
+    takeCap(r);
     paintLp();
   } catch (ignore) {}
 }
@@ -265,15 +272,17 @@ function paintLp() {
         seatHtml(k) +
       '</div>' +
       '<div class="plan__price">' + esc(yen(p.price)) + '<span class="plan__tax">（税込）</span></div>' +
-      (STATE.limit ? '<p class="plan__note">お一人さま　定員' + p.capacity + '名</p>' : '');
+      (STATE.limit ? '<p class="plan__note">お一人さま　定員' + capOf(k) + '名</p>' : '');
   });
 
   // 定員の案内。上限を外しているあいだは出しません（2026-11-21）
   var cn = byId('capacity-note');
   if (cn) {
-    cn.textContent = STATE.limit ? (CONFIG.TEXT.capacity_note || '') : '';
+    cn.textContent = capacityNote();
     cn.hidden = !cn.textContent;
   }
+
+  paintOverNote();
 
   byId('gate-before').hidden  = STATE.phase !== 'before';
   byId('gate-closed').hidden  = STATE.phase !== 'closed';
@@ -291,7 +300,7 @@ function paintLp() {
   if (dl) {
     if (!CONFIG.SHOW_CLOSE_COUNTDOWN && CONFIG.EVENT.close_label) {
       dl.innerHTML = '受付は <b>' + esc(CONFIG.EVENT.close_label) + '</b> まで。' +
-        (STATE.limit ? '定員に達した時点で終了いたします。' : '');
+        (stopAtFull() ? '定員に達した時点で終了いたします。' : '');
       dl.hidden = false;
     } else {
       dl.hidden = true;
@@ -304,11 +313,69 @@ function paintLp() {
   if (oa) oa.textContent = CONFIG.EVENT.open_label;
 }
 
+/* ---- 定員の設定（運営アプリの「定員の設定」で変わります・2026-11-27）---- */
+
+/** GASの答えから、定員まわりの設定を受け取ります */
+function takeCap(r) {
+  STATE.cap_on     = !!r.cap_on;
+  STATE.capacity   = r.capacity || null;
+  STATE.over       = r.over === 'accept' ? 'accept' : 'stop';
+  STATE.over_note  = s(r.over_note);
+  STATE.over_parts = r.over_parts || null;
+}
+
+/** その部の席数。運営アプリで変えた数があれば、そちらを使います */
+function capOf(k) {
+  return (STATE.capacity && STATE.capacity[k]) || CONFIG.PARTS[k].capacity;
+}
+
+/** 定員に達したら受付が止まる設定か */
+function stopAtFull() { return STATE.cap_on && STATE.over === 'stop'; }
+
+/** 定員のご案内（残席を見せない設定のあいだは出しません） */
+function capacityNote() {
+  if (!STATE.limit) return '';
+  var a = capOf('part1'), b = capOf('part2');
+  var seats = (a === b)
+    ? '第1部・第2部ともに、サロン生のお席を各' + a + '名で承ります。'
+    : 'サロン生のお席は、第1部 ' + a + '名・第2部 ' + b + '名で承ります。';
+  return seats + (stopAtFull() ? '定員に達した時点で受付を終了します。' : '');
+}
+
+/** その部（両部なら第1部・第2部のどちらか）が、定員に達しているか */
+function overFor(part) {
+  var o = STATE.over_parts;
+  if (!o) return false;
+  if (part === 'both') return !!(o.part1 || o.part2);
+  return !!o[part];
+}
+
+/**
+ * 定員に達したあとのお知らせ（受付は続ける設定のときだけ、GASが文を返します）
+ *   ・選ぶ画面 … どれかの部が達していたら出します
+ *   ・入力の画面 … お選びの部が達しているときだけ出します
+ */
+function paintOverNote() {
+  var lp = byId('over-note');
+  if (lp) {
+    lp.textContent = STATE.over_note || '';
+    lp.hidden = !STATE.over_note;
+  }
+  var fm = byId('over-note-form');
+  if (fm) {
+    var on = !!STATE.over_note && overFor(STATE.part);
+    fm.textContent = on ? STATE.over_note : '';
+    fm.hidden = !on;
+  }
+}
+
 /** 残席のバッジ */
 function seatHtml(k) {
-  if (!STATE.limit) return '';          // 定員の上限を外しているあいだは出しません
+  if (!STATE.limit) return '';          // 残席を見せない設定のあいだは出しません
   var n = STATE.remain[k];
   if (typeof n !== 'number') return '';
+  // 定員に達しても受付を続けているときは「満席」とは出しません（お知らせの文でお伝えします）
+  if (n <= 0 && STATE.avail && STATE.avail[k]) return '';
   var cls = n <= 0 ? 'seat seat--none' : (n <= 5 ? 'seat seat--few' : 'seat');
   var text = n <= 0 ? '満席' : 'のこり<b>' + n + '</b>席';
   return '<span class="' + cls + '">' + text + '</span>';
@@ -399,7 +466,7 @@ function startCloseCountdown() {
 
   // 「定員になり次第、早期終了」の帯は、上限をかけているときだけ
   var early = box.querySelector('.closecd__early');
-  if (early) early.hidden = !STATE.limit;
+  if (early) early.hidden = !stopAtFull();
 
   var open  = new Date(CONFIG.EVENT.open_at).getTime();
   var close = new Date(CONFIG.EVENT.close_at).getTime();
@@ -525,6 +592,7 @@ function goForm(part) {
   if (showBank) paintPayOptions();
 
   showScreen('screen-form');
+  paintOverNote();
 }
 
 function pickedHtml(part) {
@@ -825,6 +893,16 @@ function paintBank(r) {
     '<div><dt>口座番号</dt><dd>' + esc(b.number || '') + '</dd></div>' +
     '<div><dt>口座名義</dt><dd>' + esc(b.holder || '') + '</dd></div>';
   byId('bank-note').textContent = b.note || '';
+
+  // お振込日は、今日より先の日を選べないようにします（2026-11-27）
+  var pd = byId('f-paidon');
+  if (pd) pd.max = todayYmd();
+}
+
+/** 今日の日付（YYYY-MM-DD・お使いの端末の日付） */
+function todayYmd() {
+  var d = new Date();
+  return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
 }
 
 /** 画面0のボタン */
@@ -846,6 +924,18 @@ function bindDayButtons() {
 
 async function sendBankReport() {
   var btn = byId('btn-bank-report');
+
+  // 先の日付＝まだお振込前。お知らせは、お振込のあとでいただきます（2026-11-27）
+  //   いちど送ると送り直せないので、ここで止めます
+  var pd = s(byId('f-paidon').value);
+  if (pd && pd > todayYmd()) {
+    var be = byId('bank-error');
+    be.textContent = 'お振込日が、今日より先の日付になっています。'
+      + 'お知らせは、お振込がお済みになってからお願いいたします。';
+    be.hidden = false;
+    return;
+  }
+  byId('bank-error').hidden = true;
   busy(btn, true);
   try {
     var r = await api('bank_report', {
@@ -942,9 +1032,20 @@ function mockApi(action, body) {
       ok: true, version: 'mock', phase: Q.get('phase') || 'open',
       test_mode: Q.get('test') === '1',
       remain: remain,
-      limit: Q.get('limit') === '1',     // いまの本番と同じく、上限なしが標準
-      avail: { part1: remain.part1 > 0, part2: remain.part2 > 0,
-               both: remain.part1 > 0 && remain.part2 > 0 },
+      /* 定員の見本。?cap=1 定員を使う／?limit=1 残席も見せる／?over=accept 達しても受付を続ける
+         例）?mock=1&cap=1&limit=1&over=accept&remain=0,3 */
+      limit: Q.get('limit') === '1',     // いまの本番と同じく、出さないのが標準
+      cap_on: Q.get('cap') === '1' || Q.get('limit') === '1',
+      capacity: Q.get('limit') === '1' ? { part1: 40, part2: 40 } : null,
+      over: Q.get('over') === 'accept' ? 'accept' : 'stop',
+      over_note: (Q.get('over') === 'accept' && (remain.part1 <= 0 || remain.part2 <= 0))
+        ? '定員に達したため、立ち見になる場合もございますのでご了承ください。' : '',
+      over_parts: Q.get('over') === 'accept'
+        ? { part1: remain.part1 <= 0, part2: remain.part2 <= 0 } : null,
+      avail: (Q.get('over') === 'accept')
+        ? { part1: true, part2: true, both: true }
+        : { part1: remain.part1 > 0, part2: remain.part2 > 0,
+            both: remain.part1 > 0 && remain.part2 > 0 },
       price: { part1: CONFIG.PARTS.part1.price, part2: CONFIG.PARTS.part2.price,
                both: CONFIG.PARTS.both.price },
       bank_days: 5

@@ -181,6 +181,21 @@
   .tag.st.done{background:var(--green-soft);color:var(--green);border-color:transparent}
   .tag.rep{background:#c0392b;color:#fff}
   .tag.over{background:#96382a;color:#fff}
+  .tag.capover{background:#d9741a;color:#fff}
+  /* 定員の設定（2026-11-27） */
+  .cap{display:flex;flex-direction:column;gap:.55rem;margin-top:.5rem}
+  .cap__row{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;font-size:.84rem}
+  .cap__row>span:first-child{flex:none;width:9.5em;color:var(--ink-soft);font-weight:700}
+  .cap__row--col{align-items:flex-start}
+  .cap select,.cap input,.cap textarea{font:inherit;font-size:.86rem;padding:.4rem .6rem;border-radius:8px;
+    border:1.5px solid var(--line);background:var(--card);color:var(--ink);max-width:100%}
+  .cap input[type=number]{width:5.5em;text-align:right}
+  .cap textarea{flex:1;min-width:14em;line-height:1.7;resize:vertical}
+  .cap__sub{display:flex;flex-direction:column;gap:.55rem}
+  .cap__sub[hidden]{display:none}
+  .cap__now{margin:.1rem 0 0;font-size:.78rem;color:var(--ink-soft);line-height:1.7}
+  .cap__foot{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap}
+  .cap__dirty{font-size:.78rem;font-weight:700;color:#c0392b}
   .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:.15rem .9rem;font-size:.83rem}
   .facts div{display:flex;gap:.45rem}
   .facts .k{color:var(--ink-faint);white-space:nowrap;min-width:5.2em}
@@ -289,6 +304,59 @@
       </div>
 
       <div class="sw">
+        <div class="sw__t" style="flex:1">
+          <b>🪑 定員の設定</b>
+          <span class="sw__d">
+            変えたら <b>「保存する」</b> を押してください。その場で受付ページに効きます。
+          </span>
+          <div class="cap" id="cap">
+            <label class="cap__row"><span>定員を使う</span>
+              <select id="cap-on">
+                <option value="false">使わない（上限なし）</option>
+                <option value="true">使う</option>
+              </select></label>
+
+            <div class="cap__sub" id="cap-more">
+              <label class="cap__row"><span>第1部の席数</span>
+                <input type="number" id="cap-part1" min="1" max="999" step="1" inputmode="numeric"> 名</label>
+              <label class="cap__row"><span>第2部の席数</span>
+                <input type="number" id="cap-part2" min="1" max="999" step="1" inputmode="numeric"> 名</label>
+              <label class="cap__row"><span>残席を見せる</span>
+                <select id="cap-show">
+                  <option value="false">見せない</option>
+                  <option value="true">見せる（定員○名・のこり○席）</option>
+                </select></label>
+              <label class="cap__row"><span>定員に達したとき</span>
+                <select id="cap-over">
+                  <option value="accept">受付は続ける</option>
+                  <option value="stop">受付を止める（満席の表示）</option>
+                </select></label>
+
+              <div class="cap__sub" id="cap-accept">
+                <label class="cap__row"><span>達したあとのお知らせ</span>
+                  <select id="cap-notice">
+                    <option value="true">お客様の画面に出す</option>
+                    <option value="false">出さない</option>
+                  </select></label>
+                <label class="cap__row cap__row--col"><span>お知らせの文</span>
+                  <textarea id="cap-text" rows="2" maxlength="200"></textarea></label>
+                <span class="sw__d">
+                  定員に達したあとのお申し込みは、<b>シートのA〜F列に色</b>が付き、
+                  この一覧にも <b>「定員後」</b> の印が出ます。
+                </span>
+              </div>
+            </div>
+
+            <p class="cap__now" id="cap-now"></p>
+            <div class="cap__foot">
+              <button type="button" class="btn" id="btn-cap-save" style="font-size:.84rem;padding:.45rem 1.3rem">保存する</button>
+              <span class="cap__dirty" id="cap-dirty" hidden>まだ保存していません</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sw">
         <div class="sw__t">
           <b>⌛ 期限切れをまとめて処理する</b>
           <span class="sw__d">
@@ -384,6 +452,9 @@ function errText(e) {
     not_bank:   'お振込のお申し込みではありません。',
     soldout:    'お席が埋まっているため、戻せませんでした。',
     bad_state:  'その状態には変えられません。',
+    bad_seats:  '席数は 1〜999 の数字でご入力ください。',
+    bad_over:   '「定員に達したとき」の選び方が読み取れませんでした。',
+    unknown_action: 'この操作は、まだGASに入っていません（GASの更新が必要です）。',
     bad_part:   '参加部が読み取れませんでした。シートのE列をご確認ください。'
   };
   return map[e] || String(e || '');
@@ -439,6 +510,7 @@ function show(r) {
   $('btn-logout').hidden = false;
 
   paintFlags(r.flags || {});
+  paintCap();
   paintKpis();
   paintTabs();
   paintList();
@@ -469,6 +541,7 @@ function paintFlags(f) {
   $('sw-now').innerHTML = on.length
     ? ('設定　<b>' + on.join('　') + '</b>')
     : '設定　募集期間どおり／受付は通常';
+  $('sw-now').innerHTML += '　／　' + esc(capLine(data && data.cap));
 
   const det = $('switches');
   if (on.length && !det.dataset.touched) det.open = true;
@@ -556,6 +629,101 @@ document.addEventListener('click', async (ev) => {
   }
 });
 
+/* ---------- 定員の設定（2026-11-27） ---------- */
+let capDirty = false;     // 入力の途中かどうか（途中のあいだは、自動の読み直しで上書きしません）
+
+/** 畳んだ見出しに出す一行 */
+function capLine(c) {
+  if (!c || !c.on) return '定員なし';
+  return '🪑 定員 第1部' + c.part1 + '名・第2部' + c.part2 + '名（' +
+    (c.over === 'accept' ? '達しても受付を続ける' : '達したら受付を止める') + '）';
+}
+
+function capShowHide() {
+  $('cap-more').hidden   = $('cap-on').value !== 'true';
+  $('cap-accept').hidden = $('cap-over').value !== 'accept';
+  $('cap-text').closest('label').hidden = $('cap-notice').value !== 'true';
+}
+
+function paintCap() {
+  const c = (data && data.cap) || null;
+  $('cap').hidden = !c;
+  if (!c) return;
+
+  const u = data.used || {};
+  $('cap-now').textContent = 'いまのお申し込み：第1部 ' + (u.part1 || 0) + '名・第2部 ' + (u.part2 || 0) +
+    '名（決済済み・振込待ち・入金確認済みの合計）';
+
+  if (capDirty) return;        // 入力の途中は、いじりません
+  $('cap-on').value     = c.on ? 'true' : 'false';
+  $('cap-part1').value  = c.part1;
+  $('cap-part2').value  = c.part2;
+  $('cap-show').value   = c.show ? 'true' : 'false';
+  $('cap-over').value   = c.over === 'stop' ? 'stop' : 'accept';
+  $('cap-notice').value = c.notice ? 'true' : 'false';
+  $('cap-text').value   = c.notice_text || '';
+  capShowHide();
+}
+
+$('cap').addEventListener('input', () => {
+  capDirty = true;
+  $('cap-dirty').hidden = false;
+  capShowHide();
+});
+
+$('btn-cap-save').addEventListener('click', async () => {
+  const on = $('cap-on').value === 'true';
+  const p1 = Number($('cap-part1').value), p2 = Number($('cap-part2').value);
+  const okN = (n) => Number.isInteger(n) && n >= 1 && n <= 999;
+  if (!okN(p1) || !okN(p2)) { toast('席数は 1〜999 の数字でご入力ください。', true); return; }
+
+  const next = {
+    on: on, part1: p1, part2: p2,
+    show: $('cap-show').value === 'true',
+    over: $('cap-over').value === 'stop' ? 'stop' : 'accept',
+    notice: $('cap-notice').value === 'true',
+    notice_text: $('cap-text').value.trim()
+  };
+
+  const u = data.used || {};
+  const lines = [];
+  if (!on) {
+    lines.push('定員を使いません（上限なし）。', '受付ページに、定員・残席は出ません。');
+  } else {
+    lines.push('定員：第1部 ' + p1 + '名・第2部 ' + p2 + '名',
+      '（いまのお申し込み：第1部 ' + (u.part1 || 0) + '名・第2部 ' + (u.part2 || 0) + '名）',
+      '残席：' + (next.show ? 'お客様の画面に見せます' : '見せません'),
+      '定員に達したとき：' + (next.over === 'stop' ? '受付を止めます（満席の表示）' : '受付は続けます'));
+    if (next.over === 'accept') {
+      lines.push('達したあとのお知らせ：' + (next.notice ? '出します' : '出しません'));
+      if (next.notice) lines.push('「' + (next.notice_text || '（はじめの文に戻します）') + '」');
+    }
+    const over1 = (u.part1 || 0) >= p1, over2 = (u.part2 || 0) >= p2;
+    if (over1 || over2) {
+      lines.push('', '⚠ ' + [over1 ? '第1部' : '', over2 ? '第2部' : ''].filter(Boolean).join('・') +
+        ' は、もうこの席数に達しています。' +
+        (next.over === 'stop' ? '保存すると、すぐに満席の表示になります。'
+                              : '保存すると、このあとのお申し込みから色が付きます。'));
+    }
+  }
+  if (!confirm('定員の設定を、次のとおり保存します。\n\n' + lines.join('\n') + '\n\nよろしいですか？')) return;
+
+  const b = $('btn-cap-save');
+  b.disabled = true;
+  try {
+    const r = await api('admin_capacity', next);
+    if (!r || r.ok === false) throw new Error(errText(r && r.error) || '保存できませんでした');
+    capDirty = false;
+    $('cap-dirty').hidden = true;
+    toast('定員の設定を保存しました');
+    await load(false);
+  } catch (err) {
+    toast(String(err.message || err), true);
+  } finally {
+    b.disabled = false;
+  }
+});
+
 /* ---------- 期限切れをまとめて処理 ---------- */
 $('btn-expire').addEventListener('click', async () => {
   if (!confirm('振込の期限を過ぎた「振込待ち」を「期限切れ」にします。\n\nお席はその分だけ空きます。入金が済んでいる方には触りません。\n\nよろしいですか？')) return;
@@ -580,7 +748,7 @@ function paintKpis() {
   const cap = data.capacity || {};
   const few = (n) => (Number(n) <= 5) ? ' few' : '';
 
-  /* 定員の上限を外しているあいだ（GAS側 CAPACITY_ON = false）は、
+  /* 定員を使っていないあいだ（「定員の設定」が「使わない」）は、
      「残り○席」ではなく「お申し込み○名」を出します（2026-11-21） */
   const noLimit = data.limit === false;
   const used = data.used || {};
@@ -590,8 +758,8 @@ function paintKpis() {
         { l: '第2部 お申し込み', v: used.part2 || 0, sub: '名', cls: 'seat' }
       ]
     : [
-        { l: '第1部 残り', v: rem.part1, sub: '／' + (cap.part1 || 0) + '席', cls: 'seat' + few(rem.part1) },
-        { l: '第2部 残り', v: rem.part2, sub: '／' + (cap.part2 || 0) + '席', cls: 'seat' + few(rem.part2) }
+        { l: '第1部 残り', v: rem.part1, sub: '／' + (cap.part1 || 0) + '席（申込' + (used.part1 || 0) + '名）', cls: 'seat' + few(rem.part1) },
+        { l: '第2部 残り', v: rem.part2, sub: '／' + (cap.part2 || 0) + '席（申込' + (used.part2 || 0) + '名）', cls: 'seat' + few(rem.part2) }
       ];
 
   const cards = seats.concat([
@@ -717,6 +885,7 @@ function card(p) {
       stTag(p.state) +
       (p.todo    ? '<span class="tag rep">振込のご連絡あり</span>' : '') +
       (p.overdue ? '<span class="tag over">期限切れ</span>' : '') +
+      (p.over    ? '<span class="tag capover">定員後</span>' : '') +
     '</div>' +
     '<div class="facts">' + facts.map(f =>
       '<div><span class="k">' + f[0] + '</span><span class="v ' + f[2] + '">' + f[1] + '</span></div>'
@@ -765,7 +934,14 @@ document.addEventListener('click', async (ev) => {
 const MOCK_FLAGS = { gate_off: false, stopped: false, phase: 'open',
   open_at: '11月27日（金）10:00', close_at: '12月4日（金）23:59', bank_days: 5 };
 
+const MOCK_CAP = { on: false, part1: 40, part2: 40, show: false, over: 'accept', notice: true,
+  notice_text: '定員に達したため、立ち見になる場合もございますのでご了承ください。' };
+
 function mockApi(action, body) {
+  if (action === 'admin_capacity') {
+    Object.assign(MOCK_CAP, body);
+    return Promise.resolve({ ok: true, cap: MOCK_CAP });
+  }
   if (action === 'admin_flag') {
     MOCK_FLAGS[body.key] = (body.value === 'true');
     MOCK_FLAGS.phase = MOCK_FLAGS.stopped ? 'closed' : 'open';
@@ -800,15 +976,16 @@ function mockApi(action, body) {
     { row: 6, time: '2026/11/27 10:06', uid: 'U-mock-0006', sns: 'さぶろう', name: '凛穏 三郎',
       part: 'part2', part_label: '2部参加', part_disp: '第2部', price: 8000,
       state: '決済待ち', paid_at: '', method: '', limit: '',
-      overdue: false, order: 'Pmock6', memo: '', bname: '', bdate: '', brep: '', todo: false }
+      overdue: false, over: true, order: 'Pmock6', memo: '', bname: '', bdate: '', brep: '', todo: false }
   ];
 
   return Promise.resolve({
     ok: true, version: 'v1.3.0（見本）', now: '2026/11/29 12:00:00',
     flags: MOCK_FLAGS,
-    capacity: { part1: 40, part2: 40 },
-    remain: { part1: 37, part2: 38 },
-    limit: false, used: { part1: 3, part2: 2 },
+    capacity: { part1: MOCK_CAP.part1, part2: MOCK_CAP.part2 },
+    remain: { part1: Math.max(MOCK_CAP.part1 - 3, 0), part2: Math.max(MOCK_CAP.part2 - 2, 0) },
+    limit: MOCK_CAP.on, used: { part1: 3, part2: 2 },
+    cap: MOCK_CAP,
     price: { part1: 6000, part2: 8000, both: 14000 },
     summary: { total: rows.length, paid: 1, bank: 2, bankok: 1, wait: 1, cancel: 0,
                expire: 0, todo: 1, overdue: 1, yen: 14000 },
